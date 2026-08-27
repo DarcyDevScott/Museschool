@@ -66,7 +66,9 @@
     var seen = {};
     MS.QUIZ.forEach(function (section) {
       section.questions.forEach(function (q) {
-        if (q.type === 'scale' && typeof answers[q.id] === 'number') seen[q.dim] = true;
+        // Only real dimensions; the attachment axes are a separate profile.
+        if (q.type === 'scale' && MS.DIMENSIONS[q.dim] &&
+            typeof answers[q.id] === 'number') seen[q.dim] = true;
       });
     });
     var keys = MS.DIM_KEYS.filter(function (k) { return seen[k]; });
@@ -79,7 +81,7 @@
 
     MS.QUIZ.forEach(function (section) {
       section.questions.forEach(function (q) {
-        if (q.type !== 'scale') return;
+        if (q.type !== 'scale' || !MS.DIMENSIONS[q.dim]) return;
         var v = answers[q.id];
         if (typeof v !== 'number') return;
         if (q.reverse) v = 6 - v;
@@ -95,6 +97,141 @@
         : 50;
     });
     return out;
+  };
+
+  /* ---------- how much to trust the answers ----------
+   *
+   * The plan is only ever as good as the self-report behind it, and
+   * self-report has known failure modes. This does not judge the person: it
+   * looks for the three patterns that make a set of answers mean less, and
+   * says so plainly rather than producing a confident-looking plan on top of
+   * noise.
+   */
+  MS.responseQuality = function (answers) {
+    var items = [];
+    MS.QUIZ.forEach(function (sec) {
+      sec.questions.forEach(function (q) {
+        if (q.type === 'scale' && MS.DIMENSIONS[q.dim] &&
+            typeof answers[q.id] === 'number') items.push(q);
+      });
+    });
+    if (items.length < 12) return null;
+
+    var mean = function (a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; };
+    var sd = function (a) {
+      if (a.length < 2) return 0;
+      var m = mean(a);
+      return Math.sqrt(mean(a.map(function (v) { return (v - m) * (v - m); })));
+    };
+
+    // Raw answers, and the same answers turned so that high always means
+    // "more of this dimension".
+    var raw = items.map(function (q) { return answers[q.id]; });
+    var byDim = {}, fw = {}, rv = {};
+    items.forEach(function (q) {
+      var v = answers[q.id];
+      var norm = ((q.reverse ? 6 - v : v) - 1) / 4 * 100;
+      (byDim[q.dim] = byDim[q.dim] || []).push(norm);
+      var b = q.reverse ? rv : fw;
+      (b[q.dim] = b[q.dim] || []).push(norm);
+    });
+
+    // 1. Straight-lining — the same button regardless of the question. Measured
+    // as spread across the whole set, not consecutive runs: adjacent items
+    // share a dimension, so a coherent person legitimately repeats answers.
+    var distinct = new Set(raw).size;
+    var spread = sd(raw);
+
+    // 2. Incoherence — within one dimension the items should broadly agree once
+    // reverse-worded ones are turned round. Wide scatter means the answers are
+    // not tracking anything, which is what careless or rushed responding
+    // looks like from the outside.
+    var scatter = mean(Object.keys(byDim)
+      .filter(function (d) { return byDim[d].length >= 3; })
+      .map(function (d) { return sd(byDim[d]); }));
+
+    // 3. Acquiescence — agreeing with whatever is put in front of you. Shows up
+    // as the plainly-worded items and the reverse-worded ones disagreeing.
+    var conflicted = Object.keys(fw)
+      .filter(function (d) { return rv[d] && rv[d].length && fw[d].length; })
+      .map(function (d) { return { dim: d, gap: Math.abs(mean(fw[d]) - mean(rv[d])) }; })
+      .filter(function (x) { return x.gap >= 40; })
+      .sort(function (a, b) { return b.gap - a.gap; });
+
+    var flags = [];
+    // Thresholds calibrated against simulated respondents: honest profiles
+    // (including consistently harsh and consistently flattering ones) sit well
+    // inside them; straight-lined, random and acquiescent sets sit well outside.
+    if (distinct <= 2) flags.push('straightline');
+    if (scatter >= 26) flags.push('incoherent');
+    if (conflicted.length >= 3) flags.push('acquiescent');
+
+    return {
+      items: items.length,
+      distinct: distinct,
+      spread: Math.round(spread * 100) / 100,
+      scatter: Math.round(scatter),
+      conflicted: conflicted,
+      flags: flags,
+      verdict: flags.length === 0 ? 'consistent' : (flags.length === 1 ? 'mixed' : 'noisy')
+    };
+  };
+
+  /* ---------- attachment ----------
+   *
+   * Two axes — fear of abandonment, and discomfort with closeness — which is
+   * the standard two-dimensional model in adult attachment research. The items
+   * are written for this app on those constructs; they are NOT the ECR-R or
+   * any other validated instrument, and the split at the midpoint is a plain
+   * cutoff rather than a norm-referenced classification. It is a lens, not a
+   * diagnosis, and the app says so.
+   */
+  var ATTACH = {
+    secure: {
+      label: 'Fairly secure',
+      read: 'You can be close without losing yourself in it, and apart without assuming the worst. That is the base most of this work is trying to build, so you are starting from it rather than toward it.',
+      watch: 'The risk for you is complacency — assuming the connection maintains itself.'
+    },
+    anxious: {
+      label: 'Leans anxious',
+      read: 'Distance reads as danger to you. When someone goes quiet you fill the silence with the worst available explanation, and then act on it — texting again, checking, pressing for reassurance. The feeling is real; the conclusion it points to usually is not.',
+      watch: 'Your work is tolerating the gap without discharging it. Almost everything you would instinctively do to feel better makes the thing you fear more likely.'
+    },
+    avoidant: {
+      label: 'Leans avoidant',
+      read: 'Closeness itself raises your temperature, so you manage it by keeping some distance — staying busy, staying reasonable, handling it alone. It rarely looks like a problem from the inside, which is exactly why it goes unaddressed for years.',
+      watch: 'Your work is staying in the room ten minutes longer than is comfortable, and letting someone see you before you have it sorted.'
+    },
+    fearful: {
+      label: 'Both at once',
+      read: 'You score high on both: you want closeness badly and it alarms you. That produces the pattern where you pursue, get it, and then need air — which reads to the other person as changing your mind about them.',
+      watch: 'The thing that helps most is naming the whiplash out loud rather than acting it out. Both halves are real and neither is the whole story.'
+    }
+  };
+
+  MS.ATTACH = ATTACH;
+
+  MS.attachment = function (answers) {
+    function axis(prefix) {
+      var sum = 0, n = 0;
+      MS.QUIZ.forEach(function (sec) {
+        sec.questions.forEach(function (q) {
+          if (q.dim !== prefix || typeof answers[q.id] !== 'number') return;
+          sum += q.reverse ? 6 - answers[q.id] : answers[q.id];
+          n++;
+        });
+      });
+      return n ? Math.round(((sum - n) / (4 * n)) * 100) : null;
+    }
+    var anx = axis('attachAnx'), avo = axis('attachAvo');
+    if (anx === null || avo === null) return null;
+    var style = anx >= 50
+      ? (avo >= 50 ? 'fearful' : 'anxious')
+      : (avo >= 50 ? 'avoidant' : 'secure');
+    return {
+      anxiety: anx, avoidance: avo, style: style,
+      label: ATTACH[style].label, read: ATTACH[style].read, watch: ATTACH[style].watch
+    };
   };
 
   /* ---------- plan generation ---------- */
@@ -160,6 +297,10 @@
         dims.indexOf('partnership') !== -1) tracks.push('partner');
     if (answers.kids && answers.kids !== 'none') tracks.push('parenting');
 
+    // The attachment style gates its own small set of tasks and lessons.
+    var attach = MS.attachment(answers);
+    if (attach && attach.style !== 'secure') tracks.push('att_' + attach.style);
+
     var minutes = parseInt(answers.minutes || '20', 10);
 
     // The anchor is the daily habit for the primary keystone. With a bigger
@@ -189,6 +330,7 @@
       keystones: keystones,
       strength: strength,
       relationship: isRel,
+      attachment: attach,
       tracks: tracks,
       minutes: minutes,
       days: parseInt(answers.days || '6', 10),

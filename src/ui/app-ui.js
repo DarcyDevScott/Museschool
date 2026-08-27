@@ -189,6 +189,7 @@
         return '<div class="card card-tight"><h3>' + esc(D[k].label) + '</h3>' +
           '<p class="muted small" style="margin:6px 0 0">' + esc(MS.DIM_READ[k]) + '</p></div>';
       }).join('') +
+      (plan.attachment ? U.attachmentCard(plan.attachment) : '') +
       (plan.relationship ? U.relationshipNote(st) : '') +
       '<hr class="divider">' +
       '<div style="margin-top:16px">' + U.phaseList(plan, info.phaseN) + '</div>' +
@@ -595,6 +596,17 @@
     switch (act) {
       case 'quiz-start':
         MS.view = 'quiz'; break;
+
+      case 'quiz-redo':
+        MS.QUIZ.forEach(function (sec) {
+          sec.questions.forEach(function (q) {
+            if (q.type === 'scale') delete st.answers[q.id];
+          });
+        });
+        st.plan = null; st.quizSection = 0; MS.store.save();
+        MS.view = 'quiz';
+        U.toast('Scales cleared. Your goals are kept.');
+        break;
 
       case 'quiz-restart':
         st.answers = {}; st.quizSection = 0; MS.store.save();

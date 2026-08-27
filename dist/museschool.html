@@ -625,6 +625,28 @@ textarea { min-height: 118px; line-height: 1.55; }
     },
 
     {
+      id: 'attachment',
+      title: 'How you are with closeness',
+      blurb: 'Two things get measured here, and neither is a fault: how much you fear being left, and how much closeness itself makes you want space. Most people are somewhere on both.',
+      when: function (a) {
+        var g = Array.isArray(a.goals) ? a.goals : [];
+        return ['relationship', 'partnership', 'connection'].some(function (k) {
+          return a.primaryGoal === k || g.indexOf(k) !== -1;
+        }) || (a.kids && a.kids !== 'none');
+      },
+      questions: [
+        scale('att_a1', 'attachAnx', 'I worry that people close to me will stop caring.'),
+        scale('att_a2', 'attachAnx', 'I need a fair amount of reassurance that I am wanted.'),
+        scale('att_a3', 'attachAnx', 'When someone I care about goes quiet, I assume something is wrong.'),
+        scale('att_a4', 'attachAnx', 'I worry I care more about them than they do about me.'),
+        scale('att_v1', 'attachAvo', 'I find it hard to let someone see me struggling.'),
+        scale('att_v2', 'attachAvo', 'I would rather handle things alone than lean on anyone.'),
+        scale('att_v3', 'attachAvo', 'When someone gets very close, I notice myself pulling back.'),
+        scale('att_v4', 'attachAvo', 'Talking about feelings with a partner is uncomfortable for me.')
+      ]
+    },
+
+    {
       id: 'partnership',
       title: 'As a partner',
       blurb: 'The ordinary daily mechanics of being someone to live with. Answer about how you have been, not how you mean to be.',
@@ -814,6 +836,8 @@ textarea { min-height: 118px; line-height: 1.55; }
  *             relationship  a rupture to repair
  *             partner       has a partner, or wants one back
  *             parenting     has children
+ *             att_anxious / att_avoidant / att_fearful
+ *                           the attachment profile, where it is not secure
  *           Partner tasks are written to work whether or not you currently
  *           live with the person — the skills are the same either way.
  */
@@ -1211,6 +1235,36 @@ textarea { min-height: 118px; line-height: 1.55; }
       title: 'What I wanted, and am not giving',
       detail: 'What did you want from your own parents and not get? Write it. Then write honestly whether you are giving that thing to your children, or whether you have quietly recreated the gap.' },
 
+    /* ---------- PRACTICE: attachment ---------- */
+    { id: 'p_anx1', cat: 'practice', dim: 'regulation', phases: [1,2], min: 10, tags: ['att_anxious'],
+      title: 'Sit in the gap without closing it',
+      detail: 'When you notice the pull to check, message again, or ask whether things are alright — do not. Set a timer for twenty minutes and let the discomfort exist. It peaks and falls on its own. You are proving to yourself that the feeling is survivable without another person switching it off.' },
+    { id: 'p_anx2', cat: 'practice', dim: 'regulation', phases: [2,3], min: 10, tags: ['att_anxious'],
+      title: 'The story and the evidence',
+      detail: 'Write the story your head is telling — "they have gone off me". Then write only what you actually know: the timestamps, the words, the facts. Put them side by side. Nine times in ten the evidence does not carry the story, and seeing that in your own handwriting works better than being told.' },
+    { id: 'p_anx3', cat: 'practice', dim: 'worth', phases: [2,3,4], min: 10, tags: ['att_anxious'],
+      title: 'Soothe first, then reach',
+      detail: 'The rule is not "never reach out". It is never reach out from the spike. Walk, breathe, do something physical until you are back under your own control, and then decide whether you still want to. What you send from the calm side is almost never what you would have sent from the other one.' },
+    { id: 'p_avo1', cat: 'practice', dim: 'communication', phases: [1,2], min: 10, tags: ['att_avoidant'],
+      title: 'Ten more minutes',
+      detail: 'When a conversation reaches the point where you would normally end it, go on for ten more minutes. Not arguing — staying. The urge to close it down is the thing to work on, and it does not weaken by being obeyed.' },
+    { id: 'p_avo2', cat: 'practice', dim: 'worth', phases: [2,3], min: 10, tags: ['att_avoidant'],
+      title: 'Let someone see it unfinished',
+      detail: 'Tell one person about something while it is still going wrong, rather than after you have handled it. The instinct to present only the resolved version is what keeps people at a polite distance for years without either side quite noticing.' },
+    { id: 'p_avo3', cat: 'practice', dim: 'communication', phases: [3,4], min: 10, tags: ['att_avoidant'],
+      title: 'Say the need out loud',
+      detail: 'One sentence beginning "I need" or "I would like", said to a person rather than solved privately. Self-sufficiency is a genuine strength and it is also how you keep people out. Both are true.' },
+    { id: 'p_fear1', cat: 'practice', dim: 'regulation', phases: [2,3], min: 10, tags: ['att_fearful'],
+      title: 'Name the whiplash',
+      detail: 'When you notice yourself wanting them close and then wanting air within the same day, say so out loud rather than acting it out: "I want this and it is also frightening me." Unspoken, that pattern reads to the other person as you changing your mind about them.' },
+    { id: 'p_fear2', cat: 'practice', dim: 'consistency', phases: [1,2,3,4], min: 5, tags: ['att_fearful'],
+      title: 'One steady thing',
+      detail: 'Pick one small predictable thing you do for or with them, and do it regardless of which way you are swinging that day. Consistency you can feel from the outside is worth more than any explanation of what is happening inside.' },
+    { id: 'j_att1', cat: 'reflect', dim: 'ownership', phases: [2,3], min: 10,
+      tags: ['att_anxious', 'att_avoidant', 'att_fearful'],
+      title: 'Where did this get learned?',
+      detail: 'Write about the first relationship where you learned what closeness costs. Not to blame anyone — to see that the pattern was a reasonable adaptation to something, and that the something is probably no longer true.' },
+
     /* ---------- Short forms: keep the ten-minute tier honest ---------- */
     { id: 'j_s1', cat: 'reflect', dim: 'regulation', phases: [1,2,3,4], min: 5,
       title: 'Three lines before bed',
@@ -1269,6 +1323,19 @@ textarea { min-height: 118px; line-height: 1.55; }
         'The reason it matters so much is that it accumulates invisibly. Nobody leaves because of one ignored comment. They leave after several thousand of them, at which point the story they tell is "we drifted apart", which is the phrase people use when they cannot see what actually happened.'
       ],
       practice: 'Today, catch one bid you would normally have missed and turn toward it properly. Put the phone down first.'
+    },
+    {
+      id: 'l_attach', track: 'partner', min: 5,
+      title: 'What closeness does to people',
+      dek: 'Two dials — fear of being left, and discomfort with being close.',
+      body: [
+        'Adult attachment research describes how people behave in close relationships using two fairly stable dials rather than types. One is how much you fear being abandoned. The other is how uncomfortable closeness and dependence make you.',
+        'Low on both is what gets called secure: able to be close without losing yourself, able to be apart without assuming the worst. High on the first dial and distance feels like danger, so you press — text again, seek reassurance, need to resolve it tonight. High on the second and closeness raises your temperature, so you manage it with distance: stay busy, stay reasonable, handle it alone.',
+        'Neither is a character flaw and neither is fixed. They are learned strategies that made sense somewhere, and they update — slowly, through experience rather than insight.',
+        'The reason this matters more than almost anything else here: the two patterns lock together. A person who presses and a person who retreats will reliably produce each other, each convinced they are responding reasonably to the other. Recognising your dial does not excuse your half. It tells you which half is yours.',
+        'One caution. Knowing your pattern is useful as a description of what you tend to do. It is not a licence — "I am avoidant" is an explanation, not a permission slip, and the same goes the other way.'
+      ],
+      practice: 'Name which dial runs higher for you, and one specific thing you did in the last month that it explains.'
     },
     {
       id: 'l_horsemen', track: 'partner', min: 5,
@@ -1675,7 +1742,9 @@ textarea { min-height: 118px; line-height: 1.55; }
     var seen = {};
     MS.QUIZ.forEach(function (section) {
       section.questions.forEach(function (q) {
-        if (q.type === 'scale' && typeof answers[q.id] === 'number') seen[q.dim] = true;
+        // Only real dimensions; the attachment axes are a separate profile.
+        if (q.type === 'scale' && MS.DIMENSIONS[q.dim] &&
+            typeof answers[q.id] === 'number') seen[q.dim] = true;
       });
     });
     var keys = MS.DIM_KEYS.filter(function (k) { return seen[k]; });
@@ -1688,7 +1757,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 
     MS.QUIZ.forEach(function (section) {
       section.questions.forEach(function (q) {
-        if (q.type !== 'scale') return;
+        if (q.type !== 'scale' || !MS.DIMENSIONS[q.dim]) return;
         var v = answers[q.id];
         if (typeof v !== 'number') return;
         if (q.reverse) v = 6 - v;
@@ -1704,6 +1773,141 @@ textarea { min-height: 118px; line-height: 1.55; }
         : 50;
     });
     return out;
+  };
+
+  /* ---------- how much to trust the answers ----------
+   *
+   * The plan is only ever as good as the self-report behind it, and
+   * self-report has known failure modes. This does not judge the person: it
+   * looks for the three patterns that make a set of answers mean less, and
+   * says so plainly rather than producing a confident-looking plan on top of
+   * noise.
+   */
+  MS.responseQuality = function (answers) {
+    var items = [];
+    MS.QUIZ.forEach(function (sec) {
+      sec.questions.forEach(function (q) {
+        if (q.type === 'scale' && MS.DIMENSIONS[q.dim] &&
+            typeof answers[q.id] === 'number') items.push(q);
+      });
+    });
+    if (items.length < 12) return null;
+
+    var mean = function (a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; };
+    var sd = function (a) {
+      if (a.length < 2) return 0;
+      var m = mean(a);
+      return Math.sqrt(mean(a.map(function (v) { return (v - m) * (v - m); })));
+    };
+
+    // Raw answers, and the same answers turned so that high always means
+    // "more of this dimension".
+    var raw = items.map(function (q) { return answers[q.id]; });
+    var byDim = {}, fw = {}, rv = {};
+    items.forEach(function (q) {
+      var v = answers[q.id];
+      var norm = ((q.reverse ? 6 - v : v) - 1) / 4 * 100;
+      (byDim[q.dim] = byDim[q.dim] || []).push(norm);
+      var b = q.reverse ? rv : fw;
+      (b[q.dim] = b[q.dim] || []).push(norm);
+    });
+
+    // 1. Straight-lining — the same button regardless of the question. Measured
+    // as spread across the whole set, not consecutive runs: adjacent items
+    // share a dimension, so a coherent person legitimately repeats answers.
+    var distinct = new Set(raw).size;
+    var spread = sd(raw);
+
+    // 2. Incoherence — within one dimension the items should broadly agree once
+    // reverse-worded ones are turned round. Wide scatter means the answers are
+    // not tracking anything, which is what careless or rushed responding
+    // looks like from the outside.
+    var scatter = mean(Object.keys(byDim)
+      .filter(function (d) { return byDim[d].length >= 3; })
+      .map(function (d) { return sd(byDim[d]); }));
+
+    // 3. Acquiescence — agreeing with whatever is put in front of you. Shows up
+    // as the plainly-worded items and the reverse-worded ones disagreeing.
+    var conflicted = Object.keys(fw)
+      .filter(function (d) { return rv[d] && rv[d].length && fw[d].length; })
+      .map(function (d) { return { dim: d, gap: Math.abs(mean(fw[d]) - mean(rv[d])) }; })
+      .filter(function (x) { return x.gap >= 40; })
+      .sort(function (a, b) { return b.gap - a.gap; });
+
+    var flags = [];
+    // Thresholds calibrated against simulated respondents: honest profiles
+    // (including consistently harsh and consistently flattering ones) sit well
+    // inside them; straight-lined, random and acquiescent sets sit well outside.
+    if (distinct <= 2) flags.push('straightline');
+    if (scatter >= 26) flags.push('incoherent');
+    if (conflicted.length >= 3) flags.push('acquiescent');
+
+    return {
+      items: items.length,
+      distinct: distinct,
+      spread: Math.round(spread * 100) / 100,
+      scatter: Math.round(scatter),
+      conflicted: conflicted,
+      flags: flags,
+      verdict: flags.length === 0 ? 'consistent' : (flags.length === 1 ? 'mixed' : 'noisy')
+    };
+  };
+
+  /* ---------- attachment ----------
+   *
+   * Two axes — fear of abandonment, and discomfort with closeness — which is
+   * the standard two-dimensional model in adult attachment research. The items
+   * are written for this app on those constructs; they are NOT the ECR-R or
+   * any other validated instrument, and the split at the midpoint is a plain
+   * cutoff rather than a norm-referenced classification. It is a lens, not a
+   * diagnosis, and the app says so.
+   */
+  var ATTACH = {
+    secure: {
+      label: 'Fairly secure',
+      read: 'You can be close without losing yourself in it, and apart without assuming the worst. That is the base most of this work is trying to build, so you are starting from it rather than toward it.',
+      watch: 'The risk for you is complacency — assuming the connection maintains itself.'
+    },
+    anxious: {
+      label: 'Leans anxious',
+      read: 'Distance reads as danger to you. When someone goes quiet you fill the silence with the worst available explanation, and then act on it — texting again, checking, pressing for reassurance. The feeling is real; the conclusion it points to usually is not.',
+      watch: 'Your work is tolerating the gap without discharging it. Almost everything you would instinctively do to feel better makes the thing you fear more likely.'
+    },
+    avoidant: {
+      label: 'Leans avoidant',
+      read: 'Closeness itself raises your temperature, so you manage it by keeping some distance — staying busy, staying reasonable, handling it alone. It rarely looks like a problem from the inside, which is exactly why it goes unaddressed for years.',
+      watch: 'Your work is staying in the room ten minutes longer than is comfortable, and letting someone see you before you have it sorted.'
+    },
+    fearful: {
+      label: 'Both at once',
+      read: 'You score high on both: you want closeness badly and it alarms you. That produces the pattern where you pursue, get it, and then need air — which reads to the other person as changing your mind about them.',
+      watch: 'The thing that helps most is naming the whiplash out loud rather than acting it out. Both halves are real and neither is the whole story.'
+    }
+  };
+
+  MS.ATTACH = ATTACH;
+
+  MS.attachment = function (answers) {
+    function axis(prefix) {
+      var sum = 0, n = 0;
+      MS.QUIZ.forEach(function (sec) {
+        sec.questions.forEach(function (q) {
+          if (q.dim !== prefix || typeof answers[q.id] !== 'number') return;
+          sum += q.reverse ? 6 - answers[q.id] : answers[q.id];
+          n++;
+        });
+      });
+      return n ? Math.round(((sum - n) / (4 * n)) * 100) : null;
+    }
+    var anx = axis('attachAnx'), avo = axis('attachAvo');
+    if (anx === null || avo === null) return null;
+    var style = anx >= 50
+      ? (avo >= 50 ? 'fearful' : 'anxious')
+      : (avo >= 50 ? 'avoidant' : 'secure');
+    return {
+      anxiety: anx, avoidance: avo, style: style,
+      label: ATTACH[style].label, read: ATTACH[style].read, watch: ATTACH[style].watch
+    };
   };
 
   /* ---------- plan generation ---------- */
@@ -1769,6 +1973,10 @@ textarea { min-height: 118px; line-height: 1.55; }
         dims.indexOf('partnership') !== -1) tracks.push('partner');
     if (answers.kids && answers.kids !== 'none') tracks.push('parenting');
 
+    // The attachment style gates its own small set of tasks and lessons.
+    var attach = MS.attachment(answers);
+    if (attach && attach.style !== 'secure') tracks.push('att_' + attach.style);
+
     var minutes = parseInt(answers.minutes || '20', 10);
 
     // The anchor is the daily habit for the primary keystone. With a bigger
@@ -1798,6 +2006,7 @@ textarea { min-height: 118px; line-height: 1.55; }
       keystones: keystones,
       strength: strength,
       relationship: isRel,
+      attachment: attach,
       tracks: tracks,
       minutes: minutes,
       days: parseInt(answers.days || '6', 10),
@@ -2601,6 +2810,9 @@ textarea { min-height: 118px; line-height: 1.55; }
           '<p class="muted" style="margin:8px 0 0">' + esc(MS.DIM_STRENGTH[plan.strength]) + '</p>' +
         '</div>' +
 
+        (plan.attachment ? U.attachmentCard(plan.attachment) : '') +
+        U.qualityCard(st) +
+
         '<hr class="divider">' +
         '<p class="eyebrow">Where you scored</p>' +
         '<div class="bars" style="margin-top:14px">' + U.bars(plan.scores, plan.keystones, null, plan.dims) + '</div>' +
@@ -2659,6 +2871,67 @@ textarea { min-height: 118px; line-height: 1.55; }
   };
 
   /* ---------- shared renderers ---------- */
+
+  U.attachmentCard = function (att) {
+    return '' +
+      '<hr class="divider">' +
+      '<p class="eyebrow">How you are with closeness · ' + esc(att.label) + '</p>' +
+      '<div class="bars" style="margin:14px 0 16px">' +
+        axisRow('Fear of being left', att.anxiety) +
+        axisRow('Discomfort with closeness', att.avoidance) +
+      '</div>' +
+      '<p class="muted">' + esc(att.read) + '</p>' +
+      '<p class="muted" style="margin-bottom:0"><strong>' + esc(att.watch) + '</strong></p>' +
+      '<p class="dim tiny" style="margin-top:14px">These two dials are the standard model in adult ' +
+      'attachment research. The questions behind them were written for this app on those constructs — ' +
+      'they are not the ECR-R or any other validated questionnaire, and the split is a plain midpoint ' +
+      'rather than a clinical cutoff. Treat it as a lens, not a diagnosis.</p>';
+  };
+
+  function axisRow(label, v) {
+    return '<div class="bar-row">' +
+      '<span class="bar-key">' + esc(label) + '</span>' +
+      '<span class="bar"><i style="width:' + v + '%"></i></span>' +
+      '<span class="bar-val">' + v + '</span>' +
+    '</div>';
+  }
+
+  /* How much the plan above is worth, given how the questions were answered. */
+  U.qualityCard = function (st) {
+    var q = MS.responseQuality(st.answers);
+    if (!q) return '';
+
+    var lines = {
+      straightline: 'You used only ' + q.distinct + ' of the five options across ' + q.items +
+        ' questions, so most of them did not really distinguish anything.',
+      incoherent: 'Answers within the same area pulled in different directions more than they usually do, ' +
+        'which tends to mean the questions were going past rather than in.',
+      acquiescent: 'On ' + q.conflicted.length + ' of the areas you agreed both with a statement and with ' +
+        'its opposite. That normally means the wording was being answered rather than the question.'
+    };
+
+    if (q.verdict === 'consistent') {
+      return '<hr class="divider">' +
+        '<p class="eyebrow">How much to trust this</p>' +
+        '<p class="muted small" style="margin-top:10px">Your answers hang together — the plainly-worded ' +
+        'questions and the reversed ones agree, and you used the range. That does not make the reading ' +
+        'true, but it does mean it is built on something.</p>';
+    }
+
+    return '<hr class="divider">' +
+      '<p class="eyebrow">How much to trust this</p>' +
+      '<div class="note" style="margin-top:12px">' +
+        '<strong>' + (q.verdict === 'noisy'
+          ? 'Take the numbers above lightly.'
+          : 'One thing worth knowing.') + '</strong> ' +
+        q.flags.map(function (f) { return lines[f]; }).join(' ') +
+        ' The plan itself is still reasonable — it leans on what you said you wanted as well as how you ' +
+        'scored — but the scores are the weakest part of it.' +
+        '<div style="margin-top:12px">' +
+          '<button class="btn btn-ghost" data-act="quiz-redo">Answer them again</button>' +
+        '</div>' +
+      '</div>';
+  };
 
   U.bars = function (scores, keystones, previous, dims) {
     return (dims || MS.DIM_KEYS)
@@ -2891,6 +3164,7 @@ textarea { min-height: 118px; line-height: 1.55; }
         return '<div class="card card-tight"><h3>' + esc(D[k].label) + '</h3>' +
           '<p class="muted small" style="margin:6px 0 0">' + esc(MS.DIM_READ[k]) + '</p></div>';
       }).join('') +
+      (plan.attachment ? U.attachmentCard(plan.attachment) : '') +
       (plan.relationship ? U.relationshipNote(st) : '') +
       '<hr class="divider">' +
       '<div style="margin-top:16px">' + U.phaseList(plan, info.phaseN) + '</div>' +
@@ -3297,6 +3571,17 @@ textarea { min-height: 118px; line-height: 1.55; }
     switch (act) {
       case 'quiz-start':
         MS.view = 'quiz'; break;
+
+      case 'quiz-redo':
+        MS.QUIZ.forEach(function (sec) {
+          sec.questions.forEach(function (q) {
+            if (q.type === 'scale') delete st.answers[q.id];
+          });
+        });
+        st.plan = null; st.quizSection = 0; MS.store.save();
+        MS.view = 'quiz';
+        U.toast('Scales cleared. Your goals are kept.');
+        break;
 
       case 'quiz-restart':
         st.answers = {}; st.quizSection = 0; MS.store.save();

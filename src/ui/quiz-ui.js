@@ -183,6 +183,9 @@
           '<p class="muted" style="margin:8px 0 0">' + esc(MS.DIM_STRENGTH[plan.strength]) + '</p>' +
         '</div>' +
 
+        (plan.attachment ? U.attachmentCard(plan.attachment) : '') +
+        U.qualityCard(st) +
+
         '<hr class="divider">' +
         '<p class="eyebrow">Where you scored</p>' +
         '<div class="bars" style="margin-top:14px">' + U.bars(plan.scores, plan.keystones, null, plan.dims) + '</div>' +
@@ -241,6 +244,67 @@
   };
 
   /* ---------- shared renderers ---------- */
+
+  U.attachmentCard = function (att) {
+    return '' +
+      '<hr class="divider">' +
+      '<p class="eyebrow">How you are with closeness · ' + esc(att.label) + '</p>' +
+      '<div class="bars" style="margin:14px 0 16px">' +
+        axisRow('Fear of being left', att.anxiety) +
+        axisRow('Discomfort with closeness', att.avoidance) +
+      '</div>' +
+      '<p class="muted">' + esc(att.read) + '</p>' +
+      '<p class="muted" style="margin-bottom:0"><strong>' + esc(att.watch) + '</strong></p>' +
+      '<p class="dim tiny" style="margin-top:14px">These two dials are the standard model in adult ' +
+      'attachment research. The questions behind them were written for this app on those constructs — ' +
+      'they are not the ECR-R or any other validated questionnaire, and the split is a plain midpoint ' +
+      'rather than a clinical cutoff. Treat it as a lens, not a diagnosis.</p>';
+  };
+
+  function axisRow(label, v) {
+    return '<div class="bar-row">' +
+      '<span class="bar-key">' + esc(label) + '</span>' +
+      '<span class="bar"><i style="width:' + v + '%"></i></span>' +
+      '<span class="bar-val">' + v + '</span>' +
+    '</div>';
+  }
+
+  /* How much the plan above is worth, given how the questions were answered. */
+  U.qualityCard = function (st) {
+    var q = MS.responseQuality(st.answers);
+    if (!q) return '';
+
+    var lines = {
+      straightline: 'You used only ' + q.distinct + ' of the five options across ' + q.items +
+        ' questions, so most of them did not really distinguish anything.',
+      incoherent: 'Answers within the same area pulled in different directions more than they usually do, ' +
+        'which tends to mean the questions were going past rather than in.',
+      acquiescent: 'On ' + q.conflicted.length + ' of the areas you agreed both with a statement and with ' +
+        'its opposite. That normally means the wording was being answered rather than the question.'
+    };
+
+    if (q.verdict === 'consistent') {
+      return '<hr class="divider">' +
+        '<p class="eyebrow">How much to trust this</p>' +
+        '<p class="muted small" style="margin-top:10px">Your answers hang together — the plainly-worded ' +
+        'questions and the reversed ones agree, and you used the range. That does not make the reading ' +
+        'true, but it does mean it is built on something.</p>';
+    }
+
+    return '<hr class="divider">' +
+      '<p class="eyebrow">How much to trust this</p>' +
+      '<div class="note" style="margin-top:12px">' +
+        '<strong>' + (q.verdict === 'noisy'
+          ? 'Take the numbers above lightly.'
+          : 'One thing worth knowing.') + '</strong> ' +
+        q.flags.map(function (f) { return lines[f]; }).join(' ') +
+        ' The plan itself is still reasonable — it leans on what you said you wanted as well as how you ' +
+        'scored — but the scores are the weakest part of it.' +
+        '<div style="margin-top:12px">' +
+          '<button class="btn btn-ghost" data-act="quiz-redo">Answer them again</button>' +
+        '</div>' +
+      '</div>';
+  };
 
   U.bars = function (scores, keystones, previous, dims) {
     return (dims || MS.DIM_KEYS)

@@ -10,18 +10,35 @@ they are answered honestly, which is easier when nobody else can read them.
 
 ## How it works
 
-**1 · The questionnaire** — up to 78 questions across 14 sections; sections
+**1 · The questionnaire** — up to 86 questions across 15 sections; sections
 you have no use for are skipped. Ten dimensions get scored: emotional
 steadiness, self-worth, communication, ownership, follow-through, body and
 energy, direction, connection, presence and partnership. Plus what you want,
 what derails you, how you respond to stress, your children if you have any,
 and how many minutes a day you will realistically give this.
 
-**2 · The reading** — two *keystones* (the lowest-scoring things you also
+**2 · How you are with closeness** — two axes, fear of being left and
+discomfort with closeness, which is the standard two-dimensional model in adult
+attachment research. It is a lens over the plan rather than a scored dimension:
+it changes the reading, and it gates a small set of tasks. The items were
+written for this app on those constructs — **they are not the ECR-R or any
+other validated questionnaire**, and the split is a plain midpoint rather than
+a norm-referenced cutoff.
+
+**3 · How much to trust it** — the plan is only as good as the self-report
+under it, so the answers get checked for the three patterns that make a set of
+responses mean less: using only one or two of the five options, answers within
+one area scattering rather than agreeing, and agreeing with both a statement
+and its opposite. Where it finds them it says so on the reveal, instead of
+printing confident numbers over noise. Calibrated against simulated
+respondents: 0% of honest profiles flagged, all of straight-lined, random,
+alternating and acquiescent patterns caught.
+
+**4 · The reading** — two *keystones* (the lowest-scoring things you also
 said you cared about, with a weak physical or emotional floor promoted above
 everything else) and one strength worth leaning on.
 
-**3 · The plan** — twelve weeks in four three-week phases:
+**5 · The plan** — twelve weeks in four three-week phases:
 
 | Phase | Weeks | Focus |
 |---|---|---|
@@ -33,12 +50,12 @@ everything else) and one strength worth leaning on.
 Each phase weights its own base dimensions plus your keystones, and carries
 its own milestones.
 
-**4 · Daily tasks** — an *anchor* that repeats every day, plus a rotating mix
+**6 · Daily tasks** — an *anchor* that repeats every day, plus a rotating mix
 of practice drills, written reflection and outward action. The mix comes from
 a rotating cycle rather than a fixed template, so a ten-minute commitment
 still gets its turn at the written work.
 
-**5 · The reading** — 18 short lessons drawn from mainstream couples and
+**7 · The lessons** — 19 short pieces drawn from mainstream couples and
 family research, mostly Gottman's observational work and Emotionally Focused
 Therapy: bids for connection, the four horsemen, flooding, the pursue–withdraw
 cycle, repair attempts, perpetual problems, what children take from your
@@ -46,9 +63,31 @@ arguments, the invisible mental load, co-parenting apart. One arrives on the
 Today screen every third day, in a sequence that builds; the whole library is
 browsable under Learn.
 
-**6 · Tracking** — tick-off, streaks, an end-of-day mood and energy line, a
+**8 · Tracking** — tick-off, streaks, an end-of-day mood and energy line, a
 journal that collects everything you write, and a re-score at the end of each
 phase so you can see which dimensions actually moved.
+
+### How tailored is it, really
+
+Measured rather than claimed — `test/tailoring.mjs` guards these:
+
+- 200 simulated people produced **200 distinct day-by-day plans**; none repeated
+- two random people share about **half** their tasks over twelve weeks
+- the same stated goals with a different weak spot give **different keystones**
+- a genuinely low score **outranks a stated goal** — saying you want to work on
+  something does not override scoring badly somewhere else
+
+And the honest limits:
+
+- the **four phases, their names, order and text are identical for everyone**.
+  The structure is shared; the emphasis and the daily work are not
+- **milestone wording per dimension is fixed** — the selection varies, the
+  sentences do not
+- with **flat scores the stated goals decide** the keystones outright, because
+  there is nothing else to separate them
+- it is **self-report**, with everything that implies. The check in step 3 finds
+  careless answering; it cannot find a confident, coherent, self-flattering
+  respondent, and no questionnaire can
 
 ### Tracks
 
@@ -60,6 +99,7 @@ they do not have:
 | `relationship` | a rupture you want to repair | ownership and space-giving work |
 | `partner` | having a partner, or wanting one back | the couples skills and lessons |
 | `parenting` | having children | mental load, repair in front of them, co-parenting |
+| `att_*` | a non-secure attachment profile | the specific work for that pattern |
 
 Dimensions drive the daily *drills*; tracks drive the *reading*. That split is
 deliberate — it means a parent whose keystones land on, say, follow-through

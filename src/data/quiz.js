@@ -220,6 +220,28 @@
     },
 
     {
+      id: 'attachment',
+      title: 'How you are with closeness',
+      blurb: 'Two things get measured here, and neither is a fault: how much you fear being left, and how much closeness itself makes you want space. Most people are somewhere on both.',
+      when: function (a) {
+        var g = Array.isArray(a.goals) ? a.goals : [];
+        return ['relationship', 'partnership', 'connection'].some(function (k) {
+          return a.primaryGoal === k || g.indexOf(k) !== -1;
+        }) || (a.kids && a.kids !== 'none');
+      },
+      questions: [
+        scale('att_a1', 'attachAnx', 'I worry that people close to me will stop caring.'),
+        scale('att_a2', 'attachAnx', 'I need a fair amount of reassurance that I am wanted.'),
+        scale('att_a3', 'attachAnx', 'When someone I care about goes quiet, I assume something is wrong.'),
+        scale('att_a4', 'attachAnx', 'I worry I care more about them than they do about me.'),
+        scale('att_v1', 'attachAvo', 'I find it hard to let someone see me struggling.'),
+        scale('att_v2', 'attachAvo', 'I would rather handle things alone than lean on anyone.'),
+        scale('att_v3', 'attachAvo', 'When someone gets very close, I notice myself pulling back.'),
+        scale('att_v4', 'attachAvo', 'Talking about feelings with a partner is uncomfortable for me.')
+      ]
+    },
+
+    {
       id: 'partnership',
       title: 'As a partner',
       blurb: 'The ordinary daily mechanics of being someone to live with. Answer about how you have been, not how you mean to be.',

@@ -12,6 +12,8 @@
  *             relationship  a rupture to repair
  *             partner       has a partner, or wants one back
  *             parenting     has children
+ *             att_anxious / att_avoidant / att_fearful
+ *                           the attachment profile, where it is not secure
  *           Partner tasks are written to work whether or not you currently
  *           live with the person — the skills are the same either way.
  */
@@ -408,6 +410,36 @@
     { id: 'j_kid2', cat: 'reflect', dim: 'ownership', phases: [3,4], min: 10, tags: ['parenting'],
       title: 'What I wanted, and am not giving',
       detail: 'What did you want from your own parents and not get? Write it. Then write honestly whether you are giving that thing to your children, or whether you have quietly recreated the gap.' },
+
+    /* ---------- PRACTICE: attachment ---------- */
+    { id: 'p_anx1', cat: 'practice', dim: 'regulation', phases: [1,2], min: 10, tags: ['att_anxious'],
+      title: 'Sit in the gap without closing it',
+      detail: 'When you notice the pull to check, message again, or ask whether things are alright — do not. Set a timer for twenty minutes and let the discomfort exist. It peaks and falls on its own. You are proving to yourself that the feeling is survivable without another person switching it off.' },
+    { id: 'p_anx2', cat: 'practice', dim: 'regulation', phases: [2,3], min: 10, tags: ['att_anxious'],
+      title: 'The story and the evidence',
+      detail: 'Write the story your head is telling — "they have gone off me". Then write only what you actually know: the timestamps, the words, the facts. Put them side by side. Nine times in ten the evidence does not carry the story, and seeing that in your own handwriting works better than being told.' },
+    { id: 'p_anx3', cat: 'practice', dim: 'worth', phases: [2,3,4], min: 10, tags: ['att_anxious'],
+      title: 'Soothe first, then reach',
+      detail: 'The rule is not "never reach out". It is never reach out from the spike. Walk, breathe, do something physical until you are back under your own control, and then decide whether you still want to. What you send from the calm side is almost never what you would have sent from the other one.' },
+    { id: 'p_avo1', cat: 'practice', dim: 'communication', phases: [1,2], min: 10, tags: ['att_avoidant'],
+      title: 'Ten more minutes',
+      detail: 'When a conversation reaches the point where you would normally end it, go on for ten more minutes. Not arguing — staying. The urge to close it down is the thing to work on, and it does not weaken by being obeyed.' },
+    { id: 'p_avo2', cat: 'practice', dim: 'worth', phases: [2,3], min: 10, tags: ['att_avoidant'],
+      title: 'Let someone see it unfinished',
+      detail: 'Tell one person about something while it is still going wrong, rather than after you have handled it. The instinct to present only the resolved version is what keeps people at a polite distance for years without either side quite noticing.' },
+    { id: 'p_avo3', cat: 'practice', dim: 'communication', phases: [3,4], min: 10, tags: ['att_avoidant'],
+      title: 'Say the need out loud',
+      detail: 'One sentence beginning "I need" or "I would like", said to a person rather than solved privately. Self-sufficiency is a genuine strength and it is also how you keep people out. Both are true.' },
+    { id: 'p_fear1', cat: 'practice', dim: 'regulation', phases: [2,3], min: 10, tags: ['att_fearful'],
+      title: 'Name the whiplash',
+      detail: 'When you notice yourself wanting them close and then wanting air within the same day, say so out loud rather than acting it out: "I want this and it is also frightening me." Unspoken, that pattern reads to the other person as you changing your mind about them.' },
+    { id: 'p_fear2', cat: 'practice', dim: 'consistency', phases: [1,2,3,4], min: 5, tags: ['att_fearful'],
+      title: 'One steady thing',
+      detail: 'Pick one small predictable thing you do for or with them, and do it regardless of which way you are swinging that day. Consistency you can feel from the outside is worth more than any explanation of what is happening inside.' },
+    { id: 'j_att1', cat: 'reflect', dim: 'ownership', phases: [2,3], min: 10,
+      tags: ['att_anxious', 'att_avoidant', 'att_fearful'],
+      title: 'Where did this get learned?',
+      detail: 'Write about the first relationship where you learned what closeness costs. Not to blame anyone — to see that the pattern was a reasonable adaptation to something, and that the something is probably no longer true.' },
 
     /* ---------- Short forms: keep the ten-minute tier honest ---------- */
     { id: 'j_s1', cat: 'reflect', dim: 'regulation', phases: [1,2,3,4], min: 5,

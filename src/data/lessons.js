@@ -28,6 +28,19 @@
       practice: 'Today, catch one bid you would normally have missed and turn toward it properly. Put the phone down first.'
     },
     {
+      id: 'l_attach', track: 'partner', min: 5,
+      title: 'What closeness does to people',
+      dek: 'Two dials — fear of being left, and discomfort with being close.',
+      body: [
+        'Adult attachment research describes how people behave in close relationships using two fairly stable dials rather than types. One is how much you fear being abandoned. The other is how uncomfortable closeness and dependence make you.',
+        'Low on both is what gets called secure: able to be close without losing yourself, able to be apart without assuming the worst. High on the first dial and distance feels like danger, so you press — text again, seek reassurance, need to resolve it tonight. High on the second and closeness raises your temperature, so you manage it with distance: stay busy, stay reasonable, handle it alone.',
+        'Neither is a character flaw and neither is fixed. They are learned strategies that made sense somewhere, and they update — slowly, through experience rather than insight.',
+        'The reason this matters more than almost anything else here: the two patterns lock together. A person who presses and a person who retreats will reliably produce each other, each convinced they are responding reasonably to the other. Recognising your dial does not excuse your half. It tells you which half is yours.',
+        'One caution. Knowing your pattern is useful as a description of what you tend to do. It is not a licence — "I am avoidant" is an explanation, not a permission slip, and the same goes the other way.'
+      ],
+      practice: 'Name which dial runs higher for you, and one specific thing you did in the last month that it explains.'
+    },
+    {
       id: 'l_horsemen', track: 'partner', min: 5,
       title: 'The four that do the damage',
       dek: 'Criticism, contempt, defensiveness, stonewalling — and what goes in their place.',
