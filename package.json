@@ -1,8 +1,21 @@
 {
+  "name": "museschool",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A twelve-week self-directed growth programme that runs entirely in your browser.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "serve": "node build.mjs && python3 -m http.server 8123",
+    "test": "node build.mjs && node test/tailoring.mjs && node test/mcp.mjs",
+    "test:browser": "node test/deep.mjs && node test/smoke.mjs && node test/persistence.mjs && node test/pwa.mjs && node test/backup.mjs",
+    "mcp": "node mcp/server.mjs"
+  },
   "devDependencies": {
     "playwright": "^1.62.1"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.0"
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.4.3"
   }
 }
