@@ -17,6 +17,7 @@
       journal: [],    // { date, taskId, title, text, ts }
       checkins: [],   // { date, scores }
       lessonsRead: {},// lessonId -> dayKey first read
+      recheckDraft: {},// a re-score in progress, so closing the app mid-way loses nothing
       settings: { theme: 'auto' }
     };
   }
@@ -114,6 +115,17 @@
     },
 
     /* ----- re-assessment ----- */
+    setRecheck: function (id, value) {
+      if (!state.recheckDraft) state.recheckDraft = {};
+      state.recheckDraft[id] = value;
+      this.save();
+    },
+
+    clearRecheck: function () {
+      state.recheckDraft = {};
+      this.save();
+    },
+
     addCheckin: function (scores) {
       state.checkins.push({ date: MS.dayKey(), scores: scores });
       this.save();

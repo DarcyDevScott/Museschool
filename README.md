@@ -147,7 +147,28 @@ date always produce the same plan and the same day.
 
 ## Your data
 
-It lives in `localStorage` under `museschool.v1` and nowhere else. Clearing
-site data or moving to another device loses it — **You → Copy backup** puts
-the whole thing on your clipboard as JSON, and **Restore backup** takes it
-back.
+### Saving
+
+There is no save button. Every change is written to `localStorage` the moment
+it happens — a ticked task, a choice in the quiz, a mood score, a lesson you
+opened. Typing is written 350ms after you stop, immediately when you tap
+anything else, and again when the app is backgrounded or the screen locks
+(`visibilitychange` and `pagehide`, since neither swiping an app away nor
+locking a phone fires `unload`).
+
+A re-score you abandon half way is kept as a draft, so closing the app in the
+middle of it loses nothing.
+
+`test/persistence.mjs` covers this by destroying the page mid-action, with no
+graceful shutdown, and checking the data is still there on the next load.
+
+### Where it lives
+
+`localStorage` under `museschool.v1`, on that one device in that one browser.
+Nothing syncs. Safari and Chrome do not share it, and neither do your phone
+and your laptop. If storage is unavailable altogether — a private window, site
+data blocked — the app still runs, it just cannot remember anything.
+
+**You → Copy backup** puts the whole state on your clipboard as JSON and
+**Restore backup** takes it back, which is also how you move between
+devices.

@@ -295,7 +295,7 @@
 
   U.recheck = function (st) {
     var qs = recheckQuestions();
-    var pending = MS.recheckAnswers || (MS.recheckAnswers = {});
+    var pending = st.recheckDraft || {};
     var answeredCount = qs.filter(function (q) { return pending[q.id]; }).length;
     var ready = answeredCount === qs.length;
 
@@ -316,7 +316,7 @@
         return out + '</div></div>';
       }).join('') +
       '<div class="btn-row" style="margin-top:26px">' +
-        '<button class="btn btn-ghost" data-act="go" data-view="progress">Cancel</button>' +
+        '<button class="btn btn-ghost" data-act="recheck-cancel">Cancel</button>' +
         '<button class="btn" data-act="recheck-save"' + (ready ? '' : ' disabled') + '>Save re-score</button>' +
       '</div>' +
       (ready ? '' : '<p class="dim tiny" style="margin-top:10px">' +
@@ -593,17 +593,20 @@
         scroll = false; break;
 
       case 'recheck':
-        MS.recheckAnswers = {}; MS.view = 'recheck'; break;
+        MS.store.clearRecheck(); MS.view = 'recheck'; break;
 
       case 'recheck-set':
-        MS.recheckAnswers[btn.dataset.q] = parseInt(btn.dataset.v, 10);
+        MS.store.setRecheck(btn.dataset.q, parseInt(btn.dataset.v, 10));
         scroll = false; break;
+
+      case 'recheck-cancel':
+        MS.store.clearRecheck(); MS.view = 'progress'; break;
 
       case 'recheck-save': {
         // Same normalisation as the original quiz, so the numbers are comparable.
         var sums = {}, counts = {}, scores = {};
         recheckQuestions().forEach(function (qq) {
-          var v = MS.recheckAnswers[qq.id];
+          var v = (st.recheckDraft || {})[qq.id];
           if (typeof v !== 'number') return;
           if (qq.reverse) v = 6 - v;
           sums[qq.dim] = (sums[qq.dim] || 0) + v;
@@ -615,7 +618,7 @@
             : st.plan.scores[dim];
         });
         MS.store.addCheckin(scores);
-        MS.recheckAnswers = {};
+        MS.store.clearRecheck();
         MS.view = 'progress';
         U.toast('Re-scored.');
         break;
@@ -717,6 +720,15 @@
     MS.view = st.plan ? 'today' : 'welcome';
     root.addEventListener('click', onClick);
     root.addEventListener('input', onInput);
+
+    // On a phone the app is usually closed by being swiped away or by the
+    // screen locking, neither of which fires unload. These two do, and they
+    // write whatever is still sitting in the typing debounce.
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') flushInput();
+    });
+    window.addEventListener('pagehide', flushInput);
+
     MS.render();
   };
 })(window.MS = window.MS || {});
