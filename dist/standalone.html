@@ -1,0 +1,2470 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Museschool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Museschool — one stylesheet.
+   Light is defined on bare :root; dark redefines only the tokens, guarded so
+   an explicit light choice always wins over the system preference. */
+
+:root {
+  --paper: #FBF7F2;
+  --surface: #FFFFFF;
+  --surface-2: #F4EEE6;
+  --ink: #1E1A16;
+  --ink-2: #574F46;
+  --ink-3: #8B8177;
+  --line: #E6DCCF;
+  --line-2: #D3C5B3;
+  --accent: #A9502C;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #F7E8DF;
+  --teal: #2C5B54;
+  --teal-soft: #E2EDEA;
+  --good: #3F7D5C;
+  --shadow: 0 1px 2px rgba(30,26,22,.05), 0 8px 24px -12px rgba(30,26,22,.18);
+  --radius: 14px;
+  --font-display: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #15120F;
+    --surface: #1D1916;
+    --surface-2: #262019;
+    --ink: #F2ECE4;
+    --ink-2: #BEB2A5;
+    --ink-3: #8A7F73;
+    --line: #332B23;
+    --line-2: #443A2F;
+    --accent: #E08A5F;
+    --accent-ink: #1B1310;
+    --accent-soft: #32231A;
+    --teal: #7FBCB0;
+    --teal-soft: #1B2A27;
+    --good: #7FBC93;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #15120F;
+  --surface: #1D1916;
+  --surface-2: #262019;
+  --ink: #F2ECE4;
+  --ink-2: #BEB2A5;
+  --ink-3: #8A7F73;
+  --line: #332B23;
+  --line-2: #443A2F;
+  --accent: #E08A5F;
+  --accent-ink: #1B1310;
+  --accent-soft: #32231A;
+  --teal: #7FBCB0;
+  --teal-soft: #1B2A27;
+  --good: #7FBC93;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: 88px;
+}
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.2; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); }
+h2 { font-size: clamp(1.4rem, 3.6vw, 1.8rem); }
+h3 { font-size: 1.1rem; }
+p { margin: 0 0 1em; }
+a { color: var(--accent); }
+
+.wrap { max-width: 700px; margin: 0 auto; padding: 24px 20px 40px; }
+.muted { color: var(--ink-2); }
+.dim { color: var(--ink-3); }
+.small { font-size: .875rem; }
+.tiny { font-size: .78rem; }
+.center { text-align: center; }
+.stack > * + * { margin-top: 14px; }
+.row { display: flex; gap: 10px; align-items: center; }
+.spread { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.hide { display: none !important; }
+
+/* ---------- eyebrow / labels ---------- */
+.eyebrow {
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .12em;
+  font-weight: 600; color: var(--ink-3);
+}
+
+/* ---------- cards ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.card + .card { margin-top: 14px; }
+.card-tight { padding: 16px; }
+
+/* ---------- buttons ---------- */
+button { font: inherit; cursor: pointer; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 22px; border-radius: 999px; border: 1px solid transparent;
+  background: var(--accent); color: var(--accent-ink);
+  font-weight: 600; font-size: .95rem;
+  transition: transform .12s ease, opacity .12s ease;
+}
+.btn:hover { opacity: .9; }
+.btn:active { transform: scale(.98); }
+.btn[disabled] { opacity: .38; cursor: not-allowed; }
+.btn-ghost { background: transparent; color: var(--ink-2); border-color: var(--line-2); }
+.btn-quiet { background: transparent; color: var(--ink-3); border-color: transparent; padding: 10px 12px; }
+.btn-block { width: 100%; }
+.btn-row { display: flex; gap: 10px; align-items: center; }
+
+/* ---------- quiz ---------- */
+.progressbar { height: 3px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.progressbar > i { display: block; height: 100%; background: var(--accent); transition: width .35s ease; }
+
+.q { margin: 30px 0; }
+.q-text { font-family: var(--font-display); font-size: 1.28rem; line-height: 1.3; margin-bottom: 14px; }
+.q-note { color: var(--ink-3); font-size: .85rem; margin: -8px 0 12px; }
+
+.opt {
+  display: block; width: 100%; text-align: left;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 9px;
+  color: var(--ink); transition: border-color .12s ease, background .12s ease;
+}
+.opt:hover { border-color: var(--line-2); }
+.opt[aria-pressed="true"] {
+  border-color: var(--accent); background: var(--accent-soft);
+}
+.opt-label { font-weight: 500; }
+.opt-note { display: block; color: var(--ink-3); font-size: .84rem; margin-top: 2px; }
+
+.scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.scale button {
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink-2);
+  border-radius: 10px; padding: 14px 4px 10px; text-align: center;
+  transition: all .12s ease;
+}
+.scale button:hover { border-color: var(--line-2); }
+.scale button[aria-pressed="true"] {
+  border-color: var(--accent); background: var(--accent-soft); color: var(--ink);
+}
+.scale b { display: block; font-family: var(--font-display); font-size: 1.15rem; }
+.scale span { display: block; font-size: .64rem; line-height: 1.25; margin-top: 4px; color: var(--ink-3); }
+
+input[type="text"], textarea {
+  width: 100%; font: inherit; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; padding: 13px 15px; resize: vertical;
+}
+input[type="text"]:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+textarea { min-height: 120px; line-height: 1.55; }
+
+/* ---------- tasks ---------- */
+.task {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 10px;
+  transition: opacity .18s ease;
+}
+.task.done { opacity: .55; }
+.task.done .task-title { text-decoration: line-through; text-decoration-thickness: 1px; }
+.tick {
+  flex: 0 0 26px; width: 26px; height: 26px; margin-top: 2px;
+  border-radius: 50%; border: 1.5px solid var(--line-2);
+  background: transparent; color: transparent;
+  display: grid; place-items: center; font-size: .8rem; line-height: 1;
+  transition: all .15s ease;
+}
+.tick:hover { border-color: var(--accent); }
+.task.done .tick { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.task-body { flex: 1; min-width: 0; }
+.task-title { font-weight: 600; }
+.task-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.chip {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 600;
+  padding: 3px 8px; border-radius: 999px;
+  background: var(--surface-2); color: var(--ink-3);
+}
+.chip-anchor { background: var(--accent-soft); color: var(--accent); }
+.chip-reflect { background: var(--teal-soft); color: var(--teal); }
+.task-detail { color: var(--ink-2); font-size: .9rem; margin-top: 6px; }
+.task-journal { margin-top: 12px; }
+.saved { color: var(--good); font-size: .78rem; }
+
+/* ---------- stats ---------- */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; text-align: center; }
+.stat b { display: block; font-family: var(--font-display); font-size: 1.7rem; line-height: 1.1; }
+.stat span { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+
+.bars { display: grid; gap: 11px; }
+.bar-row { display: grid; grid-template-columns: 118px 1fr 34px; gap: 10px; align-items: center; font-size: .84rem; }
+.bar { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; position: relative; }
+.bar > i { display: block; height: 100%; background: var(--teal); border-radius: 999px; transition: width .5s ease; }
+.bar > u {
+  position: absolute; top: -3px; width: 2px; height: 14px;
+  background: var(--ink-3); opacity: .5; border-radius: 2px;
+}
+.bar-val { text-align: right; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.bar-key { color: var(--ink-2); }
+.bar-row.key .bar-key { color: var(--ink); font-weight: 600; }
+.bar-row.key .bar > i { background: var(--accent); }
+
+/* ---------- phases ---------- */
+.phase { border-left: 2px solid var(--line); padding: 0 0 22px 20px; position: relative; }
+.phase:last-child { padding-bottom: 0; }
+.phase::before {
+  content: ""; position: absolute; left: -6px; top: 4px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--paper); border: 2px solid var(--line-2);
+}
+.phase.now { border-left-color: var(--accent); }
+.phase.now::before { background: var(--accent); border-color: var(--accent); }
+.phase.past::before { background: var(--line-2); }
+.phase h3 { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.ms { list-style: none; padding: 0; margin: 12px 0 0; }
+.ms li { position: relative; padding-left: 20px; margin-bottom: 7px; font-size: .9rem; color: var(--ink-2); }
+.ms li::before { content: "—"; position: absolute; left: 0; color: var(--ink-3); }
+
+/* ---------- nav ---------- */
+.nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+  display: flex; justify-content: center; gap: 2px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+}
+.nav button {
+  flex: 1; max-width: 120px; background: none; border: 0; color: var(--ink-3);
+  padding: 6px 4px; border-radius: 10px;
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 600;
+}
+.nav button[aria-current="page"] { color: var(--accent); background: var(--accent-soft); }
+.nav i { display: block; font-size: 1.1rem; font-style: normal; margin-bottom: 2px; }
+
+/* ---------- misc ---------- */
+.note {
+  background: var(--teal-soft); border: 1px solid transparent;
+  border-radius: 12px; padding: 14px 16px; font-size: .88rem; color: var(--ink-2);
+}
+.note strong { color: var(--ink); }
+.divider { height: 1px; background: var(--line); margin: 28px 0; border: 0; }
+.jentry { border-bottom: 1px solid var(--line); padding: 16px 0; }
+.jentry:last-child { border-bottom: 0; }
+.jentry pre { white-space: pre-wrap; font: inherit; margin: 6px 0 0; color: var(--ink-2); }
+.scroll-x { overflow-x: auto; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(8px);
+  background: var(--ink); color: var(--paper);
+  padding: 10px 18px; border-radius: 999px; font-size: .85rem; font-weight: 500;
+  opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 40;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (min-width: 720px) {
+  body { padding-bottom: 40px; padding-top: 0; }
+  .nav {
+    position: sticky; top: 0; bottom: auto;
+    border-top: 0; border-bottom: 1px solid var(--line);
+    padding: 10px 8px; gap: 6px;
+  }
+  .nav i { display: none; }
+  .nav button { padding: 8px 14px; max-width: none; flex: 0 0 auto; }
+  .toast { bottom: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+/* ---- src/data/quiz.js ---- */
+/* Museschool — onboarding quiz definition.
+ *
+ * Question types:
+ *   text    free text (opt.placeholder, opt.optional)
+ *   single  one choice from opt.options [{v,label,note?}]
+ *   multi   many choices, opt.max caps the selection
+ *   scale   1..5 agreement. opt.dim maps it to a profile dimension.
+ *           opt.reverse means agreeing scores LOW on that dimension.
+ *
+ * `when` gates a section on earlier answers.
+ */
+(function (MS) {
+  'use strict';
+
+  // Agreement labels shared by every scale question.
+  var AGREE = ['Not at all', 'Rarely', 'Sometimes', 'Often', 'Always'];
+
+  function scale(id, dim, text, reverse) {
+    return { id: id, type: 'scale', text: text, dim: dim, reverse: !!reverse, labels: AGREE };
+  }
+
+  var GOALS = [
+    { v: 'relationship', label: 'Repair or rebuild a relationship', note: 'Partner, ex-partner, or someone close' },
+    { v: 'worth', label: 'Confidence and self-worth', note: 'Liking who you are without needing proof' },
+    { v: 'regulation', label: 'Emotional steadiness', note: 'Feeling things without being run by them' },
+    { v: 'consistency', label: 'Discipline and follow-through', note: 'Doing what you said you would' },
+    { v: 'vitality', label: 'Body, sleep and energy', note: 'The physical base underneath everything' },
+    { v: 'purpose', label: 'Direction and purpose', note: 'Knowing what you are building' },
+    { v: 'connection', label: 'Friendship and community', note: 'A life that is not one person wide' },
+    { v: 'presence', label: 'Presence and attention', note: 'Actually being where you are' }
+  ];
+
+  MS.GOALS = GOALS;
+
+  MS.QUIZ = [
+    {
+      id: 'start',
+      title: 'Where you are',
+      blurb: 'No right answers here. The plan is only as good as how honest this is — and nothing you type leaves this device.',
+      questions: [
+        { id: 'name', type: 'text', short: true, text: 'What should this call you?', placeholder: 'First name' },
+        { id: 'ageRange', type: 'single', text: 'How old are you?', options: [
+          { v: 'u25', label: 'Under 25' }, { v: '25_34', label: '25–34' },
+          { v: '35_44', label: '35–44' }, { v: '45_54', label: '45–54' },
+          { v: '55p', label: '55 or older' }
+        ]},
+        { id: 'season', type: 'single', text: 'Which best describes the season you are in?', options: [
+          { v: 'crisis', label: 'Something just broke', note: 'Recent, raw, still loud' },
+          { v: 'drift', label: 'Slow drift', note: 'Nothing exploded, but I have lost the thread' },
+          { v: 'stuck', label: 'Stuck in a loop', note: 'Same patterns, same outcomes' },
+          { v: 'rebuild', label: 'Rebuilding', note: 'Past the worst, putting it back together' },
+          { v: 'sharpen', label: 'Basically okay, want more', note: 'Stable, aiming higher' }
+        ]},
+        { id: 'prompt', type: 'single', text: 'What brought you here right now?', options: [
+          { v: 'loss', label: 'I lost someone or something that mattered' },
+          { v: 'pattern', label: 'I keep repeating something I hate' },
+          { v: 'told', label: 'Someone told me the truth about myself' },
+          { v: 'flat', label: 'I feel flat and I want to feel something' },
+          { v: 'ready', label: 'Nothing is wrong. I just want to be better' }
+        ]},
+        { id: 'duration', type: 'single', text: 'How long has this been going on?', options: [
+          { v: 'weeks', label: 'A few weeks' }, { v: 'months', label: 'A few months' },
+          { v: 'year', label: 'About a year' }, { v: 'years', label: 'Years' },
+          { v: 'always', label: 'As long as I can remember' }
+        ]},
+        { id: 'tried', type: 'single', text: 'Have you tried to work on this before?', options: [
+          { v: 'never', label: 'Not really' },
+          { v: 'started', label: 'I start and stop' },
+          { v: 'therapy', label: 'Yes — therapy or coaching' },
+          { v: 'alone', label: 'Yes — on my own, books and videos' },
+          { v: 'lots', label: 'Many times. That is part of the problem' }
+        ]}
+      ]
+    },
+
+    {
+      id: 'want',
+      title: 'What you want',
+      blurb: 'Aim at something specific. Vague goals produce vague plans.',
+      questions: [
+        { id: 'goals', type: 'multi', max: 3, text: 'What do you want to work on? Pick up to three.', options: GOALS },
+        { id: 'primaryGoal', type: 'single', text: 'If only one of those could change this year, which one?', options: GOALS },
+        { id: 'evidence', type: 'multi', max: 3, text: 'Six months from now, what would tell you this actually worked?', options: [
+          { v: 'calm', label: 'I stayed calm in a moment that used to wreck me' },
+          { v: 'kept', label: 'I kept a promise to myself for months straight' },
+          { v: 'heard', label: 'Someone told me I had changed' },
+          { v: 'alone_ok', label: 'I was alone and genuinely fine' },
+          { v: 'repaired', label: 'A relationship got real again' },
+          { v: 'proud', label: 'I looked at my week and felt proud of it' },
+          { v: 'body', label: 'I felt strong and rested in my body' }
+        ]},
+        { id: 'feelMore', type: 'multi', max: 3, text: 'What do you want more of?', options: [
+          { v: 'steady', label: 'Steadiness' }, { v: 'warmth', label: 'Warmth' },
+          { v: 'respect', label: 'Self-respect' }, { v: 'energy', label: 'Energy' },
+          { v: 'clarity', label: 'Clarity' }, { v: 'courage', label: 'Courage' },
+          { v: 'peace', label: 'Peace' }, { v: 'joy', label: 'Joy' }
+        ]},
+        { id: 'giveUp', type: 'multi', max: 3, text: 'What are you actually willing to give up to get there?', options: [
+          { v: 'scroll', label: 'Hours of scrolling' },
+          { v: 'drink', label: 'Drinking to take the edge off' },
+          { v: 'right', label: 'Being right in arguments' },
+          { v: 'sleepin', label: 'Sleeping in' },
+          { v: 'venting', label: 'Venting to anyone who will listen' },
+          { v: 'checking', label: 'Checking what they are doing' },
+          { v: 'story', label: 'The story where I am the one who got wronged' }
+        ]}
+      ]
+    },
+
+    {
+      id: 'regulation',
+      title: 'Emotional steadiness',
+      blurb: 'How you handle the moment after something lands badly.',
+      questions: [
+        scale('reg1', 'regulation', 'When something upsets me, I can feel it without acting on it straight away.'),
+        scale('reg2', 'regulation', 'I recover from a bad moment within the same day.'),
+        scale('reg3', 'regulation', 'I say things I regret when I am hurt.', true),
+        scale('reg4', 'regulation', 'I can name what I am feeling while I am feeling it.'),
+        scale('reg5', 'regulation', 'Small frustrations escalate fast for me.', true),
+        scale('reg6', 'regulation', 'I can settle myself down without needing someone else to do it for me.')
+      ]
+    },
+
+    {
+      id: 'worth',
+      title: 'Self-worth',
+      blurb: 'What you are like with yourself when nobody is watching.',
+      questions: [
+        scale('wor1', 'worth', 'I like who I am when I am on my own.'),
+        scale('wor2', 'worth', 'I need reassurance from others to feel okay.', true),
+        scale('wor3', 'worth', 'I speak to myself the way I would speak to a friend.'),
+        scale('wor4', 'worth', 'I feel like I have to earn being loved.', true),
+        scale('wor5', 'worth', 'I can be alone without feeling empty.')
+      ]
+    },
+
+    {
+      id: 'communication',
+      title: 'How you communicate',
+      blurb: 'Especially under pressure, which is the only time it counts.',
+      questions: [
+        scale('com1', 'communication', 'I can say what I need directly, without hinting.'),
+        scale('com2', 'communication', 'I shut down or go silent during conflict.', true),
+        scale('com3', 'communication', 'I listen to understand rather than to reply.'),
+        scale('com4', 'communication', 'I can hear criticism without defending myself.'),
+        scale('com5', 'communication', 'When I apologise I name the specific thing, with no "but" attached.')
+      ]
+    },
+
+    {
+      id: 'ownership',
+      title: 'Ownership',
+      blurb: 'The uncomfortable section. Take your time.',
+      questions: [
+        scale('own1', 'ownership', 'I can name my part in things going wrong.'),
+        scale('own2', 'ownership', 'When I am hurt, I focus on what the other person did wrong.', true),
+        scale('own3', 'ownership', 'I have genuinely changed a behaviour because someone told me it hurt them.'),
+        scale('own4', 'ownership', 'I make excuses for patterns I know are mine.', true),
+        scale('own5', 'ownership', 'I can be wrong about something without it meaning I am a bad person.')
+      ]
+    },
+
+    {
+      id: 'consistency',
+      title: 'Follow-through',
+      blurb: 'Whether your intentions survive contact with a Tuesday.',
+      questions: [
+        scale('con1', 'consistency', 'I do what I said I would, even when I do not feel like it.'),
+        scale('con2', 'consistency', 'I abandon things about two weeks in.', true),
+        scale('con3', 'consistency', 'I have a routine I keep most days.'),
+        scale('con4', 'consistency', 'I need to feel motivated before I can act.', true),
+        scale('con5', 'consistency', 'I take promises to myself as seriously as promises to other people.')
+      ]
+    },
+
+    {
+      id: 'vitality',
+      title: 'Body and energy',
+      blurb: 'The physical floor everything else stands on.',
+      questions: [
+        scale('vit1', 'vitality', 'I sleep enough and wake up rested.'),
+        scale('vit2', 'vitality', 'I move my body most days.'),
+        scale('vit3', 'vitality', 'I use food, alcohol or screens to numb out.', true),
+        scale('vit4', 'vitality', 'I still have energy in the evening.'),
+        scale('vit5', 'vitality', 'I look after my body even when I feel low.')
+      ]
+    },
+
+    {
+      id: 'purpose',
+      title: 'Direction',
+      blurb: 'Whether your days are pointed at anything.',
+      questions: [
+        scale('pur1', 'purpose', 'I know what I am building toward.'),
+        scale('pur2', 'purpose', 'My days are mostly reactive.', true),
+        scale('pur3', 'purpose', 'I have something in my life that is mine alone.'),
+        scale('pur4', 'purpose', 'I feel proud of how I spend my time.')
+      ]
+    },
+
+    {
+      id: 'people',
+      title: 'People and presence',
+      blurb: 'Your support, and whether you are actually in the room.',
+      questions: [
+        scale('cnn1', 'connection', 'I have people I can be honest with.'),
+        scale('cnn2', 'connection', 'I reach out first.'),
+        scale('cnn3', 'connection', 'My whole world revolves around one person.', true),
+        scale('prs1', 'presence', 'I am fully in conversations, not half on my phone.'),
+        scale('prs2', 'presence', 'My mind is somewhere else most of the day.', true),
+        scale('prs3', 'presence', 'I notice small good things during an ordinary day.')
+      ]
+    },
+
+    {
+      id: 'relationship',
+      title: 'The relationship',
+      blurb: 'This section is about your side of it. Not theirs, and not what they should do.',
+      when: function (a) {
+        return a.primaryGoal === 'relationship' ||
+          (Array.isArray(a.goals) && a.goals.indexOf('relationship') !== -1);
+      },
+      questions: [
+        { id: 'relStatus', type: 'single', text: 'Where do things stand?', options: [
+          { v: 'together_strained', label: 'Together, but strained' },
+          { v: 'separated', label: 'Separated or on a break' },
+          { v: 'ended_recent', label: 'Ended recently' },
+          { v: 'ended_long', label: 'Ended a while ago' },
+          { v: 'unclear', label: 'Genuinely unclear' }
+        ]},
+        { id: 'relContact', type: 'single', text: 'What is contact like right now?', options: [
+          { v: 'daily', label: 'We talk most days' },
+          { v: 'occasional', label: 'Occasionally' },
+          { v: 'logistics', label: 'Logistics only' },
+          { v: 'none_mutual', label: 'None, by mutual agreement' },
+          { v: 'none_theirs', label: 'None — they asked for space' },
+          { v: 'none_mine', label: 'None — that was my decision' }
+        ]},
+        { id: 'relSpace', type: 'single', text: 'If they have asked for space, are you giving it?', options: [
+          { v: 'na', label: 'They have not asked for space' },
+          { v: 'yes', label: 'Yes, fully' },
+          { v: 'mostly', label: 'Mostly, with slips' },
+          { v: 'no', label: 'No, honestly' }
+        ]},
+        { id: 'relOwn', type: 'multi', max: 4, text: 'Honestly — what did you bring to the breakdown?', options: [
+          { v: 'absent', label: 'I was there but not present' },
+          { v: 'defensive', label: 'I got defensive instead of listening' },
+          { v: 'anger', label: 'I let my temper land on them' },
+          { v: 'withdraw', label: 'I withdrew and went cold' },
+          { v: 'needy', label: 'I leaned on them for everything' },
+          { v: 'unreliable', label: 'I did not follow through on things I promised' },
+          { v: 'dishonest', label: 'I was not fully honest' },
+          { v: 'contempt', label: 'I was critical or contemptuous' },
+          { v: 'neglect', label: 'I stopped making effort' },
+          { v: 'unsure', label: 'I genuinely do not know yet' }
+        ]},
+        { id: 'relAsked', type: 'text', optional: true, placeholder: 'In their words, if you can remember them',
+          text: 'What did they ask you for, more than once, that you did not give?' },
+        { id: 'relWant', type: 'single', text: 'What do you actually want out of this?', options: [
+          { v: 'reconcile', label: 'To rebuild the relationship' },
+          { v: 'ready', label: 'To become someone worth rebuilding with, whatever they decide' },
+          { v: 'understand', label: 'To understand my part so I stop repeating it' },
+          { v: 'closure', label: 'To let go properly' },
+          { v: 'unsure', label: 'I do not know yet' }
+        ]},
+        { id: 'relLegacy', type: 'text', optional: true, placeholder: 'Write it plainly. You will be shown this again later.',
+          text: 'If this never ends in reconciliation, what do you want to be true of you a year from now?' }
+      ]
+    },
+
+    {
+      id: 'patterns',
+      title: 'What derails you',
+      blurb: 'Plans fail in predictable places. Name yours now.',
+      questions: [
+        { id: 'derailers', type: 'multi', max: 3, text: 'What usually knocks you off?', options: [
+          { v: 'tired', label: 'Being tired' },
+          { v: 'lonely', label: 'Loneliness at night' },
+          { v: 'conflict', label: 'A hard conversation' },
+          { v: 'busy', label: 'A busy week at work' },
+          { v: 'boredom', label: 'Boredom' },
+          { v: 'setback', label: 'One missed day turning into ten' },
+          { v: 'news', label: 'Hearing something about them' },
+          { v: 'drink', label: 'A few drinks' }
+        ]},
+        { id: 'stressResponse', type: 'single', text: 'Under real stress, what do you do first?', options: [
+          { v: 'fight', label: 'Push back, argue, get sharp' },
+          { v: 'flee', label: 'Avoid it, distract, disappear' },
+          { v: 'freeze', label: 'Go blank and do nothing' },
+          { v: 'fawn', label: 'Over-apologise and try to fix it fast' },
+          { v: 'fix', label: 'Go into problem-solving overdrive' }
+        ]},
+        { id: 'bestTime', type: 'single', text: 'When are you actually most likely to do this?', options: [
+          { v: 'early', label: 'Early morning' }, { v: 'commute', label: 'Mid morning' },
+          { v: 'lunch', label: 'Around midday' }, { v: 'evening', label: 'Evening' },
+          { v: 'night', label: 'Late night' }
+        ]},
+        { id: 'minutes', type: 'single', text: 'Realistically, how long per day?', options: [
+          { v: '10', label: '10 minutes', note: 'The honest floor. This still works.' },
+          { v: '20', label: '20 minutes', note: 'The sweet spot for most people' },
+          { v: '40', label: '40 minutes' },
+          { v: '60', label: 'An hour or more' }
+        ]},
+        { id: 'days', type: 'single', text: 'How many days a week?', options: [
+          { v: '5', label: '5 — weekdays' }, { v: '6', label: '6 — one day off' },
+          { v: '7', label: '7 — every day' }
+        ]},
+        { id: 'hardest', type: 'single', text: 'What will be the hardest part of this for you?', options: [
+          { v: 'starting', label: 'Starting at all' },
+          { v: 'continuing', label: 'Continuing past week two' },
+          { v: 'honesty', label: 'Being honest in the written parts' },
+          { v: 'patience', label: 'Waiting for it to show results' },
+          { v: 'alone', label: 'Doing it without anyone noticing' }
+        ]}
+      ]
+    }
+  ];
+
+  MS.DIMENSIONS = {
+    regulation:    { label: 'Emotional steadiness', short: 'Steadiness' },
+    worth:         { label: 'Self-worth',           short: 'Self-worth' },
+    communication: { label: 'Communication',        short: 'Communication' },
+    ownership:     { label: 'Ownership',            short: 'Ownership' },
+    consistency:   { label: 'Follow-through',       short: 'Follow-through' },
+    vitality:      { label: 'Body and energy',      short: 'Energy' },
+    purpose:       { label: 'Direction',            short: 'Direction' },
+    connection:    { label: 'Connection',           short: 'Connection' },
+    presence:      { label: 'Presence',             short: 'Presence' }
+  };
+
+  MS.DIM_KEYS = Object.keys(MS.DIMENSIONS);
+})(window.MS = window.MS || {});
+
+/* ---- src/data/tasks.js ---- */
+/* Museschool — task library.
+ *
+ * Every task: { id, cat, dim, phases, min, title, detail, tags? }
+ *   cat     anchor   a keystone habit, repeated daily for a whole phase
+ *           practice a skill drill, rotates day to day
+ *           reflect  written work
+ *           reach    an action pointed outward, at real people
+ *   dim     the profile dimension it trains
+ *   phases  which of the four phases it can appear in
+ *   min     rough minutes
+ *   tags    'relationship' tasks only surface for relationship-focused plans
+ */
+(function (MS) {
+  'use strict';
+
+  MS.TASKS = [
+
+    /* ---------- ANCHORS: one per dimension, held for a full phase ---------- */
+    { id: 'a_reg', cat: 'anchor', dim: 'regulation', phases: [1,2,3,4], min: 5,
+      title: 'Ten slow breaths before the first screen',
+      detail: 'Before you touch your phone, sit up and take ten breaths where the exhale is longer than the inhale. That is the whole thing. You are teaching your body that the day starts on your terms.' },
+    { id: 'a_wor', cat: 'anchor', dim: 'worth', phases: [1,2,3,4], min: 5,
+      title: 'One kept promise, written down',
+      detail: 'Each morning name one small thing you will do today. Not a goal — a promise. Write it. Tick it tonight. Self-worth is built from evidence, and this is how you manufacture the evidence.' },
+    { id: 'a_com', cat: 'anchor', dim: 'communication', phases: [1,2,3,4], min: 5,
+      title: 'One sentence said plainly',
+      detail: 'Once today, say something you would normally hint at, soften, or swallow. One clean sentence. "I would like…", "I did not like…", "I need…". Note what you said and what happened.' },
+    { id: 'a_own', cat: 'anchor', dim: 'ownership', phases: [1,2,3,4], min: 5,
+      title: 'The daily ledger',
+      detail: 'At the end of the day write one line: something you did well, and something that was yours to own. No self-flagellation, no excuses. Just the record.' },
+    { id: 'a_con', cat: 'anchor', dim: 'consistency', phases: [1,2,3,4], min: 10,
+      title: 'The non-negotiable ten',
+      detail: 'Ten minutes on the same thing at the same time, every day of this phase. Choose it once and do not renegotiate it daily — the negotiating is what kills it.' },
+    { id: 'a_vit', cat: 'anchor', dim: 'vitality', phases: [1,2,3,4], min: 15,
+      title: 'Get outside and move',
+      detail: 'Fifteen minutes outdoors, moving, before noon if you can. Daylight and motion. This is not exercise, it is maintenance on the machine that runs everything else.' },
+    { id: 'a_pur', cat: 'anchor', dim: 'purpose', phases: [1,2,3,4], min: 10,
+      title: 'Ten minutes on the thing that is yours',
+      detail: 'One project, skill or craft that belongs to you alone. Ten minutes daily. It does not have to go anywhere. It has to be yours.' },
+    { id: 'a_cnn', cat: 'anchor', dim: 'connection', phases: [1,2,3,4], min: 5,
+      title: 'Reach out first, once a day',
+      detail: 'One message to one person that is not about you needing something. A question, a memory, a "thought of you". A life that is one person wide is fragile.' },
+    { id: 'a_prs', cat: 'anchor', dim: 'presence', phases: [1,2,3,4], min: 5,
+      title: 'Phone in another room for the first hour',
+      detail: 'The first hour after you wake, the phone lives somewhere else. If you need an alarm, use an actual alarm. Notice what fills the gap.' },
+
+    /* ---------- PRACTICE: regulation ---------- */
+    { id: 'p_reg1', cat: 'practice', dim: 'regulation', phases: [1], min: 5,
+      title: 'Name it to tame it',
+      detail: 'Three times today, stop and name the feeling in one word — out loud or in a note. "Irritated." "Anxious." "Fine." Naming an emotion measurably lowers its grip. You are building the noticing muscle before you need it.' },
+    { id: 'p_reg2', cat: 'practice', dim: 'regulation', phases: [1], min: 5,
+      title: 'Find where it lives',
+      detail: 'Next time something stings, locate it physically. Chest? Jaw? Gut? Stay with the sensation for sixty seconds without doing anything about it. Feelings that are felt move through. Feelings that are avoided stay.' },
+    { id: 'p_reg3', cat: 'practice', dim: 'regulation', phases: [1,2], min: 10,
+      title: 'The ninety-second rule',
+      detail: 'The chemical wave of an emotion lasts about ninety seconds. Everything after that is you re-telling yourself the story. Today, when something lands, count ninety seconds before you respond to it. Just count.' },
+    { id: 'p_reg4', cat: 'practice', dim: 'regulation', phases: [2], min: 10,
+      title: 'Rehearse the hard moment',
+      detail: 'Pick the scenario that reliably wrecks you. Play it in your head in detail — then rehearse yourself responding well. Twice through. You cannot improvise calm; you install it in advance.' },
+    { id: 'p_reg5', cat: 'practice', dim: 'regulation', phases: [2,3], min: 5,
+      title: 'The pause you actually take',
+      detail: 'One time today when you feel the urge to react fast — reply, snap, defend, send — put it down for ten minutes. Ten minutes, then decide. Note whether the ten minutes changed what you did.' },
+    { id: 'p_reg6', cat: 'practice', dim: 'regulation', phases: [2,3], min: 10,
+      title: 'Cold reset',
+      detail: 'Cold water on your face and wrists for thirty seconds, or a cold end to your shower. It reliably drops physical arousal. Use it once today, ideally at your known bad hour.' },
+    { id: 'p_reg7', cat: 'practice', dim: 'regulation', phases: [3,4], min: 10,
+      title: 'Sit in the discomfort on purpose',
+      detail: 'Choose something mildly uncomfortable and do not fix it: the silence, the unanswered message, the boredom. Fifteen minutes. Every time you tolerate discomfort without discharging it, your capacity grows.' },
+    { id: 'p_reg8', cat: 'practice', dim: 'regulation', phases: [3,4], min: 10,
+      title: 'Trace it back',
+      detail: 'Take one strong reaction from the last week and walk it backwards. What was the trigger, the story you told, the feeling, the action? Do it on paper. Patterns become obvious once they are written down.' },
+
+    /* ---------- PRACTICE: worth ---------- */
+    { id: 'p_wor1', cat: 'practice', dim: 'worth', phases: [1], min: 5,
+      title: 'Catch the voice',
+      detail: 'Write down, word for word, one thing you said to yourself today. Then write what you would say to a friend in the same position. Do not fix it, just put them side by side.' },
+    { id: 'p_wor2', cat: 'practice', dim: 'worth', phases: [1], min: 10,
+      title: 'The evidence file',
+      detail: 'List five things you have done that were hard. Not achievements — hard things you did anyway. Keep the list. You will read it on a bad day.' },
+    { id: 'p_wor3', cat: 'practice', dim: 'worth', phases: [1,2], min: 10,
+      title: 'An hour alone, on purpose',
+      detail: 'One hour with no phone, no company, no content. Walk, sit, cook, whatever. The goal is to find out whether your own company is tolerable — and to make it more so.' },
+    { id: 'p_wor4', cat: 'practice', dim: 'worth', phases: [2], min: 5,
+      title: 'Drop one apology',
+      detail: 'Notice one place today where you apologise for existing — taking up time, asking a question, having a preference. Do not apologise. Say "thank you for waiting" instead of "sorry I am late" if you need a substitute.' },
+    { id: 'p_wor5', cat: 'practice', dim: 'worth', phases: [2,3], min: 10,
+      title: 'Do something well that nobody will see',
+      detail: 'Make the bed properly. Cook a real meal for one. Finish the job to a standard nobody is checking. Self-respect is what you do when there is no audience.' },
+    { id: 'p_wor6', cat: 'practice', dim: 'worth', phases: [3], min: 10,
+      title: 'Accept a compliment without deflecting',
+      detail: 'If one comes, say "thank you" and stop talking. No joke, no correction, no returning it immediately. Notice how strong the urge to deflect is.' },
+    { id: 'p_wor7', cat: 'practice', dim: 'worth', phases: [3,4], min: 10,
+      title: 'Name your terms',
+      detail: 'Write three things you will not accept in a relationship or friendship again, and three you will always offer. Standards, not walls. Knowing them is what stops you negotiating yourself away.' },
+
+    /* ---------- PRACTICE: communication ---------- */
+    { id: 'p_com1', cat: 'practice', dim: 'communication', phases: [1], min: 5,
+      title: 'Listen without preparing',
+      detail: 'In one conversation today, do not think about your reply while they talk. When they finish, wait two seconds. That gap is where people feel heard.' },
+    { id: 'p_com2', cat: 'practice', dim: 'communication', phases: [1,2], min: 5,
+      title: 'Reflect it back',
+      detail: 'Once today, before you respond to something someone said, say it back: "So what you are saying is…". Get it wrong and let them correct you. Being corrected is the point.' },
+    { id: 'p_com3', cat: 'practice', dim: 'communication', phases: [2], min: 10,
+      title: 'The unsent version, then the sent one',
+      detail: 'Write the raw version of something you need to say. All of it. Then write the version you would actually send: what you feel, what you need, no diagnosis of them. Send only the second, if at all.' },
+    { id: 'p_com4', cat: 'practice', dim: 'communication', phases: [2,3], min: 10,
+      title: 'Ask one real question',
+      detail: 'Ask someone something you do not already know the answer to, and that you cannot answer for them. Then let them talk for longer than is comfortable.' },
+    { id: 'p_com5', cat: 'practice', dim: 'communication', phases: [2,3], min: 10,
+      title: 'Apologise properly, once',
+      detail: 'The format: name the specific thing, name its effect on them, no "but", no explanation of your intent, no request for forgiveness. "I did X. It made you feel Y. I am sorry." Then stop.' },
+    { id: 'p_com6', cat: 'practice', dim: 'communication', phases: [3], min: 10,
+      title: 'Take a criticism without defending',
+      detail: 'If someone gives you feedback today, respond with one of: "tell me more", "you are right", or "let me think about that". Nothing else. The defence you skip is the trust you build.' },
+    { id: 'p_com7', cat: 'practice', dim: 'communication', phases: [3,4], min: 10,
+      title: 'Say the thing you have been avoiding',
+      detail: 'There is one sentence you have not said to someone. Say it, calmly, without a build-up. Most avoided conversations are smaller out loud than they are in your head.' },
+    { id: 'p_com8', cat: 'practice', dim: 'communication', phases: [4], min: 10,
+      title: 'Hold a boundary kindly',
+      detail: 'Say no to one thing without over-explaining. "I cannot do that" is a complete sentence. Warm tone, no negotiation, no five reasons.' },
+
+    /* ---------- PRACTICE: ownership ---------- */
+    { id: 'p_own1', cat: 'practice', dim: 'ownership', phases: [1], min: 10,
+      title: 'Separate the fact from the story',
+      detail: 'Take one grievance. Write two columns: what verifiably happened, and what you decided it meant. Most of the weight sits in the second column, and the second column is yours.' },
+    { id: 'p_own2', cat: 'practice', dim: 'ownership', phases: [1,2], min: 10,
+      title: 'Your ten per cent',
+      detail: 'Take a conflict where you were mostly in the right. Find your ten per cent. Write it down without qualifying it. Owning ten per cent fully beats owning a hundred per cent theoretically.' },
+    { id: 'p_own3', cat: 'practice', dim: 'ownership', phases: [2], min: 15,
+      title: 'Write their side',
+      detail: 'Write a page from the other person\'s point of view, in their voice, as sympathetically as you can manage. Not to agree with it. To be able to hold it.' },
+    { id: 'p_own4', cat: 'practice', dim: 'ownership', phases: [2,3], min: 10,
+      title: 'Catch one excuse in flight',
+      detail: 'Today you will explain away one thing you did. Catch it as it happens and write down the excuse verbatim. Then write the version without it.' },
+    { id: 'p_own5', cat: 'practice', dim: 'ownership', phases: [3], min: 10,
+      title: 'The repeated note',
+      detail: 'What have several different people, in different parts of your life, said about you? If more than one person has named the same thing, it is data, not opinion. Write it down plainly.' },
+    { id: 'p_own6', cat: 'practice', dim: 'ownership', phases: [3,4], min: 10,
+      title: 'Change one thing you were told about',
+      detail: 'Pick one specific behaviour someone asked you to change. Change it today, visibly, without announcing it. Announced change is a request for credit. Quiet change is the real thing.' },
+
+    /* ---------- PRACTICE: consistency ---------- */
+    { id: 'p_con1', cat: 'practice', dim: 'consistency', phases: [1], min: 5,
+      title: 'Make it stupidly small',
+      detail: 'Take the habit you keep failing and cut it to the version you could do with flu. Two minutes. Do that version today even if you feel great. You are training the showing up, not the doing.' },
+    { id: 'p_con2', cat: 'practice', dim: 'consistency', phases: [1,2], min: 5,
+      title: 'Attach it to something you already do',
+      detail: 'Pick an existing reliable moment — kettle on, car door shut, teeth brushed — and hang the new habit off it. "After X, I do Y." Write the sentence out and put it where you will see it.' },
+    { id: 'p_con3', cat: 'practice', dim: 'consistency', phases: [2], min: 10,
+      title: 'Remove one obstacle tonight',
+      detail: 'Whatever you plan to do tomorrow, remove one step of friction now. Clothes out, app deleted, bag packed, phone charging in the hall. Tomorrow-you is not more disciplined, only better equipped.' },
+    { id: 'p_con4', cat: 'practice', dim: 'consistency', phases: [2,3], min: 5,
+      title: 'Never miss twice',
+      detail: 'The rule that matters is not perfection, it is the bounce. If yesterday was a miss, today is non-negotiable. Write "never miss twice" somewhere you will see it this week.' },
+    { id: 'p_con5', cat: 'practice', dim: 'consistency', phases: [3], min: 10,
+      title: 'Plan for the derailer',
+      detail: 'You already named what knocks you off. Write the if-then now: "If I am exhausted, then I do the two-minute version." Decide once, in calm, so you are not deciding in the moment.' },
+    { id: 'p_con6', cat: 'practice', dim: 'consistency', phases: [3,4], min: 10,
+      title: 'Audit the week',
+      detail: 'Look at the last seven days honestly. What did you actually do versus what you intended? No judgement — you are looking for the pattern in when it slips, not for a verdict.' },
+
+    /* ---------- PRACTICE: vitality ---------- */
+    { id: 'p_vit1', cat: 'practice', dim: 'vitality', phases: [1], min: 10,
+      title: 'Fix the wake time first',
+      detail: 'Same wake time tomorrow as today, regardless of when you sleep. Wake time anchors the whole rhythm; bedtime follows it, not the other way round.' },
+    { id: 'p_vit2', cat: 'practice', dim: 'vitality', phases: [1], min: 10,
+      title: 'Daylight in the first hour',
+      detail: 'Ten minutes of outdoor light within an hour of waking, even on a grey day. It is the single strongest lever on sleep and mood that costs nothing.' },
+    { id: 'p_vit3', cat: 'practice', dim: 'vitality', phases: [1,2], min: 10,
+      title: 'Eat something with protein before ten',
+      detail: 'If you skip breakfast and crash by eleven, that is not a character flaw. Eat properly early. Emotional regulation on an empty tank is much harder than it needs to be.' },
+    { id: 'p_vit4', cat: 'practice', dim: 'vitality', phases: [2], min: 20,
+      title: 'Move until you are breathing hard',
+      detail: 'Twenty minutes where your breathing changes. Run, hills, stairs, weights, anything. Not for looks — for the nervous system.' },
+    { id: 'p_vit5', cat: 'practice', dim: 'vitality', phases: [2,3], min: 10,
+      title: 'Name the numbing habit',
+      detail: 'Notice the thing you reach for when you do not want to feel something. Do not stop it today. Just catch it and write down what you were avoiding thirty seconds before.' },
+    { id: 'p_vit6', cat: 'practice', dim: 'vitality', phases: [3], min: 10,
+      title: 'Wind-down that is not a screen',
+      detail: 'The last thirty minutes before bed: no feed, no messages. Book, shower, stretch, music. Your sleep quality tomorrow is decided tonight.' },
+    { id: 'p_vit7', cat: 'practice', dim: 'vitality', phases: [3,4], min: 20,
+      title: 'Train something measurable',
+      detail: 'Pick one number you can improve over eight weeks: press-ups, a run time, a lift, a distance. Progress you can count does something for the mind that vague effort never will.' },
+
+    /* ---------- PRACTICE: purpose ---------- */
+    { id: 'p_pur1', cat: 'practice', dim: 'purpose', phases: [1], min: 10,
+      title: 'Audit where the hours go',
+      detail: 'Write out yesterday hour by hour, honestly, screen time included. You cannot redirect a life you have not looked at.' },
+    { id: 'p_pur2', cat: 'practice', dim: 'purpose', phases: [1,2], min: 10,
+      title: 'One thing that is yours',
+      detail: 'Name something you would do even if nobody knew. If nothing comes, pick something you were interested in at fourteen and try it for ten minutes.' },
+    { id: 'p_pur3', cat: 'practice', dim: 'purpose', phases: [2], min: 15,
+      title: 'Write the year',
+      detail: 'One page, dated a year from today, describing an ordinary Tuesday in a life you would be proud of. Present tense. Specific. Small details, not achievements.' },
+    { id: 'p_pur4', cat: 'practice', dim: 'purpose', phases: [2,3], min: 10,
+      title: 'Cut one thing',
+      detail: 'Find one commitment, subscription or obligation that gives you nothing. End it this week. Direction is as much subtraction as addition.' },
+    { id: 'p_pur5', cat: 'practice', dim: 'purpose', phases: [3,4], min: 15,
+      title: 'Take one step nobody asked you to take',
+      detail: 'One concrete action toward the thing you said was yours. Send the email, book the session, buy the tool, make the call. Momentum comes from motion, not the reverse.' },
+
+    /* ---------- PRACTICE: connection ---------- */
+    { id: 'p_cnn1', cat: 'practice', dim: 'connection', phases: [1], min: 10,
+      title: 'Map your people',
+      detail: 'List everyone you could call at 2am, and everyone you have not spoken to in six months but would like to. Look at the two lists. That is your real support structure.' },
+    { id: 'p_cnn2', cat: 'practice', dim: 'connection', phases: [1,2], min: 10,
+      title: 'Tell one person the truth',
+      detail: 'Say one honest sentence about how you actually are to somebody who is not your partner or ex. Not the full download — one true sentence. See if the sky holds.' },
+    { id: 'p_cnn3', cat: 'practice', dim: 'connection', phases: [2], min: 15,
+      title: 'Make an actual plan',
+      detail: 'Not "we should catch up". A day, a time, a place. Send it today. Most friendships die of ambiguity, not conflict.' },
+    { id: 'p_cnn4', cat: 'practice', dim: 'connection', phases: [2,3], min: 15,
+      title: 'Be useful to someone',
+      detail: 'Do one concrete thing for another person that costs you something and that you cannot be repaid for. This does more for self-worth than any amount of thinking about self-worth.' },
+    { id: 'p_cnn5', cat: 'practice', dim: 'connection', phases: [3,4], min: 15,
+      title: 'Show up somewhere in person',
+      detail: 'A class, a game, a group, a bar with a regular crowd. Same place, same time, weekly. Community is repetition plus proximity — there is no shortcut.' },
+    { id: 'p_cnn6', cat: 'practice', dim: 'connection', phases: [3,4], min: 10,
+      title: 'Ask someone for something',
+      detail: 'A favour, advice, help with a job. Small. Being the one who only gives is its own kind of distance, and people generally like being asked.' },
+
+    /* ---------- PRACTICE: presence ---------- */
+    { id: 'p_prs1', cat: 'practice', dim: 'presence', phases: [1], min: 10,
+      title: 'One meal with nothing else',
+      detail: 'No phone, no screen, no reading. Just the food. Notice how quickly the hand reaches for something. That reach is the thing you are working on.' },
+    { id: 'p_prs2', cat: 'practice', dim: 'presence', phases: [1,2], min: 5,
+      title: 'Five things',
+      detail: 'Stop wherever you are and name five things you can see, four you can hear, three you can feel. Ninety seconds. It pulls you out of the loop and back into the room.' },
+    { id: 'p_prs3', cat: 'practice', dim: 'presence', phases: [2], min: 10,
+      title: 'Walk with no input',
+      detail: 'Ten minutes walking with no podcast, no music, no phone. Let it be boring. Boredom is where your own thoughts finally get a turn.' },
+    { id: 'p_prs4', cat: 'practice', dim: 'presence', phases: [2,3], min: 10,
+      title: 'Single-task one hour',
+      detail: 'One hour, one thing, no tabs. Whatever it is. Attention is a trainable capacity and it has been getting worse without you agreeing to it.' },
+    { id: 'p_prs5', cat: 'practice', dim: 'presence', phases: [3,4], min: 10,
+      title: 'Notice three good things',
+      detail: 'At the end of today, write three specific ordinary good things. Specific: "the light at 4pm on the kitchen wall", not "nice weather". Specificity is what makes this work.' },
+    { id: 'p_prs6', cat: 'practice', dim: 'presence', phases: [3,4], min: 10,
+      title: 'Put the phone down mid-conversation',
+      detail: 'When someone starts talking, put your phone face down and out of reach. Every time. People can tell, and it is the cheapest form of respect there is.' },
+
+    /* ---------- REACH: relationship-specific, from phase 2 onward ---------- */
+    { id: 'r_rel1', cat: 'reach', dim: 'ownership', phases: [2], min: 15, tags: ['relationship'],
+      title: 'Write the amends letter you will not send',
+      detail: 'Name what you did, its effect, and what you are changing. No requests, no defence, no plea. Do not send it. It is for you, to find out whether your accountability is real or performed.' },
+    { id: 'r_rel2', cat: 'reach', dim: 'regulation', phases: [2,3], min: 10, tags: ['relationship'],
+      title: 'Respect the space, today included',
+      detail: 'If they asked for room, today is another day you give it. No message, no check of their profile, no note passed through a friend. Space honoured is the only evidence of change they can see from a distance.' },
+    { id: 'r_rel3', cat: 'reach', dim: 'ownership', phases: [3], min: 15, tags: ['relationship'],
+      title: 'Separate what you want from what you are owed',
+      detail: 'Write what you want to happen. Then write, plainly, that they are allowed to want something different. Both, in your own handwriting. Wanting someone back and accepting they may not come are not contradictory — holding both is the actual work.' },
+    { id: 'r_rel4', cat: 'reach', dim: 'communication', phases: [3], min: 15, tags: ['relationship'],
+      title: 'Draft the honest, low-pressure message',
+      detail: 'If and only if contact is welcome: short, warm, no pressure, no ask, no case for yourself, no reference to the future. Draft it. Leave it 24 hours. Send it only if it still reads as generous rather than strategic.' },
+    { id: 'r_rel5', cat: 'reach', dim: 'worth', phases: [3,4], min: 15, tags: ['relationship'],
+      title: 'Build the life that does not depend on the answer',
+      detail: 'Do one thing today that makes your life better whatever they decide. Not as a tactic — as a fact. If this only works when they come back, it was never growth.' },
+    { id: 'r_rel6', cat: 'reach', dim: 'communication', phases: [4], min: 15, tags: ['relationship'],
+      title: 'Practise hearing no',
+      detail: 'Write out what you would say if they said a final no. Something you could say with dignity and mean. Being able to hear no without collapse is what makes a yes worth anything.' },
+    { id: 'r_rel7', cat: 'reach', dim: 'ownership', phases: [4], min: 15, tags: ['relationship'],
+      title: 'Read back your own words',
+      detail: 'Go to your answer about what you want to be true of you in a year, whatever happens. Read it. Then write whether the last weeks have moved you toward it.' },
+
+    /* ---------- REACH: general ---------- */
+    { id: 'r_gen1', cat: 'reach', dim: 'connection', phases: [2,3,4], min: 10,
+      title: 'Repair something small',
+      detail: 'A friendship that went quiet for no reason. Send the awkward message. "I have been rubbish at keeping in touch and I have been thinking about you" works almost every time.' },
+    { id: 'r_gen2', cat: 'reach', dim: 'communication', phases: [2,3,4], min: 15,
+      title: 'Ask someone what you are like',
+      detail: 'Ask one person you trust: "what is the thing about me that is hardest to deal with?" Then say thank you and nothing else. Sit with it for a day before you respond.' },
+    { id: 'r_gen3', cat: 'reach', dim: 'worth', phases: [2,3,4], min: 15,
+      title: 'Do the thing you would avoid',
+      detail: 'One thing today you have been putting off because it is socially uncomfortable. The call, the query, the correction. Courage is a practised skill, not a personality trait.' },
+    { id: 'r_gen4', cat: 'reach', dim: 'purpose', phases: [3,4], min: 20,
+      title: 'Show someone the work',
+      detail: 'Whatever your own thing is, let one person see it. Unfinished is fine. Things kept entirely private tend to quietly die.' },
+
+    /* ---------- REFLECT: written prompts, phase-weighted ---------- */
+    { id: 'j_p1a', cat: 'reflect', dim: 'ownership', phases: [1], min: 10,
+      title: 'Write it down without editing',
+      detail: 'What actually happened? Not the version for other people — the one with your part in it. Ten minutes, no stopping to make it sound better.' },
+    { id: 'j_p1b', cat: 'reflect', dim: 'regulation', phases: [1], min: 10,
+      title: 'What am I most afraid of here?',
+      detail: 'Under the anger or the urgency, there is usually a fear. Name it as plainly as you can. Fear that is named loses most of its steering power.' },
+    { id: 'j_p1c', cat: 'reflect', dim: 'worth', phases: [1], min: 10,
+      title: 'Who was I before this?',
+      detail: 'Describe yourself two years ago. What did you have then that you have let go of? Some of it is worth going back for.' },
+    { id: 'j_p2a', cat: 'reflect', dim: 'ownership', phases: [2], min: 10,
+      title: 'The pattern, not the incident',
+      detail: 'Where else in your life does this same behaviour show up? Work, family, friends. If it is only in one relationship it is a situation. If it is everywhere it is a pattern, and patterns are the thing you can actually change.' },
+    { id: 'j_p2b', cat: 'reflect', dim: 'communication', phases: [2], min: 10,
+      title: 'What do I do instead of saying it?',
+      detail: 'When you cannot say something directly, what comes out sideways instead? Sulking, sarcasm, over-helping, going quiet, getting busy. Name your substitute.' },
+    { id: 'j_p2c', cat: 'reflect', dim: 'consistency', phases: [2], min: 10,
+      title: 'Where did I stop last time?',
+      detail: 'Think of the last time you tried to change something and did not finish. What was happening in the week you dropped it? That week is the one to plan for.' },
+    { id: 'j_p3a', cat: 'reflect', dim: 'worth', phases: [3], min: 10,
+      title: 'What is different now?',
+      detail: 'Not what you have learned — what you have done differently. Specific moments. If you cannot name three, that is useful information rather than a failure.' },
+    { id: 'j_p3b', cat: 'reflect', dim: 'purpose', phases: [3], min: 10,
+      title: 'What would I do with this year if the outcome were already decided?',
+      detail: 'Assume you cannot influence the thing you most want to influence. What would you build instead? That answer is usually the thing worth building either way.' },
+    { id: 'j_p3c', cat: 'reflect', dim: 'connection', phases: [3], min: 10,
+      title: 'Who have I been carrying this alone with?',
+      detail: 'Who knows the real version of what you are going through? If the honest answer is nobody, write down who could.' },
+    { id: 'j_p4a', cat: 'reflect', dim: 'ownership', phases: [4], min: 15,
+      title: 'The letter to yourself twelve weeks ago',
+      detail: 'Write to the version of you who started this. What do you know now that they did not? Be honest about what has not changed as well.' },
+    { id: 'j_p4b', cat: 'reflect', dim: 'purpose', phases: [4], min: 15,
+      title: 'What keeps going after this ends?',
+      detail: 'Of everything in these twelve weeks, what stays permanently? Pick three things and commit to them without an end date.' },
+    /* ---------- Short forms: keep the ten-minute tier honest ---------- */
+    { id: 'j_s1', cat: 'reflect', dim: 'regulation', phases: [1,2,3,4], min: 5,
+      title: 'Three lines before bed',
+      detail: 'What happened. What I felt. What I did with it. Three lines, no more. A small honest record beats a long one you stop keeping.' },
+    { id: 'j_s2', cat: 'reflect', dim: 'ownership', phases: [1,2,3,4], min: 5,
+      title: 'One sentence of ownership',
+      detail: 'Finish this sentence in writing: "Today the thing that was mine was ___." No context, no defence, no second sentence.' },
+    { id: 'j_s3', cat: 'reflect', dim: 'worth', phases: [1,2,3,4], min: 5,
+      title: 'What I did that I said I would',
+      detail: 'Write the one thing you promised yourself today and whether you did it. Yes or no, no commentary. This log is the raw material of self-trust.' },
+    { id: 'j_s4', cat: 'reflect', dim: 'presence', phases: [1,2,3,4], min: 5,
+      title: 'One thing I actually noticed',
+      detail: 'One specific thing from today that you would not have registered a month ago. A detail, not a summary.' },
+    { id: 'r_s1', cat: 'reach', dim: 'connection', phases: [2,3,4], min: 5,
+      title: 'One message, no agenda',
+      detail: 'Send one person something with nothing attached to it. No question that needs answering, no favour. Just contact.' },
+    { id: 'r_s2', cat: 'reach', dim: 'communication', phases: [2,3,4], min: 5,
+      title: 'Say the small true thing',
+      detail: 'One sentence to one person that is slightly more honest than you would normally be. Small enough to survive, real enough to count.' },
+    { id: 'r_s3', cat: 'reach', dim: 'regulation', phases: [2,3,4], min: 5, tags: ['relationship'],
+      title: 'Do not send it',
+      detail: 'If there is a message you have half-written to them today, close it. Write what you wanted them to understand here instead, where it costs nobody anything.' },
+
+    { id: 'j_p4c', cat: 'reflect', dim: 'regulation', phases: [4], min: 10,
+      title: 'What will I do the next time it goes badly?',
+      detail: 'It will. Write the plan now, while you are steady. Specific first steps, in order.' }
+  ];
+})(window.MS = window.MS || {});
+
+/* ---- src/data/phases.js ---- */
+/* Museschool — the four-phase arc and the milestone language for each dimension. */
+(function (MS) {
+  'use strict';
+
+  MS.PHASES = [
+    { n: 1, name: 'Stabilise', weeks: [1, 3],
+      line: 'Stop the bleeding. Get the floor solid.',
+      body: 'You cannot build anything on a nervous system that is running hot and a body that is running empty. The first three weeks are deliberately unambitious: sleep, daylight, movement, and learning to feel something without immediately acting on it. If you skip this because it looks too basic, everything after it will wobble.',
+      base: ['regulation', 'vitality'] },
+
+    { n: 2, name: 'Look straight at it', weeks: [4, 6],
+      line: 'The honest part. Your patterns, in writing.',
+      body: 'Now the work turns inward and gets uncomfortable. This phase is about seeing your own patterns clearly enough to name them without either excusing them or drowning in them. Most people quit somewhere in here. The tasks are short on purpose — the difficulty is not the time, it is the honesty.',
+      base: ['ownership', 'worth'] },
+
+    { n: 3, name: 'Show up', weeks: [7, 9],
+      line: 'Take it out of your head and into rooms with people in them.',
+      body: 'Insight that never leaves your journal is not change. This phase moves everything outward: saying the direct thing, hearing criticism without armour, repairing what went quiet, being present with people who are actually in front of you. This is where other people start to notice, which is not the point but is a reasonable side effect.',
+      base: ['communication', 'connection', 'presence'] },
+
+    { n: 4, name: 'Make it yours', weeks: [10, 12],
+      line: 'Turn twelve weeks of effort into a way you live.',
+      body: 'The last phase is about permanence. What survives after the plan ends, what you do the next time it all goes badly, and what you are building that belongs to you regardless of how anything else resolves. You finish with a shorter list than you started with, and you keep it.',
+      base: ['purpose', 'consistency'] }
+  ];
+
+  /* Milestones, phrased per dimension. Index 0-3 maps to phase 1-4. */
+  MS.MILESTONES = {
+    regulation: [
+      'Name what you are feeling, out loud, three times a day without flinching',
+      'Go a full week without sending anything written while activated',
+      'Get through one genuinely hard conversation without your voice changing',
+      'Have a written plan for your next bad week, made while calm'
+    ],
+    worth: [
+      'One kept promise to yourself every day for seven days straight',
+      'Spend an evening alone without reaching for company or a screen',
+      'Accept a compliment, and hold one standard, without apologising',
+      'Be able to say what you will and will not accept, without a speech'
+    ],
+    communication: [
+      'Say one thing plainly each day instead of hinting at it',
+      'Write the raw version and send the clean version, three times',
+      'Take one piece of criticism with nothing but "tell me more"',
+      'Say no once, warmly, without five reasons attached'
+    ],
+    ownership: [
+      'Write what happened with your part in it, unedited',
+      'Write the other person\'s side in their voice, sympathetically',
+      'Change one named behaviour without announcing that you changed it',
+      'Be able to state your part in one sentence, without qualifying it'
+    ],
+    consistency: [
+      'Seven days of the anchor, at the same time, no exceptions',
+      'Miss a day and come back the next — proving the bounce works',
+      'A written if-then for every derailer you named in the quiz',
+      'Three habits you keep with no end date and no tracking'
+    ],
+    vitality: [
+      'Same wake time seven days running, daylight within the hour',
+      'Movement most days and one honest look at the numbing habit',
+      'A wind-down that does not involve a screen, five nights of seven',
+      'One measurable thing that is better than it was in week one'
+    ],
+    purpose: [
+      'An honest audit of where your hours actually go',
+      'One page describing an ordinary day in the life you want',
+      'One concrete step nobody asked you to take',
+      'Something of yours that another person has now seen'
+    ],
+    connection: [
+      'Your people, mapped — who you could call at 2am',
+      'One honest sentence about how you are, to someone new',
+      'A real plan with a date, and something useful done for someone',
+      'One place you show up in person, on repeat'
+    ],
+    presence: [
+      'One meal a day with nothing else happening',
+      'Ten minutes walking with no input, three times',
+      'One hour of single-tasking, and the phone down when people speak',
+      'Three specific ordinary good things, noticed daily'
+    ]
+  };
+
+  /* What a low score in each dimension actually costs you, in plain terms. */
+  MS.DIM_READ = {
+    regulation: 'The gap between feeling something and doing something about it is short. That gap is trainable, and widening it changes more than almost anything else on this list.',
+    worth: 'Your sense of being alright depends too much on somebody else confirming it. That makes you harder to be close to, not easier.',
+    communication: 'You are asking people to guess. Some of what you read as them not caring is them not knowing.',
+    ownership: 'You can describe what happened, but your part in it keeps arriving with an explanation attached. Nothing changes until it arrives without one.',
+    consistency: 'Your intentions are good and your follow-through is not, which is its own slow erosion of self-trust.',
+    vitality: 'You are trying to do emotional work on an empty tank. Sleep, light and movement are not adjacent to this — they are underneath it.',
+    purpose: 'Your days are mostly responses to other people. There is nothing that is yours, and that absence gets filled by whatever is loudest.',
+    connection: 'Too much of your life runs through too few people. That is a lot of weight on one rope.',
+    presence: 'You are physically in your life and mentally somewhere else, which is why so much of it feels like it is happening at a distance.'
+  };
+
+  MS.DIM_STRENGTH = {
+    regulation: 'You can hold a feeling without discharging it. Lean on that when the rest gets hard.',
+    worth: 'You have a floor of self-respect that does not depend on the day going well. That is the thing most people are missing.',
+    communication: 'You can say things clearly. That is rarer than you think, and it is your fastest route to repair.',
+    ownership: 'You can look at your own part without falling apart. Everything else on this list gets easier from there.',
+    consistency: 'You do what you said you would. Point that at the right target and this plan is largely already solved.',
+    vitality: 'Your body is in good order, so the hard emotional work has somewhere solid to happen.',
+    purpose: 'You know what you are building. That gives you somewhere to stand while the rest moves.',
+    connection: 'You have real people around you. Use them — most of this goes faster witnessed.',
+    presence: 'You can actually be where you are. That is the raw material for every relationship skill here.'
+  };
+})(window.MS = window.MS || {});
+
+/* ---- src/engine/engine.js ---- */
+/* Museschool — scoring, plan generation and daily task selection.
+ * Everything here is deterministic: the same answers and the same date
+ * always produce the same plan and the same day.
+ */
+(function (MS) {
+  'use strict';
+
+  var PHASE_DAYS = 21;   // three weeks per phase
+  var TOTAL_DAYS = 84;   // twelve weeks
+
+  MS.PHASE_DAYS = PHASE_DAYS;
+  MS.TOTAL_DAYS = TOTAL_DAYS;
+
+  /* ---------- dates ---------- */
+
+  function dayKey(d) {
+    d = d || new Date();
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+  }
+
+  function fromKey(k) {
+    var p = k.split('-');
+    return new Date(+p[0], +p[1] - 1, +p[2]);
+  }
+
+  // Whole days between two day-keys, immune to daylight saving shifts.
+  function daysBetween(fromK, toK) {
+    var a = fromKey(fromK), b = fromKey(toK);
+    return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) -
+                       Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 86400000);
+  }
+
+  function addDays(k, n) {
+    var d = fromKey(k);
+    d.setDate(d.getDate() + n);
+    return dayKey(d);
+  }
+
+  MS.dayKey = dayKey;
+  MS.fromKey = fromKey;
+  MS.daysBetween = daysBetween;
+  MS.addDays = addDays;
+
+  /* ---------- deterministic pseudo-randomness ---------- */
+
+  function hash(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0);
+  }
+  MS.hash = hash;
+
+  /* ---------- scoring ---------- */
+
+  /* Turns scale answers into a 0-100 score per dimension.
+   * Dimensions with no answers come back at 50 so they neither
+   * dominate nor disappear from the ranking. */
+  MS.score = function (answers) {
+    var sums = {}, counts = {};
+    MS.DIM_KEYS.forEach(function (k) { sums[k] = 0; counts[k] = 0; });
+
+    MS.QUIZ.forEach(function (section) {
+      section.questions.forEach(function (q) {
+        if (q.type !== 'scale') return;
+        var v = answers[q.id];
+        if (typeof v !== 'number') return;
+        if (q.reverse) v = 6 - v;
+        sums[q.dim] += v;
+        counts[q.dim] += 1;
+      });
+    });
+
+    var out = {};
+    MS.DIM_KEYS.forEach(function (k) {
+      out[k] = counts[k]
+        ? Math.round(((sums[k] - counts[k]) / (4 * counts[k])) * 100)
+        : 50;
+    });
+    return out;
+  };
+
+  /* ---------- plan generation ---------- */
+
+  function pickKeystones(scores, answers) {
+    var goals = Array.isArray(answers.goals) ? answers.goals : [];
+    var primary = answers.primaryGoal;
+
+    var ranked = MS.DIM_KEYS.map(function (k) {
+      var urgency = scores[k];                       // lower score = more urgent
+      if (goals.indexOf(k) !== -1) urgency -= 22;    // they asked for this
+      if (primary === k) urgency -= 15;              // they asked for it most
+      // A weak floor outranks everything: you cannot do the rest without it.
+      if ((k === 'vitality' || k === 'regulation') && scores[k] < 40) urgency -= 20;
+      return { k: k, urgency: urgency, score: scores[k] };
+    }).sort(function (a, b) { return a.urgency - b.urgency; });
+
+    return ranked.slice(0, 2).map(function (r) { return r.k; });
+  }
+
+  function pickStrength(scores, keystones) {
+    return MS.DIM_KEYS
+      .filter(function (k) { return keystones.indexOf(k) === -1; })
+      .sort(function (a, b) { return scores[b] - scores[a]; })[0];
+  }
+
+  /* The focus dimensions for a phase: its own base, with the keystones
+   * woven in so they are never out of sight for long. */
+  function phaseFocus(phase, keystones) {
+    var f = phase.base.slice();
+    keystones.forEach(function (k) {
+      // Keystone 1 is present in every phase; keystone 2 joins from phase 2.
+      var idx = keystones.indexOf(k);
+      if (idx === 0 || phase.n >= 2) {
+        if (f.indexOf(k) === -1) f.push(k);
+      }
+    });
+    // When the keystones are already part of the phase's own base, the focus
+    // would be thin. Top it up so every phase carries at least three strands.
+    for (var i = 0; f.length < 3 && i < keystones.length; i++) {
+      if (f.indexOf(keystones[i]) === -1) f.push(keystones[i]);
+    }
+    for (var j = 0; f.length < 3 && j < MS.DIM_KEYS.length; j++) {
+      if (f.indexOf(MS.DIM_KEYS[j]) === -1) f.push(MS.DIM_KEYS[j]);
+    }
+    return f;
+  }
+  MS.phaseFocus = phaseFocus;
+
+  MS.buildPlan = function (answers, startKey) {
+    var scores = MS.score(answers);
+    var keystones = pickKeystones(scores, answers);
+    var strength = pickStrength(scores, keystones);
+    var isRel = answers.primaryGoal === 'relationship' ||
+      (Array.isArray(answers.goals) && answers.goals.indexOf('relationship') !== -1);
+
+    var minutes = parseInt(answers.minutes || '20', 10);
+
+    // The anchor is the daily habit for the primary keystone. With a bigger
+    // time budget a second anchor comes from keystone two.
+    var anchors = [anchorFor(keystones[0])];
+    if (minutes >= 40 && keystones[1]) anchors.push(anchorFor(keystones[1]));
+
+    var phases = MS.PHASES.map(function (p) {
+      var focus = phaseFocus(p, keystones);
+      return {
+        n: p.n, name: p.name, line: p.line, body: p.body,
+        weeks: p.weeks, focus: focus,
+        milestones: focus.slice(0, 4).map(function (dim) {
+          return { dim: dim, text: MS.MILESTONES[dim][p.n - 1] };
+        })
+      };
+    });
+
+    return {
+      version: 1,
+      generatedAt: new Date().toISOString(),
+      startKey: startKey || dayKey(),
+      seed: hash(JSON.stringify(answers)),
+      scores: scores,
+      keystones: keystones,
+      strength: strength,
+      relationship: isRel,
+      minutes: minutes,
+      days: parseInt(answers.days || '6', 10),
+      anchors: anchors.map(function (t) { return t.id; }),
+      phases: phases
+    };
+  };
+
+  function anchorFor(dim) {
+    return MS.TASKS.filter(function (t) {
+      return t.cat === 'anchor' && t.dim === dim;
+    })[0];
+  }
+
+  MS.taskById = function (id) {
+    for (var i = 0; i < MS.TASKS.length; i++) {
+      if (MS.TASKS[i].id === id) return MS.TASKS[i];
+    }
+    return null;
+  };
+
+  /* ---------- where in the plan is a given day ---------- */
+
+  MS.dayInfo = function (plan, key) {
+    var idx = daysBetween(plan.startKey, key);
+    var clamped = Math.max(0, Math.min(idx, TOTAL_DAYS - 1));
+    var phaseN = Math.min(4, Math.floor(clamped / PHASE_DAYS) + 1);
+    return {
+      index: idx,                                   // may be negative or past the end
+      dayNumber: idx + 1,
+      phaseN: phaseN,
+      phase: plan.phases[phaseN - 1],
+      dayInPhase: (clamped % PHASE_DAYS) + 1,
+      week: Math.floor(clamped / 7) + 1,
+      weekInPhase: Math.floor((clamped % PHASE_DAYS) / 7) + 1,
+      beforeStart: idx < 0,
+      finished: idx >= TOTAL_DAYS
+    };
+  };
+
+  /* Rest days come off the back of the week: 5 days/week rests Sat+Sun,
+   * 6 rests Sun, 7 never rests. */
+  MS.isLightDay = function (plan, key) {
+    var dow = fromKey(key).getDay(); // 0 = Sunday
+    if (plan.days >= 7) return false;
+    if (plan.days === 6) return dow === 0;
+    return dow === 0 || dow === 6;
+  };
+
+  /* ---------- daily task selection ---------- */
+
+  function eligible(plan, info, cat, cats) {
+    return MS.TASKS.filter(function (t) {
+      if (t.cat !== cat) return false;
+      if (t.phases.indexOf(info.phaseN) === -1) return false;
+      if (t.tags && t.tags.indexOf('relationship') !== -1 && !plan.relationship) return false;
+      if (cats && cats.indexOf(t.dim) === -1) return false;
+      return true;
+    });
+  }
+
+  /* Rotate through a candidate list so a task does not repeat until the
+   * list is exhausted, but the order is stable for a given plan. */
+  function rotate(list, plan, salt, n) {
+    if (!list.length) return [];
+    var ordered = list.slice().sort(function (a, b) {
+      return hash(a.id + plan.seed) - hash(b.id + plan.seed);
+    });
+    var out = [];
+    for (var i = 0; i < n && i < ordered.length; i++) {
+      out.push(ordered[(salt + i) % ordered.length]);
+    }
+    return out;
+  }
+
+  MS.tasksFor = function (plan, key) {
+    var info = MS.dayInfo(plan, key);
+    if (info.beforeStart) return { info: info, tasks: [], light: false };
+
+    var light = MS.isLightDay(plan, key);
+    var idx = Math.max(0, Math.min(info.index, TOTAL_DAYS - 1));
+    var focus = info.phase.focus;
+    var out = [];
+
+    // Anchors run every day, rest days included. They are the spine.
+    plan.anchors.forEach(function (id) {
+      var t = MS.taskById(id);
+      if (t) out.push(t);
+    });
+
+    if (light) {
+      // One short reflective task, then leave the day alone.
+      var lightPick = rotate(eligible(plan, info, 'reflect'), plan, Math.floor(idx / 7), 1);
+      return { info: info, tasks: out.concat(lightPick), light: true };
+    }
+
+    var used = out.reduce(function (n, t) { return n + t.min; }, 0);
+    var budget = plan.minutes - used;
+
+    // The day's shape comes from a rotating cycle rather than a fixed
+    // template, so the mix of drill / writing / outward action stays balanced
+    // at every time budget — a ten-minute commitment still gets its turn at
+    // the written work, which is the part that actually moves things.
+    var cycle = info.phaseN >= 2
+      ? ['practice', 'reflect', 'practice', 'reach', 'practice', 'reflect', 'reach', 'practice']
+      : ['practice', 'reflect', 'practice', 'practice', 'reflect', 'practice'];
+    var slots = Math.max(1, Math.min(5, Math.round(budget / 10)));
+    var order = [];
+    for (var s = 0; s < slots; s++) order.push(cycle[(idx + s) % cycle.length]);
+
+    var chosen = {};
+    order.forEach(function (cat) {
+      var pool = eligible(plan, info, cat, cat === 'practice' ? focus : null)
+        .filter(function (t) { return !chosen[t.id]; });
+      // Prefer something that fits the time left. Someone who said ten
+      // minutes meant it, and a plan that quietly overruns is one they quit.
+      var room = Math.max(budget, 5);
+      var fits = pool.filter(function (t) { return t.min <= room; });
+      // Widen a little if honouring the budget exactly would leave almost no
+      // choice, so a tight plan does not collapse to the same three tasks.
+      if (fits.length < 3) fits = pool.filter(function (t) { return t.min <= room + 5; });
+      if (fits.length) pool = fits;
+      // Each category advances at its own pace so they do not move in lockstep.
+      var salt = cat === 'practice' ? idx : (cat === 'reflect' ? Math.floor(idx / 3) : Math.floor(idx / 2));
+      var pick = rotate(pool, plan, salt, 1)[0];
+      if (!pick) return;
+      // The first secondary task always lands; later ones must fit the budget.
+      var first = Object.keys(chosen).length === 0;
+      if (!first && budget < pick.min - 5) return;
+      chosen[pick.id] = true;
+      out.push(pick);
+      budget -= pick.min;
+    });
+
+    return { info: info, tasks: out, light: false };
+  };
+
+  /* ---------- progress ---------- */
+
+  MS.streak = function (log, plan) {
+    var k = dayKey(), n = 0, guard = 0;
+    // A day counts if anything was ticked. Today not yet started does not
+    // break a streak, so start from yesterday if today is empty.
+    if (!(log[k] && log[k].done > 0)) k = addDays(k, -1);
+    while (guard++ < 400) {
+      var e = log[k];
+      if (e && e.done > 0) { n++; k = addDays(k, -1); continue; }
+      if (plan && MS.isLightDay(plan, k) && MS.daysBetween(plan.startKey, k) >= 0) {
+        // Rest days do not count toward the streak but do not break it.
+        k = addDays(k, -1);
+        continue;
+      }
+      break;
+    }
+    return n;
+  };
+
+  MS.completionStats = function (log, plan) {
+    var total = 0, done = 0, days = 0;
+    var end = Math.min(daysBetween(plan.startKey, dayKey()), TOTAL_DAYS - 1);
+    for (var i = 0; i <= end; i++) {
+      var key = addDays(plan.startKey, i);
+      var res = MS.tasksFor(plan, key);
+      if (!res.tasks.length) continue;
+      total += res.tasks.length;
+      var e = log[key];
+      if (e && e.done) { done += Math.min(e.done, res.tasks.length); days++; }
+    }
+    return {
+      total: total, done: done, daysActive: days,
+      daysElapsed: Math.max(0, end + 1),
+      rate: total ? Math.round((done / total) * 100) : 0
+    };
+  };
+})(window.MS = window.MS || {});
+
+/* ---- src/store.js ---- */
+/* Museschool — persistence. Everything lives in this browser and nowhere else.
+ * No account, no server, no network call. That is deliberate: the quiz asks
+ * for things people would not type into someone else's database. */
+(function (MS) {
+  'use strict';
+
+  var KEY = 'museschool.v1';
+
+  function blank() {
+    return {
+      v: 1,
+      createdAt: new Date().toISOString(),
+      answers: {},
+      plan: null,
+      quizSection: 0,
+      log: {},        // dayKey -> { tasks:{id:true}, done, mood, energy, note }
+      journal: [],    // { date, taskId, title, text, ts }
+      checkins: [],   // { date, scores }
+      settings: { theme: 'auto' }
+    };
+  }
+
+  var state = blank();
+
+  MS.store = {
+    get: function () { return state; },
+
+    load: function () {
+      try {
+        var raw = localStorage.getItem(KEY);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && parsed.v === 1) state = Object.assign(blank(), parsed);
+        }
+      } catch (e) {
+        // Private mode, blocked site data, corrupt JSON — start fresh rather
+        // than dying on load.
+        console.warn('Museschool: could not read saved data', e);
+      }
+      return state;
+    },
+
+    save: function () {
+      try {
+        localStorage.setItem(KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn('Museschool: could not save', e);
+      }
+    },
+
+    reset: function () {
+      state = blank();
+      try { localStorage.removeItem(KEY); } catch (e) {}
+    },
+
+    /* ----- answers ----- */
+    setAnswer: function (id, value) {
+      state.answers[id] = value;
+      this.save();
+    },
+
+    /* ----- daily log ----- */
+    entry: function (key) {
+      if (!state.log[key]) {
+        state.log[key] = { tasks: {}, done: 0, mood: null, energy: null, note: '' };
+      }
+      return state.log[key];
+    },
+
+    toggleTask: function (key, taskId) {
+      var e = this.entry(key);
+      if (e.tasks[taskId]) delete e.tasks[taskId];
+      else e.tasks[taskId] = true;
+      e.done = Object.keys(e.tasks).length;
+      this.save();
+      return !!e.tasks[taskId];
+    },
+
+    setCheckin: function (key, field, value) {
+      var e = this.entry(key);
+      e[field] = value;
+      this.save();
+    },
+
+    /* ----- journal ----- */
+    saveJournal: function (date, taskId, title, text) {
+      var found = state.journal.filter(function (j) {
+        return j.date === date && j.taskId === taskId;
+      })[0];
+      if (found) {
+        found.text = text;
+        found.ts = Date.now();
+      } else {
+        state.journal.push({ date: date, taskId: taskId, title: title, text: text, ts: Date.now() });
+      }
+      this.save();
+    },
+
+    journalFor: function (date, taskId) {
+      var f = state.journal.filter(function (j) {
+        return j.date === date && j.taskId === taskId;
+      })[0];
+      return f ? f.text : '';
+    },
+
+    /* ----- re-assessment ----- */
+    addCheckin: function (scores) {
+      state.checkins.push({ date: MS.dayKey(), scores: scores });
+      this.save();
+    },
+
+    /* ----- portability ----- */
+    exportJSON: function () {
+      return JSON.stringify(state, null, 2);
+    },
+
+    importJSON: function (text) {
+      var parsed = JSON.parse(text);
+      if (!parsed || parsed.v !== 1) throw new Error('Not a Museschool backup file.');
+      state = Object.assign(blank(), parsed);
+      this.save();
+    }
+  };
+})(window.MS = window.MS || {});
+
+/* ---- src/ui/quiz-ui.js ---- */
+/* Museschool — welcome, the quiz itself, and the plan reveal. */
+(function (MS) {
+  'use strict';
+
+  var U = MS.ui = MS.ui || {};
+
+  U.esc = function (s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+  var esc = U.esc;
+
+  /* Sections whose `when` gate passes, given the answers so far. */
+  U.visibleSections = function (answers) {
+    return MS.QUIZ.filter(function (s) { return !s.when || s.when(answers); });
+  };
+
+  /* A question counts as answered if it has a usable value. Free-text
+   * questions marked optional never block progress. */
+  function answered(q, answers) {
+    var v = answers[q.id];
+    if (q.optional) return true;
+    if (q.type === 'multi') return Array.isArray(v) && v.length > 0;
+    if (q.type === 'text') return typeof v === 'string' && v.trim().length > 0;
+    return v !== undefined && v !== null && v !== '';
+  }
+  U.answered = answered;
+
+  /* ---------- welcome ---------- */
+
+  U.welcome = function (st) {
+    var started = Object.keys(st.answers).length > 0;
+    return '' +
+      '<div class="wrap">' +
+        '<p class="eyebrow">Museschool</p>' +
+        '<h1 style="margin:10px 0 18px">Twelve weeks of getting yourself in order.</h1>' +
+        '<p class="muted">A long, honest questionnaire, then a plan built from what you actually said — ' +
+        'four phases, daily tasks sized to the time you really have, and a written record of what changes.</p>' +
+        '<div class="note" style="margin:22px 0">' +
+          '<strong>This stays on your device.</strong> No account, no server, nothing sent anywhere. ' +
+          'The questions get personal and they only work if you answer them honestly, which is easier ' +
+          'when nobody else can read the answers.' +
+        '</div>' +
+        '<div class="btn-row">' +
+          '<button class="btn" data-act="quiz-start">' + (started ? 'Continue the quiz' : 'Start the quiz') + '</button>' +
+          (started ? '<button class="btn btn-quiet" data-act="quiz-restart">Start over</button>' : '') +
+        '</div>' +
+        '<p class="dim tiny" style="margin-top:14px">About 10 minutes. 65 questions across 12 short sections. ' +
+        'You can stop and come back — answers save as you go.</p>' +
+        '<hr class="divider">' +
+        '<p class="eyebrow">How it works</p>' +
+        '<div class="stack" style="margin-top:12px">' +
+          card('1 · The questionnaire', 'Nine dimensions get measured: steadiness, self-worth, communication, ownership, follow-through, energy, direction, connection and presence. Plus what you want, what derails you, and how much time you honestly have.') +
+          card('2 · Your reading', 'Two keystones — the things holding the rest back — and one strength worth leaning on. Scored, not guessed.') +
+          card('3 · The plan', 'Twelve weeks in four phases: stabilise, look straight at it, show up, make it yours. Each with its own focus and milestones.') +
+          card('4 · Daily tasks', 'A handful each day, built from your phase and your keystones, sized to your time budget. Written work included, because that is where most of it happens.') +
+        '</div>' +
+      '</div>';
+  };
+
+  function card(title, body) {
+    return '<div class="card card-tight"><h3>' + esc(title) + '</h3>' +
+      '<p class="muted small" style="margin:6px 0 0">' + esc(body) + '</p></div>';
+  }
+
+  /* ---------- quiz ---------- */
+
+  U.quiz = function (st) {
+    var sections = U.visibleSections(st.answers);
+    var i = Math.min(st.quizSection, sections.length - 1);
+    var sec = sections[i];
+
+    var done = 0, total = 0;
+    sections.forEach(function (s, n) {
+      s.questions.forEach(function (q) {
+        total++;
+        if (n < i || answered(q, st.answers)) done++;
+      });
+    });
+    var pct = Math.round((done / total) * 100);
+
+    var body = sec.questions.map(function (q) { return question(q, st.answers); }).join('');
+    var blocked = sec.questions.some(function (q) { return !answered(q, st.answers); });
+    var last = i === sections.length - 1;
+
+    return '' +
+      '<div class="wrap">' +
+        '<div class="progressbar"><i style="width:' + pct + '%"></i></div>' +
+        '<div class="spread" style="margin:10px 0 26px">' +
+          '<span class="eyebrow">Section ' + (i + 1) + ' of ' + sections.length + '</span>' +
+          '<span class="dim tiny">' + pct + '%</span>' +
+        '</div>' +
+        '<h2>' + esc(sec.title) + '</h2>' +
+        '<p class="muted" style="margin-top:8px">' + esc(sec.blurb) + '</p>' +
+        body +
+        '<div class="btn-row" style="margin-top:28px">' +
+          (i > 0 ? '<button class="btn btn-ghost" data-act="quiz-back">Back</button>' : '') +
+          '<button class="btn" data-act="' + (last ? 'quiz-finish' : 'quiz-next') + '"' +
+            (blocked ? ' disabled' : '') + '>' +
+            (last ? 'Build my plan' : 'Next') + '</button>' +
+        '</div>' +
+        (blocked ? '<p class="dim tiny" style="margin-top:10px">Answer everything on this page to continue.</p>' : '') +
+      '</div>';
+  };
+
+  function question(q, answers) {
+    var v = answers[q.id];
+    var out = '<div class="q"><div class="q-text">' + esc(q.text) + '</div>';
+
+    if (q.type === 'text') {
+      out += q.optional ? '<p class="q-note">Optional, but worth doing.</p>' : '';
+      out += q.short
+        ? '<input type="text" data-input="' + q.id + '" value="' + esc(v || '') +
+          '" placeholder="' + esc(q.placeholder || '') + '">'
+        : '<textarea data-input="' + q.id + '" placeholder="' + esc(q.placeholder || '') + '">' +
+          esc(v || '') + '</textarea>';
+
+    } else if (q.type === 'scale') {
+      out += '<div class="scale">';
+      for (var n = 1; n <= 5; n++) {
+        out += '<button type="button" data-act="set" data-q="' + q.id + '" data-v="' + n + '"' +
+          ' aria-pressed="' + (v === n) + '">' +
+          '<b>' + n + '</b><span>' + esc(q.labels[n - 1]) + '</span></button>';
+      }
+      out += '</div>';
+
+    } else {
+      var multi = q.type === 'multi';
+      if (multi) {
+        var chosen = Array.isArray(v) ? v.length : 0;
+        out += '<p class="q-note">Choose up to ' + q.max + '. ' + chosen + ' selected.</p>';
+      }
+      out += q.options.map(function (o) {
+        var on = multi ? (Array.isArray(v) && v.indexOf(o.v) !== -1) : v === o.v;
+        return '<button type="button" class="opt" aria-pressed="' + on + '"' +
+          ' data-act="' + (multi ? 'toggle' : 'set') + '" data-q="' + q.id + '" data-v="' + esc(o.v) + '"' +
+          (multi ? ' data-max="' + q.max + '"' : '') + '>' +
+          '<span class="opt-label">' + esc(o.label) + '</span>' +
+          (o.note ? '<span class="opt-note">' + esc(o.note) + '</span>' : '') +
+          '</button>';
+      }).join('');
+    }
+    return out + '</div>';
+  }
+
+  /* ---------- plan reveal ---------- */
+
+  U.reveal = function (st) {
+    var plan = st.plan;
+    var name = (st.answers.name || '').trim();
+    var k0 = plan.keystones[0], k1 = plan.keystones[1];
+    var D = MS.DIMENSIONS;
+
+    return '' +
+      '<div class="wrap">' +
+        '<p class="eyebrow">Your reading</p>' +
+        '<h1 style="margin:10px 0 20px">' +
+          (name ? esc(name) + ', here' : 'Here') + ' is what the answers say.</h1>' +
+
+        '<div class="card">' +
+          '<p class="eyebrow">Keystone one · ' + esc(D[k0].label) + '</p>' +
+          '<p class="muted" style="margin:8px 0 0">' + esc(MS.DIM_READ[k0]) + '</p>' +
+        '</div>' +
+        '<div class="card">' +
+          '<p class="eyebrow">Keystone two · ' + esc(D[k1].label) + '</p>' +
+          '<p class="muted" style="margin:8px 0 0">' + esc(MS.DIM_READ[k1]) + '</p>' +
+        '</div>' +
+        '<div class="card">' +
+          '<p class="eyebrow">What you have going for you · ' + esc(D[plan.strength].label) + '</p>' +
+          '<p class="muted" style="margin:8px 0 0">' + esc(MS.DIM_STRENGTH[plan.strength]) + '</p>' +
+        '</div>' +
+
+        '<hr class="divider">' +
+        '<p class="eyebrow">Where you scored</p>' +
+        '<div class="bars" style="margin-top:14px">' + U.bars(plan.scores, plan.keystones) + '</div>' +
+        '<p class="dim tiny" style="margin-top:12px">These are a snapshot of how you answered today, not a verdict. ' +
+        'You will re-score at the end of each phase and see the movement.</p>' +
+
+        (plan.relationship ? U.relationshipNote(st) : '') +
+
+        '<hr class="divider">' +
+        '<p class="eyebrow">The twelve weeks</p>' +
+        '<div style="margin-top:16px">' + U.phaseList(plan, 1) + '</div>' +
+
+        '<hr class="divider">' +
+        '<p class="eyebrow">Your daily anchor</p>' +
+        plan.anchors.map(function (id) {
+          var t = MS.taskById(id);
+          return '<div class="card" style="margin-top:12px"><h3>' + esc(t.title) + '</h3>' +
+            '<p class="muted small" style="margin:8px 0 0">' + esc(t.detail) + '</p></div>';
+        }).join('') +
+        '<p class="dim tiny" style="margin-top:12px">This one repeats every day, rest days included. ' +
+        'Everything else rotates.</p>' +
+
+        '<div class="btn-row" style="margin-top:30px">' +
+          '<button class="btn btn-block" data-act="begin">Start day one</button>' +
+        '</div>' +
+      '</div>';
+  };
+
+  /* The honest framing, shown once at reveal and again on the plan screen.
+   * It is the difference between a growth plan and a manipulation manual. */
+  U.relationshipNote = function (st) {
+    var want = st.answers.relWant;
+    var space = st.answers.relSpace;
+    return '' +
+      '<hr class="divider">' +
+      '<p class="eyebrow">About the relationship</p>' +
+      '<div class="note" style="margin-top:14px">' +
+        '<p style="margin:0 0 10px"><strong>This plan works on you, not on them.</strong> There are no scripts here for ' +
+        'getting a particular response out of another person, and that is not squeamishness — tactics aimed at ' +
+        'someone tend to be visible, and they do not survive contact with a real relationship anyway.</p>' +
+        '<p style="margin:0 0 10px">What is here instead: steadiness under pressure, hearing something hard without ' +
+        'defending, naming your part without an excuse attached, and building a life that is not resting entirely ' +
+        'on one answer. If reconciliation happens, those are the things that make it hold. If it does not, they are ' +
+        'still the things you wanted.</p>' +
+        (space === 'no' || space === 'mostly'
+          ? '<p style="margin:0 0 10px"><strong>You said you are not fully giving the space they asked for.</strong> ' +
+            'Start there. Respecting a stated boundary is the only evidence of change that is visible from a distance, ' +
+            'and it is the one piece of this you can do today.</p>'
+          : '') +
+        (want === 'reconcile'
+          ? '<p style="margin:0">You said you want to rebuild it. Worth holding alongside that: they get to want ' +
+            'something different, and no amount of work on your side obliges them. Phase three has a task that is ' +
+            'specifically about holding both of those at once.</p>'
+          : '<p style="margin:0">Whatever this ends up being, the work is the same.</p>') +
+      '</div>';
+  };
+
+  /* ---------- shared renderers ---------- */
+
+  U.bars = function (scores, keystones, previous) {
+    return MS.DIM_KEYS
+      .slice()
+      .sort(function (a, b) { return scores[a] - scores[b]; })
+      .map(function (k) {
+        var key = keystones && keystones.indexOf(k) !== -1;
+        var prev = previous && typeof previous[k] === 'number' ? previous[k] : null;
+        var delta = prev !== null ? scores[k] - prev : null;
+        return '<div class="bar-row' + (key ? ' key' : '') + '">' +
+          '<span class="bar-key">' + esc(MS.DIMENSIONS[k].short) + '</span>' +
+          '<span class="bar"><i style="width:' + scores[k] + '%"></i>' +
+            (prev !== null ? '<u style="left:calc(' + prev + '% - 1px)"></u>' : '') +
+          '</span>' +
+          '<span class="bar-val">' + scores[k] +
+            (delta ? '<br><span class="tiny" style="color:' + (delta > 0 ? 'var(--good)' : 'var(--ink-3)') + '">' +
+              (delta > 0 ? '+' : '') + delta + '</span>' : '') +
+          '</span>' +
+        '</div>';
+      }).join('');
+  };
+
+  U.phaseList = function (plan, currentN) {
+    return plan.phases.map(function (p) {
+      var cls = p.n === currentN ? ' now' : (p.n < currentN ? ' past' : '');
+      return '<div class="phase' + cls + '">' +
+        '<h3>' + esc(p.name) +
+          '<span class="dim tiny" style="font-family:var(--font-body);font-weight:500">Weeks ' +
+            p.weeks[0] + '–' + p.weeks[1] + '</span>' +
+        '</h3>' +
+        '<p class="muted small" style="margin:6px 0 0"><em>' + esc(p.line) + '</em></p>' +
+        '<p class="muted small" style="margin:8px 0 0">' + esc(p.body) + '</p>' +
+        '<ul class="ms">' + p.milestones.map(function (m) {
+          return '<li>' + esc(m.text) + '</li>';
+        }).join('') + '</ul>' +
+      '</div>';
+    }).join('');
+  };
+})(window.MS = window.MS || {});
+
+/* ---- src/ui/app-ui.js ---- */
+/* Museschool — the day-to-day screens, navigation and bootstrap. */
+(function (MS) {
+  'use strict';
+
+  var U = MS.ui;
+  var esc = U.esc;
+  var root, toastEl, toastTimer;
+
+  MS.view = 'today';
+
+  var NAV = [
+    { id: 'today', icon: '◉', label: 'Today' },
+    { id: 'plan', icon: '◈', label: 'Plan' },
+    { id: 'progress', icon: '◔', label: 'Progress' },
+    { id: 'journal', icon: '✎', label: 'Journal' },
+    { id: 'settings', icon: '⚙', label: 'You' }
+  ];
+
+  function longDate(key) {
+    return MS.fromKey(key).toLocaleDateString(undefined, {
+      weekday: 'long', day: 'numeric', month: 'long'
+    });
+  }
+
+  /* ---------- today ---------- */
+
+  U.today = function (st) {
+    var plan = st.plan;
+    var key = MS.dayKey();
+    var res = MS.tasksFor(plan, key);
+    var info = res.info;
+    var e = st.log[key] || { tasks: {}, done: 0 };
+
+    if (info.beforeStart) {
+      return page('<div class="wrap"><h2>Your plan starts ' + esc(longDate(plan.startKey)) + '.</h2>' +
+        '<p class="muted" style="margin-top:10px">Nothing to do until then.</p></div>');
+    }
+
+    if (info.finished) {
+      return page('<div class="wrap">' +
+        '<p class="eyebrow">Twelve weeks, done</p>' +
+        '<h1 style="margin:10px 0 16px">That is the whole plan.</h1>' +
+        '<p class="muted">Look at Progress to see what moved. Then pick the three things worth keeping ' +
+        'permanently and drop the rest — that was always the point of phase four.</p>' +
+        '<div class="btn-row" style="margin-top:22px">' +
+          '<button class="btn" data-act="go" data-view="progress">See what changed</button>' +
+          '<button class="btn btn-ghost" data-act="restart-plan">Run another twelve weeks</button>' +
+        '</div></div>');
+    }
+
+    var doneCount = res.tasks.filter(function (t) { return e.tasks[t.id]; }).length;
+    var allDone = doneCount === res.tasks.length && res.tasks.length > 0;
+    var total = res.tasks.reduce(function (n, t) { return n + t.min; }, 0);
+
+    var head = '' +
+      '<div class="spread">' +
+        '<div>' +
+          '<p class="eyebrow">Day ' + info.dayNumber + ' · Week ' + info.week + ' · Phase ' + info.phaseN + '</p>' +
+          '<h2 style="margin-top:6px">' + esc(longDate(key)) + '</h2>' +
+        '</div>' +
+      '</div>' +
+      '<p class="muted small" style="margin:10px 0 0"><em>' + esc(info.phase.line) + '</em> · ' +
+        'about ' + total + ' minutes' + (res.light ? ' · rest day' : '') + '</p>';
+
+    var tasks = res.tasks.map(function (t) {
+      return taskCard(t, !!e.tasks[t.id], key);
+    }).join('');
+
+    var checkin = '' +
+      '<hr class="divider">' +
+      '<p class="eyebrow">Close the day</p>' +
+      '<div class="card" style="margin-top:12px">' +
+        meter('mood', 'How was your head today?', e.mood) +
+        meter('energy', 'How was your energy?', e.energy) +
+        '<label class="small muted" style="display:block;margin:16px 0 6px">One line about today</label>' +
+        '<textarea data-input="note" data-day="' + key + '" style="min-height:70px" ' +
+          'placeholder="Anything worth remembering.">' + esc(e.note || '') + '</textarea>' +
+      '</div>';
+
+    return page('<div class="wrap">' + head +
+      (allDone ? '<div class="note" style="margin:18px 0 0"><strong>Day done.</strong> ' +
+        'That is the whole job today. The compounding is invisible for a few weeks and then it is not.</div>' : '') +
+      '<div style="margin-top:20px">' + tasks + '</div>' +
+      (res.light ? '<p class="dim tiny">A lighter day by design — you chose ' + plan.days +
+        ' days a week. Rest is part of the plan, not a gap in it.</p>' : '') +
+      checkin +
+    '</div>');
+  };
+
+  function meter(field, label, value) {
+    var out = '<label class="small muted" style="display:block;margin-bottom:6px">' + esc(label) + '</label>' +
+      '<div class="scale" style="margin-bottom:6px">';
+    for (var n = 1; n <= 5; n++) {
+      out += '<button type="button" data-act="meter" data-field="' + field + '" data-v="' + n + '"' +
+        ' aria-pressed="' + (value === n) + '"><b>' + n + '</b></button>';
+    }
+    return out + '</div>';
+  }
+
+  function taskCard(t, done, key) {
+    var isWriting = t.cat === 'reflect';
+    var chipClass = t.cat === 'anchor' ? ' chip-anchor' : (isWriting ? ' chip-reflect' : '');
+    var text = isWriting ? MS.store.journalFor(key, t.id) : '';
+    return '' +
+      '<div class="task' + (done ? ' done' : '') + '">' +
+        '<button class="tick" data-act="tick" data-task="' + esc(t.id) + '" ' +
+          'aria-label="Mark done" aria-pressed="' + done + '">✓</button>' +
+        '<div class="task-body">' +
+          '<div class="task-meta">' +
+            '<span class="chip' + chipClass + '">' + esc(t.cat) + '</span>' +
+            '<span class="chip">' + esc(MS.DIMENSIONS[t.dim].short) + '</span>' +
+            '<span class="chip">' + t.min + ' min</span>' +
+          '</div>' +
+          '<div class="task-title">' + esc(t.title) + '</div>' +
+          '<div class="task-detail">' + esc(t.detail) + '</div>' +
+          (isWriting
+            ? '<div class="task-journal">' +
+                '<textarea data-input="journal" data-task="' + esc(t.id) + '" ' +
+                  'data-title="' + esc(t.title) + '" data-day="' + key + '" ' +
+                  'placeholder="Write it here. It saves as you type and stays on this device.">' +
+                  esc(text) + '</textarea>' +
+              '</div>'
+            : '') +
+        '</div>' +
+      '</div>';
+  }
+
+  /* ---------- plan ---------- */
+
+  U.plan = function (st) {
+    var plan = st.plan;
+    var info = MS.dayInfo(plan, MS.dayKey());
+    var D = MS.DIMENSIONS;
+    return page('<div class="wrap">' +
+      '<p class="eyebrow">The plan</p>' +
+      '<h2 style="margin:8px 0 16px">Twelve weeks, four phases</h2>' +
+      '<div class="stats">' +
+        stat(info.beforeStart ? '—' : Math.min(info.dayNumber, MS.TOTAL_DAYS), 'of 84 days') +
+        stat(info.phaseN, 'phase') +
+        stat(plan.minutes + 'm', 'per day') +
+      '</div>' +
+      '<hr class="divider">' +
+      '<p class="eyebrow">Your keystones</p>' +
+      '<p class="muted small" style="margin:8px 0 16px">Everything below is weighted toward these two. ' +
+      'They were the lowest-scoring things you also said you cared about.</p>' +
+      plan.keystones.map(function (k) {
+        return '<div class="card card-tight"><h3>' + esc(D[k].label) + '</h3>' +
+          '<p class="muted small" style="margin:6px 0 0">' + esc(MS.DIM_READ[k]) + '</p></div>';
+      }).join('') +
+      (plan.relationship ? U.relationshipNote(st) : '') +
+      '<hr class="divider">' +
+      '<div style="margin-top:16px">' + U.phaseList(plan, info.phaseN) + '</div>' +
+    '</div>');
+  };
+
+  function stat(v, label) {
+    return '<div class="stat"><b>' + esc(v) + '</b><span>' + esc(label) + '</span></div>';
+  }
+
+  /* ---------- progress ---------- */
+
+  U.progress = function (st) {
+    var plan = st.plan;
+    var stats = MS.completionStats(st.log, plan);
+    var streak = MS.streak(st.log, plan);
+    var info = MS.dayInfo(plan, MS.dayKey());
+    var latest = st.checkins.length ? st.checkins[st.checkins.length - 1].scores : null;
+
+    // A re-score is due at the end of each phase.
+    var phasesDone = Math.floor(Math.max(0, info.index) / MS.PHASE_DAYS);
+    var due = phasesDone > st.checkins.length;
+
+    var moods = Object.keys(st.log)
+      .sort()
+      .filter(function (k) { return st.log[k].mood; })
+      .slice(-28);
+
+    return page('<div class="wrap">' +
+      '<p class="eyebrow">Progress</p>' +
+      '<h2 style="margin:8px 0 18px">What you have actually done</h2>' +
+      '<div class="stats">' +
+        stat(streak, 'day streak') +
+        stat(stats.rate + '%', 'tasks done') +
+        stat(stats.daysActive, 'active days') +
+      '</div>' +
+
+      (due
+        ? '<div class="note" style="margin-top:18px"><strong>Phase ' + phasesDone + ' is done — time to re-score.</strong> ' +
+          'Nine questions, same as the ones from the quiz. It takes two minutes and it is the only way to see ' +
+          'whether any of this is moving.' +
+          '<div style="margin-top:12px"><button class="btn" data-act="recheck">Re-score now</button></div></div>'
+        : '') +
+
+      '<hr class="divider">' +
+      '<p class="eyebrow">Your nine dimensions</p>' +
+      '<p class="muted small" style="margin:8px 0 16px">' +
+        (latest
+          ? 'Bars show your latest re-score. The vertical mark is where you started.'
+          : 'Where you started. Re-score at the end of each phase to see this move.') +
+      '</p>' +
+      '<div class="bars">' + U.bars(latest || plan.scores, plan.keystones, latest ? plan.scores : null) + '</div>' +
+
+      (moods.length > 2 ? moodChart(st, moods) : '') +
+
+      '<hr class="divider">' +
+      '<p class="eyebrow">The arc</p>' +
+      '<div style="margin-top:16px">' + U.phaseList(plan, info.phaseN) + '</div>' +
+    '</div>');
+  };
+
+  /* A small inline SVG — mood and energy over the last few weeks. */
+  function moodChart(st, keys) {
+    var w = 320, h = 90, pad = 6;
+    function line(field, color) {
+      var pts = keys.map(function (k, i) {
+        var v = st.log[k][field] || 3;
+        var x = pad + (i / Math.max(1, keys.length - 1)) * (w - pad * 2);
+        var y = h - pad - ((v - 1) / 4) * (h - pad * 2);
+        return x.toFixed(1) + ',' + y.toFixed(1);
+      }).join(' ');
+      return '<polyline points="' + pts + '" fill="none" stroke="' + color +
+        '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    }
+    return '' +
+      '<hr class="divider">' +
+      '<p class="eyebrow">Head and energy · last ' + keys.length + ' logged days</p>' +
+      '<div class="scroll-x" style="margin-top:14px">' +
+        '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="' + h + '" ' +
+          'preserveAspectRatio="none" role="img" aria-label="Mood and energy over time">' +
+          line('mood', 'var(--accent)') + line('energy', 'var(--teal)') +
+        '</svg>' +
+      '</div>' +
+      '<div class="row small dim" style="margin-top:8px;gap:18px">' +
+        '<span><b style="color:var(--accent)">—</b> head</span>' +
+        '<span><b style="color:var(--teal)">—</b> energy</span>' +
+      '</div>';
+  }
+
+  /* ---------- re-score ---------- */
+
+  /* Two questions per dimension. One would snap every score to a quintile,
+   * which reads as precision the answer does not have next to the four-to-six
+   * question average from the original quiz. */
+  function recheckQuestions() {
+    var byDim = {};
+    MS.DIM_KEYS.forEach(function (d) { byDim[d] = []; });
+    MS.QUIZ.forEach(function (s) {
+      s.questions.forEach(function (q) {
+        if (q.type === 'scale' && byDim[q.dim]) byDim[q.dim].push(q);
+      });
+    });
+    var out = [];
+    MS.DIM_KEYS.forEach(function (d) {
+      // Prefer plainly-worded questions over the reverse-scored ones.
+      var pool = byDim[d].filter(function (q) { return !q.reverse; });
+      if (pool.length < 2) pool = pool.concat(byDim[d].filter(function (q) { return q.reverse; }));
+      out = out.concat(pool.slice(0, 2));
+    });
+    return out;
+  }
+
+  U.recheck = function (st) {
+    var qs = recheckQuestions();
+    var pending = MS.recheckAnswers || (MS.recheckAnswers = {});
+    var answeredCount = qs.filter(function (q) { return pending[q.id]; }).length;
+    var ready = answeredCount === qs.length;
+
+    return page('<div class="wrap">' +
+      '<p class="eyebrow">Re-score</p>' +
+      '<h2 style="margin:8px 0 6px">Same questions, today\'s answers</h2>' +
+      '<p class="muted">Answer as of the last two weeks, not as of your best day. ' +
+      qs.length + ' questions, about two minutes.</p>' +
+      '<div class="progressbar" style="margin-top:16px"><i style="width:' +
+        Math.round((answeredCount / qs.length) * 100) + '%"></i></div>' +
+      qs.map(function (q) {
+        var v = pending[q.id];
+        var out = '<div class="q"><div class="q-text">' + esc(q.text) + '</div><div class="scale">';
+        for (var n = 1; n <= 5; n++) {
+          out += '<button type="button" data-act="recheck-set" data-q="' + q.id + '" data-v="' + n + '"' +
+            ' aria-pressed="' + (v === n) + '"><b>' + n + '</b><span>' + esc(q.labels[n - 1]) + '</span></button>';
+        }
+        return out + '</div></div>';
+      }).join('') +
+      '<div class="btn-row" style="margin-top:26px">' +
+        '<button class="btn btn-ghost" data-act="go" data-view="progress">Cancel</button>' +
+        '<button class="btn" data-act="recheck-save"' + (ready ? '' : ' disabled') + '>Save re-score</button>' +
+      '</div>' +
+      (ready ? '' : '<p class="dim tiny" style="margin-top:10px">' +
+        (qs.length - answeredCount) + ' left.</p>') +
+    '</div>');
+  };
+
+  /* ---------- journal ---------- */
+
+  U.journal = function (st) {
+    var entries = st.journal
+      .filter(function (j) { return j.text && j.text.trim(); })
+      .sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+
+    var notes = Object.keys(st.log)
+      .filter(function (k) { return st.log[k].note && st.log[k].note.trim(); })
+      .sort().reverse();
+
+    var body = '';
+    if (!entries.length && !notes.length) {
+      body = '<p class="muted">Nothing yet. The written tasks on your Today screen land here, ' +
+        'along with your end-of-day lines. In eight weeks this is the part you will actually want to read back.</p>';
+    } else {
+      body = entries.map(function (j) {
+        return '<div class="jentry">' +
+          '<div class="spread"><strong class="small">' + esc(j.title) + '</strong>' +
+          '<span class="dim tiny">' + esc(longDate(j.date)) + '</span></div>' +
+          '<pre>' + esc(j.text) + '</pre></div>';
+      }).join('');
+      if (notes.length) {
+        body += '<hr class="divider"><p class="eyebrow">End-of-day lines</p>' +
+          notes.map(function (k) {
+            return '<div class="jentry"><div class="spread">' +
+              '<span class="dim tiny">' + esc(longDate(k)) + '</span></div>' +
+              '<pre>' + esc(st.log[k].note) + '</pre></div>';
+          }).join('');
+      }
+    }
+
+    return page('<div class="wrap">' +
+      '<p class="eyebrow">Journal</p>' +
+      '<h2 style="margin:8px 0 18px">' + entries.length + ' written ' +
+        (entries.length === 1 ? 'entry' : 'entries') + '</h2>' +
+      body +
+    '</div>');
+  };
+
+  /* ---------- settings ---------- */
+
+  U.settings = function (st) {
+    var theme = st.settings.theme || 'auto';
+    var rel = st.answers.relLegacy;
+    return page('<div class="wrap">' +
+      '<p class="eyebrow">You</p>' +
+      '<h2 style="margin:8px 0 18px">' + esc(st.answers.name || 'Settings') + '</h2>' +
+
+      (rel && rel.trim()
+        ? '<div class="card"><p class="eyebrow">What you said you wanted to be true in a year</p>' +
+          '<p style="margin:10px 0 0;font-family:var(--font-display);font-size:1.1rem;line-height:1.45">' +
+          esc(rel) + '</p></div>'
+        : '') +
+
+      '<div class="card" style="margin-top:14px">' +
+        '<p class="eyebrow">Appearance</p>' +
+        '<div class="btn-row" style="margin-top:12px">' +
+          ['auto', 'light', 'dark'].map(function (t) {
+            return '<button class="btn ' + (theme === t ? '' : 'btn-ghost') +
+              '" data-act="theme" data-v="' + t + '">' + t + '</button>';
+          }).join('') +
+        '</div>' +
+      '</div>' +
+
+      '<div class="card">' +
+        '<p class="eyebrow">Your data</p>' +
+        '<p class="muted small" style="margin:10px 0 14px">Everything is stored in this browser only. ' +
+        'Clearing site data or switching device loses it, so export a backup if it matters to you.</p>' +
+        '<div class="btn-row" style="flex-wrap:wrap">' +
+          '<button class="btn btn-ghost" data-act="export">Copy backup</button>' +
+          '<button class="btn btn-ghost" data-act="import">Restore backup</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="card">' +
+        '<p class="eyebrow">Start again</p>' +
+        '<p class="muted small" style="margin:10px 0 14px">Retake the quiz and build a fresh plan. ' +
+        'Your journal and daily log are kept.</p>' +
+        '<div class="btn-row" style="flex-wrap:wrap">' +
+          '<button class="btn btn-ghost" data-act="retake">Retake the quiz</button>' +
+          '<button class="btn btn-quiet" data-act="wipe">Erase everything</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<p class="dim tiny" style="margin-top:22px">Museschool is a structured self-directed programme, ' +
+      'not therapy and not a substitute for it. If you are in crisis, or if what you are working through is ' +
+      'heavier than a daily task list, please talk to a professional or someone you trust.</p>' +
+    '</div>');
+  };
+
+  /* ---------- chrome ---------- */
+
+  function page(inner) {
+    return nav() + inner;
+  }
+
+  function nav() {
+    return '<nav class="nav">' + NAV.map(function (n) {
+      return '<button data-act="go" data-view="' + n.id + '"' +
+        (MS.view === n.id ? ' aria-current="page"' : '') + '>' +
+        '<i>' + n.icon + '</i>' + n.label + '</button>';
+    }).join('') + '</nav>';
+  }
+
+  U.toast = function (msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2200);
+  };
+
+  /* ---------- render ---------- */
+
+  MS.render = function () {
+    var st = MS.store.get();
+    document.documentElement.setAttribute('data-theme', st.settings.theme || 'auto');
+
+    var html;
+    if (!st.plan) {
+      html = MS.view === 'quiz' ? U.quiz(st)
+           : MS.view === 'reveal' ? U.reveal(st)
+           : U.welcome(st);
+    } else if (MS.view === 'quiz') {
+      html = U.quiz(st);
+    } else if (MS.view === 'reveal') {
+      html = U.reveal(st);
+    } else if (MS.view === 'recheck') {
+      html = U.recheck(st);
+    } else {
+      html = (U[MS.view] || U.today)(st);
+    }
+
+    // Preserve focus and caret across re-render for the field being typed in.
+    var active = document.activeElement;
+    var restore = active && active.tagName === 'TEXTAREA'
+      ? { key: active.dataset.input + '|' + (active.dataset.task || '') , pos: active.selectionStart }
+      : null;
+
+    root.innerHTML = html;
+
+    if (restore) {
+      var next = Array.prototype.find.call(root.querySelectorAll('textarea'), function (t) {
+        return t.dataset.input + '|' + (t.dataset.task || '') === restore.key;
+      });
+      if (next) { next.focus(); try { next.setSelectionRange(restore.pos, restore.pos); } catch (e) {} }
+    }
+  };
+
+  /* ---------- events ---------- */
+
+  function onClick(ev) {
+    var btn = ev.target.closest('[data-act]');
+    if (!btn) return;
+    flushInput();
+    var st = MS.store.get();
+    var act = btn.dataset.act;
+    var scroll = true;
+
+    switch (act) {
+      case 'quiz-start':
+        MS.view = 'quiz'; break;
+
+      case 'quiz-restart':
+        st.answers = {}; st.quizSection = 0; MS.store.save();
+        MS.view = 'quiz'; break;
+
+      case 'quiz-next':
+        st.quizSection++; MS.store.save(); break;
+
+      case 'quiz-back':
+        st.quizSection = Math.max(0, st.quizSection - 1); MS.store.save(); break;
+
+      case 'quiz-finish':
+        st.plan = MS.buildPlan(st.answers, MS.dayKey());
+        MS.store.save();
+        MS.view = 'reveal'; break;
+
+      case 'begin':
+        MS.view = 'today'; break;
+
+      case 'set':
+        MS.store.setAnswer(btn.dataset.q, coerce(btn.dataset.v));
+        scroll = false; break;
+
+      case 'toggle': {
+        var q = btn.dataset.q;
+        var max = parseInt(btn.dataset.max, 10) || 99;
+        var cur = Array.isArray(st.answers[q]) ? st.answers[q].slice() : [];
+        var i = cur.indexOf(btn.dataset.v);
+        if (i !== -1) cur.splice(i, 1);
+        else if (cur.length < max) cur.push(btn.dataset.v);
+        else { U.toast('Pick at most ' + max + '.'); return; }
+        MS.store.setAnswer(q, cur);
+        scroll = false; break;
+      }
+
+      case 'go':
+        MS.view = btn.dataset.view; break;
+
+      case 'tick': {
+        var on = MS.store.toggleTask(MS.dayKey(), btn.dataset.task);
+        if (on) U.toast('Done.');
+        scroll = false; break;
+      }
+
+      case 'meter':
+        MS.store.setCheckin(MS.dayKey(), btn.dataset.field, parseInt(btn.dataset.v, 10));
+        scroll = false; break;
+
+      case 'recheck':
+        MS.recheckAnswers = {}; MS.view = 'recheck'; break;
+
+      case 'recheck-set':
+        MS.recheckAnswers[btn.dataset.q] = parseInt(btn.dataset.v, 10);
+        scroll = false; break;
+
+      case 'recheck-save': {
+        // Same normalisation as the original quiz, so the numbers are comparable.
+        var sums = {}, counts = {}, scores = {};
+        recheckQuestions().forEach(function (qq) {
+          var v = MS.recheckAnswers[qq.id];
+          if (typeof v !== 'number') return;
+          if (qq.reverse) v = 6 - v;
+          sums[qq.dim] = (sums[qq.dim] || 0) + v;
+          counts[qq.dim] = (counts[qq.dim] || 0) + 1;
+        });
+        MS.DIM_KEYS.forEach(function (dim) {
+          scores[dim] = counts[dim]
+            ? Math.round(((sums[dim] - counts[dim]) / (4 * counts[dim])) * 100)
+            : st.plan.scores[dim];
+        });
+        MS.store.addCheckin(scores);
+        MS.recheckAnswers = {};
+        MS.view = 'progress';
+        U.toast('Re-scored.');
+        break;
+      }
+
+      case 'theme':
+        st.settings.theme = btn.dataset.v; MS.store.save(); scroll = false; break;
+
+      case 'export': {
+        var text = MS.store.exportJSON();
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text)
+            .then(function () { U.toast('Backup copied to clipboard.'); })
+            .catch(function () { window.prompt('Copy your backup:', text); });
+        } else {
+          window.prompt('Copy your backup:', text);
+        }
+        return;
+      }
+
+      case 'import': {
+        var input = window.prompt('Paste a Museschool backup:');
+        if (!input) return;
+        try { MS.store.importJSON(input); U.toast('Backup restored.'); MS.view = 'today'; }
+        catch (err) { U.toast('That did not look like a backup.'); return; }
+        break;
+      }
+
+      case 'retake':
+        if (!confirm('Retake the quiz and build a new plan? Your journal and daily log are kept.')) return;
+        st.answers = {}; st.plan = null; st.quizSection = 0; MS.store.save();
+        MS.view = 'quiz'; break;
+
+      case 'restart-plan':
+        st.plan = MS.buildPlan(st.answers, MS.dayKey());
+        st.checkins = [];
+        MS.store.save();
+        MS.view = 'reveal'; break;
+
+      case 'wipe':
+        if (!confirm('Erase everything — answers, plan, journal and log? This cannot be undone.')) return;
+        MS.store.reset(); MS.view = 'today'; break;
+
+      default: return;
+    }
+
+    MS.render();
+    if (scroll) window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  }
+
+  function coerce(v) {
+    return /^\d+$/.test(v) ? parseInt(v, 10) : v;
+  }
+
+  /* Typing saves on a short debounce rather than on every keystroke. Any
+   * click flushes the pending save first — otherwise a re-render triggered
+   * between the keystroke and the timer would blank the field on screen and
+   * the next edit would save over what was typed. */
+  var typeTimer, pendingInput;
+
+  function flushInput() {
+    clearTimeout(typeTimer);
+    var p = pendingInput;
+    if (!p) return false;
+    pendingInput = null;
+    if (p.kind === 'journal') {
+      MS.store.saveJournal(p.day, p.task, p.title, p.value);
+    } else if (p.kind === 'note') {
+      MS.store.setCheckin(p.day, 'note', p.value);
+    } else {
+      MS.store.setAnswer(p.kind, p.value);
+    }
+    return true;
+  }
+
+  function onInput(ev) {
+    var el = ev.target;
+    var kind = el.dataset.input;
+    if (!kind) return;
+    clearTimeout(typeTimer);
+    pendingInput = {
+      kind: kind, value: el.value,
+      day: el.dataset.day, task: el.dataset.task, title: el.dataset.title
+    };
+    typeTimer = setTimeout(function () {
+      var wasQuiz = MS.view === 'quiz';
+      flushInput();
+      // In the quiz, Next unlocks once a required field has content.
+      if (wasQuiz) MS.render();
+    }, 350);
+  }
+
+  /* ---------- boot ---------- */
+
+  MS.boot = function () {
+    root = document.getElementById('app');
+    toastEl = document.getElementById('toast');
+    var st = MS.store.load();
+    MS.view = st.plan ? 'today' : 'welcome';
+    root.addEventListener('click', onClick);
+    root.addEventListener('input', onInput);
+    MS.render();
+  };
+})(window.MS = window.MS || {});
+
+MS.boot();
+</script>
+</body>
+</html>
