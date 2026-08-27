@@ -159,6 +159,73 @@ ok('auto-save correctly hidden without a picker',
   !(await pg.evaluate(() => MS.backup.canAutoSave())));
 await ctx.close();
 
+console.log('\n7. Framed with no save route granted');
+{
+  const ctx2 = await b.newContext({ viewport: { width: 390, height: 844 },
+                                    permissions: ['clipboard-read', 'clipboard-write'] });
+  // Applies to every frame, so the app sees it inside the iframe.
+  await ctx2.addInitScript(() => {
+    window.claude = { use: () => new Promise((r) => setTimeout(() => r(null), 40)) };
+  });
+  const host = await ctx2.newPage();
+  host.on('pageerror', (e) => fail.push('PAGEERROR(frame): ' + e.message));
+  await host.goto('http://localhost:8123/');
+  await host.setContent(`<iframe src="${URL_}" style="width:390px;height:800px;border:0"></iframe>`);
+  const frame = await host.waitForSelector('iframe').then((h) => h.contentFrame());
+  await frame.waitForFunction(() => window.MS && window.MS.backup);
+  await host.waitForTimeout(900);
+  const a7 = await frame.evaluate(() => MS.backup.ability());
+  ok('framed with nothing granted falls back to the clipboard', a7 === 'clipboard', a7);
+  ok('no download is attempted when framed', a7 !== 'download');
+  await ctx2.close();
+}
+
+console.log('\n8. Framed with the viewer save route granted');
+{
+  const ctx3 = await b.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx3.addInitScript(() => {
+    window.__saved = null;
+    window.claude = {
+      use: (name) => new Promise((res) => setTimeout(() => res(
+        name === 'downloads'
+          ? { save: async (r) => { window.top.__saved = r; return { status: 'saved' }; } }
+          : null), 40))
+    };
+  });
+  const host = await ctx3.newPage();
+  host.on('pageerror', (e) => fail.push('PAGEERROR(viewer): ' + e.message));
+  await host.goto('http://localhost:8123/');
+  await host.setContent(`<iframe src="${URL_}" style="width:390px;height:800px;border:0"></iframe>`);
+  const frame = await host.waitForSelector('iframe').then((h) => h.contentFrame());
+  await frame.waitForFunction(() => window.MS && window.MS.backup);
+  const detected = await frame.waitForFunction(() => MS.backup.ability() === 'viewer', null, { timeout: 6000 })
+    .then(() => true).catch(() => false);
+  ok('viewer route detected once it resolves asynchronously', detected,
+     detected ? '' : 'still ' + (await frame.evaluate(() => MS.backup.ability())));
+  ok('button label matches the route',
+     (await frame.evaluate(() => MS.ui.backupVerb())) === 'Save a backup file');
+
+  await frame.evaluate(() => {
+    const a = { name: 'Darcy', goals: ['partnership'], primaryGoal: 'partnership',
+                kids: '2', minutes: '20', days: '6' };
+    MS.QUIZ.forEach((s) => { if (s.when && !s.when(a)) return;
+      s.questions.forEach((q) => { if (q.type === 'scale') a[q.id] = 3; }); });
+    const st = MS.store.get();
+    st.answers = a; st.plan = MS.buildPlan(a, MS.dayKey());
+    MS.store.save(); MS.view = 'settings'; MS.render();
+  });
+  await frame.waitForSelector('[data-act="backup-save"]');
+  await frame.click('[data-act="backup-save"]');
+  await host.waitForTimeout(800);
+  const saved = await host.evaluate(() => window.__saved);
+  ok('saved through the viewer', !!saved, saved && saved.filename);
+  ok('filename ends .json', saved && /\.json$/.test(saved.filename));
+  const body = saved && JSON.parse(saved.data);
+  ok('the payload is a usable backup', !!body && body.v === 1 && !!body.plan);
+  ok('backup date recorded', !!(await frame.evaluate(() => MS.store.get().lastBackup)));
+  await ctx3.close();
+}
+
 console.log(fail.length ? '\nFAILURES:\n' + fail.join('\n') : '\nbackup and restore all good');
 await b.close();
 process.exit(fail.length ? 1 : 0);

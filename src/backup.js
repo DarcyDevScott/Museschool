@@ -10,8 +10,9 @@
  *   2. showSaveFilePicker — desktop Chrome and Edge. The handle is kept, so
  *      after the first pick the same file can be rewritten automatically.
  *   3. a download link — most other browsers.
- *   4. the clipboard — the last resort, and the only one that works inside
- *      an embedded viewer where downloads are blocked.
+ *   4. the claude.ai viewer's own save prompt, where ordinary downloads are
+ *      blocked. Absent everywhere else, and resolved asynchronously.
+ *   5. the clipboard — the last resort.
  */
 (function (MS) {
   'use strict';
@@ -32,6 +33,31 @@
   }
 
   function canPick() { return typeof window.showSaveFilePicker === 'function'; }
+
+  /* ---------- the claude.ai viewer ----------
+   * A published artifact runs framed, with downloads blocked, but the viewer
+   * offers its own save prompt. It arrives asynchronously and never on the
+   * first run, so the UI renders without it and picks it up when it lands. */
+
+  var viewerSave = null;
+
+  function framed() {
+    try { return window.self !== window.top; } catch (e) { return true; }
+  }
+
+  MS.backup = MS.backup || {};
+
+  /* Resolves true if the viewer granted a save route. Safe everywhere:
+   * outside the viewer window.claude does not exist at all. */
+  async function findViewerSave() {
+    if (!window.claude || typeof window.claude.use !== 'function') return false;
+    try {
+      viewerSave = await window.claude.use('downloads');
+    } catch (e) {
+      viewerSave = null;
+    }
+    return !!viewerSave;
+  }
 
   /* ---------- the remembered file handle (desktop only) ----------
    * File handles cannot go in localStorage, so they live in IndexedDB. */
@@ -79,10 +105,18 @@
 
     /* What this browser can actually do, so the UI can say so honestly. */
     ability: function () {
+      // Framed, the share sheet and the file picker are usually blocked by the
+      // sandbox even when the APIs exist, so the viewer's own route wins.
+      if (framed()) return viewerSave ? 'viewer' : 'clipboard';
       if (canShareFiles()) return 'share';
       if (canPick()) return 'pick';
-      // A sandboxed viewer blocks downloads outright; the clipboard still works.
-      return window.self !== window.top ? 'clipboard' : 'download';
+      return 'download';
+    },
+
+    /* Called once at boot. Resolves true if the answer changed the UI. */
+    async detect() {
+      if (!framed()) return false;
+      return await findViewerSave();
     },
 
     /* Whether this browser can keep a file up to date without being asked
@@ -97,6 +131,18 @@
     /* Save now. Returns 'shared' | 'saved' | 'downloaded' | 'copied' | 'cancelled'. */
     async save() {
       var how = this.ability();
+
+      if (how === 'viewer') {
+        try {
+          await viewerSave.save({ filename: FILENAME, data: json() });
+          MS.store.markBackup();
+          return 'saved';
+        } catch (e) {
+          // The viewer declining is not a failure worth a fallback.
+          if (e && e.code === 'declined') return 'cancelled';
+          how = 'clipboard';
+        }
+      }
 
       if (how === 'share') {
         try {

@@ -500,13 +500,14 @@
   };
 
   U.backupVerb = function () {
-    return { share: 'Save to Files', pick: 'Save to a file',
+    return { share: 'Save to Files', pick: 'Save to a file', viewer: 'Save a backup file',
              download: 'Download a backup', clipboard: 'Copy backup' }[MS.backup.ability()];
   };
 
   U.backupBlurb = function () {
     return {
       share: 'Opens the share sheet — choose Save to Files, then iCloud Drive, and it is on all your devices.',
+      viewer: 'Saves a JSON file through the viewer. For Save to Files and iCloud Drive, open the app from its own address.',
       pick: 'Choose where to put it. Your iCloud Drive folder works, and so does anywhere else.',
       download: 'Downloads a JSON file you can move wherever you keep things.',
       clipboard: 'This viewer blocks downloads, so the backup goes to your clipboard instead. ' +
@@ -829,6 +830,10 @@
     MS.backup.isAutoSaving().then(function (on) {
       if (on) { MS.autoSaveOn = true; MS.render(); }
     });
+
+    // Inside the claude.ai viewer a save route may be granted, but only
+    // asynchronously — so render without it and pick it up when it arrives.
+    MS.backup.detect().then(function (changed) { if (changed) MS.render(); });
 
     MS.render();
   };

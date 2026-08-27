@@ -186,7 +186,8 @@ file somewhere you control as close to one tap as the platform allows.
 | `navigator.share` | Safari on iOS, incl. installed | The share sheet — **Save to Files → iCloud Drive**, then it syncs like any other file |
 | `showSaveFilePicker` | Chrome / Edge on desktop | Choose a file. The handle is kept, so it can be rewritten automatically after that |
 | download | most other browsers | A plain `museschool-backup.json` |
-| clipboard | embedded viewers | Downloads are blocked there, so the JSON goes to the clipboard |
+| `claude.use("downloads")` | the claude.ai artifact viewer | Ordinary downloads are blocked there, so the viewer's own save prompt is used |
+| clipboard | anywhere framed with no save route | The JSON goes to the clipboard instead |
 
 **Keep a file updated automatically** appears only where the File System
 Access API exists — Chrome and Edge on desktop. Point it at a file inside your
