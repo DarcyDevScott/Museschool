@@ -11,6 +11,7 @@
   var NAV = [
     { id: 'today', icon: '◉', label: 'Today' },
     { id: 'plan', icon: '◈', label: 'Plan' },
+    { id: 'learn', icon: '▤', label: 'Learn' },
     { id: 'progress', icon: '◔', label: 'Progress' },
     { id: 'journal', icon: '✎', label: 'Journal' },
     { id: 'settings', icon: '⚙', label: 'You' }
@@ -97,7 +98,40 @@
     return out + '</div>';
   }
 
+  /* Lesson copy is authored in this repository and carries light inline
+   * markup, so it is written out as-is. Never route anything a person typed
+   * through this function. */
+  U.lessonBody = function (l) {
+    return '<div class="lesson-body">' +
+      l.body.map(function (par) { return '<p>' + par + '</p>'; }).join('') +
+      '<p class="lesson-practice"><strong>Try today.</strong> ' + esc(l.practice) + '</p>' +
+      '</div>';
+  };
+
+  function lessonCard(t, done, key) {
+    var l = t.lesson;
+    var open = MS.openLesson === l.id;
+    return '' +
+      '<div class="task task-learn' + (done ? ' done' : '') + '">' +
+        '<button class="tick" data-act="tick" data-task="' + esc(t.id) + '" ' +
+          'aria-label="Mark done" aria-pressed="' + done + '">✓</button>' +
+        '<div class="task-body">' +
+          '<div class="task-meta">' +
+            '<span class="chip chip-learn">reading</span>' +
+            '<span class="chip">' + esc(l.track === 'self' ? 'the plan' : l.track) + '</span>' +
+            '<span class="chip">' + l.min + ' min</span>' +
+          '</div>' +
+          '<div class="task-title">' + esc(l.title) + '</div>' +
+          '<div class="task-detail">' + esc(l.dek) + '</div>' +
+          (open ? U.lessonBody(l) : '') +
+          '<button class="btn btn-ghost" data-act="lesson" data-lesson="' + esc(l.id) + '" ' +
+            'style="margin-top:12px">' + (open ? 'Close' : 'Read it') + '</button>' +
+        '</div>' +
+      '</div>';
+  }
+
   function taskCard(t, done, key) {
+    if (t.cat === 'learn') return lessonCard(t, done, key);
     var isWriting = t.cat === 'reflect';
     var chipClass = t.cat === 'anchor' ? ' chip-anchor' : (isWriting ? ' chip-reflect' : '');
     var text = isWriting ? MS.store.journalFor(key, t.id) : '';
@@ -198,7 +232,7 @@
           ? 'Bars show your latest re-score. The vertical mark is where you started.'
           : 'Where you started. Re-score at the end of each phase to see this move.') +
       '</p>' +
-      '<div class="bars">' + U.bars(latest || plan.scores, plan.keystones, latest ? plan.scores : null) + '</div>' +
+      '<div class="bars">' + U.bars(latest || plan.scores, plan.keystones, latest ? plan.scores : null, plan.dims) + '</div>' +
 
       (moods.length > 2 ? moodChart(st, moods) : '') +
 
@@ -287,6 +321,56 @@
       '</div>' +
       (ready ? '' : '<p class="dim tiny" style="margin-top:10px">' +
         (qs.length - answeredCount) + ' left.</p>') +
+    '</div>');
+  };
+
+  /* ---------- the reading library ---------- */
+
+  U.learn = function (st) {
+    var plan = st.plan;
+    var list = MS.lessonPlan(plan);
+    var read = st.lessonsRead || {};
+    var info = MS.dayInfo(plan, MS.dayKey());
+    var readCount = list.filter(function (l) { return read[l.id]; }).length;
+
+    if (!list.length) {
+      return page('<div class="wrap"><p class="eyebrow">Reading</p>' +
+        '<h2 style="margin:8px 0 14px">Nothing here yet</h2>' +
+        '<p class="muted">The reading follows the tracks your plan is running. ' +
+        'Yours does not include the partner or parenting material — retake the quiz from ' +
+        'the You tab if that has changed.</p></div>');
+    }
+
+    var body = list.map(function (l, i) {
+      var day = i * 3 + 1;
+      var unlocked = info.beforeStart ? false : info.dayNumber >= day;
+      var open = MS.openLesson === l.id;
+      return '<div class="lesson-row' + (open ? ' open' : '') + '">' +
+        '<button class="lesson-head" data-act="lesson" data-lesson="' + esc(l.id) + '">' +
+          '<span class="lesson-day">' + (read[l.id] ? '✓' : (unlocked ? '·' : '')) + '</span>' +
+          '<span class="lesson-main">' +
+            '<span class="lesson-title">' + esc(l.title) + '</span>' +
+            '<span class="lesson-dek">' + esc(l.dek) + '</span>' +
+          '</span>' +
+          '<span class="lesson-meta">' + (unlocked ? l.min + ' min' : 'day ' + day) + '</span>' +
+        '</button>' +
+        (open ? U.lessonBody(l) : '') +
+      '</div>';
+    }).join('');
+
+    return page('<div class="wrap">' +
+      '<p class="eyebrow">Reading</p>' +
+      '<h2 style="margin:8px 0 12px">' + readCount + ' of ' + list.length + ' read</h2>' +
+      '<p class="muted small">Short pieces from the research on couples and families — ' +
+      'mostly Gottman\'s observational work and Emotionally Focused Therapy. One arrives ' +
+      'on your Today screen every third day, but you can read ahead.</p>' +
+      '<div class="note" style="margin:18px 0 22px">' +
+        '<strong>This is educational material, not therapy.</strong> Couples work needs both ' +
+        'people; what an app can do is your half. Where there is fear, coercion or violence ' +
+        'in a relationship, standard couples advice does not apply and some of it makes things ' +
+        'worse — that needs a professional service, not a task list.' +
+      '</div>' +
+      '<div class="lessons">' + body + '</div>' +
     '</div>');
   };
 
@@ -490,6 +574,13 @@
 
       case 'go':
         MS.view = btn.dataset.view; break;
+
+      case 'lesson': {
+        var lid = btn.dataset.lesson;
+        MS.openLesson = MS.openLesson === lid ? null : lid;
+        if (MS.openLesson) MS.store.markRead(lid);
+        scroll = false; break;
+      }
 
       case 'tick': {
         var on = MS.store.toggleTask(MS.dayKey(), btn.dataset.task);

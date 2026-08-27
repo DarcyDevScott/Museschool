@@ -16,7 +16,7 @@
     { n: 3, name: 'Show up', weeks: [7, 9],
       line: 'Take it out of your head and into rooms with people in them.',
       body: 'Insight that never leaves your journal is not change. This phase moves everything outward: saying the direct thing, hearing criticism without armour, repairing what went quiet, being present with people who are actually in front of you. This is where other people start to notice, which is not the point but is a reasonable side effect.',
-      base: ['communication', 'connection', 'presence'] },
+      base: ['communication', 'connection', 'presence', 'partnership'] },
 
     { n: 4, name: 'Make it yours', weeks: [10, 12],
       line: 'Turn twelve weeks of effort into a way you live.',
@@ -74,6 +74,12 @@
       'A real plan with a date, and something useful done for someone',
       'One place you show up in person, on repeat'
     ],
+    partnership: [
+      'Notice one bid for your attention a day, and turn toward it',
+      'Name the cycle out loud instead of naming their fault',
+      'Make the first move back after a row, three times',
+      'One ritual with them that survives a bad week'
+    ],
     presence: [
       'One meal a day with nothing else happening',
       'Ten minutes walking with no input, three times',
@@ -92,7 +98,8 @@
     vitality: 'You are trying to do emotional work on an empty tank. Sleep, light and movement are not adjacent to this — they are underneath it.',
     purpose: 'Your days are mostly responses to other people. There is nothing that is yours, and that absence gets filled by whatever is loudest.',
     connection: 'Too much of your life runs through too few people. That is a lot of weight on one rope.',
-    presence: 'You are physically in your life and mentally somewhere else, which is why so much of it feels like it is happening at a distance.'
+    presence: 'You are physically in your life and mentally somewhere else, which is why so much of it feels like it is happening at a distance.',
+    partnership: 'The daily mechanics are where this is going wrong — the small turns toward each other, the first move back after a row, carrying your share without being asked. Grand gestures are not the missing piece; those are.'
   };
 
   MS.DIM_STRENGTH = {
@@ -104,6 +111,7 @@
     vitality: 'Your body is in good order, so the hard emotional work has somewhere solid to happen.',
     purpose: 'You know what you are building. That gives you somewhere to stand while the rest moves.',
     connection: 'You have real people around you. Use them — most of this goes faster witnessed.',
-    presence: 'You can actually be where you are. That is the raw material for every relationship skill here.'
+    presence: 'You can actually be where you are. That is the raw material for every relationship skill here.',
+    partnership: 'You do the ordinary daily things well — the noticing, the turning toward, the coming back. That is the part most people cannot sustain, and it counts for more than any single grand gesture.'
   };
 })(window.MS = window.MS || {});

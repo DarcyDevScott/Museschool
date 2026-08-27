@@ -8,7 +8,12 @@
  *   dim     the profile dimension it trains
  *   phases  which of the four phases it can appear in
  *   min     rough minutes
- *   tags    'relationship' tasks only surface for relationship-focused plans
+ *   tags    gates the task to a track the plan is running:
+ *             relationship  a rupture to repair
+ *             partner       has a partner, or wants one back
+ *             parenting     has children
+ *           Partner tasks are written to work whether or not you currently
+ *           live with the person — the skills are the same either way.
  */
 (function (MS) {
   'use strict';
@@ -43,6 +48,13 @@
     { id: 'a_prs', cat: 'anchor', dim: 'presence', phases: [1,2,3,4], min: 5,
       title: 'Phone in another room for the first hour',
       detail: 'The first hour after you wake, the phone lives somewhere else. If you need an alarm, use an actual alarm. Notice what fills the gap.' },
+
+    { id: 'a_par', cat: 'anchor', dim: 'partnership', phases: [1,2,3,4], min: 5, tags: ['partner'],
+      title: 'Turn toward one bid',
+      detail: 'A bid is a small reach for your attention — a comment about nothing, a sigh, a photo held up. Once today, catch one and turn toward it: stop, look up, answer properly. In Gottman\'s research the habit of catching these predicts far more than how couples handle the big conversations. If you are not together right now, practise on whoever is in front of you. The muscle is the same.' },
+    { id: 'a_kid', cat: 'anchor', dim: 'presence', phases: [1,2,3,4], min: 10, tags: ['parenting'],
+      title: 'Ten minutes, child-led',
+      detail: 'Ten minutes with one child where they choose and you follow. No teaching, no correcting, no phone, no steering it somewhere useful. Just narrate what they are doing occasionally so they know you are there. It is the cheapest, most reliable thing in the whole parenting literature.' },
 
     /* ---------- PRACTICE: regulation ---------- */
     { id: 'p_reg1', cat: 'practice', dim: 'regulation', phases: [1], min: 5,
@@ -310,6 +322,93 @@
     { id: 'j_p4b', cat: 'reflect', dim: 'purpose', phases: [4], min: 15,
       title: 'What keeps going after this ends?',
       detail: 'Of everything in these twelve weeks, what stays permanently? Pick three things and commit to them without an end date.' },
+
+    /* ---------- PRACTICE: partnership ---------- */
+    { id: 'p_par1', cat: 'practice', dim: 'partnership', phases: [1], min: 5, tags: ['partner'],
+      title: 'Just count the bids',
+      detail: 'Do not fix anything today. Only count: how many times did they reach for your attention, and how many times did you turn toward it, away from it, or against it? Write the two numbers down. Most people are shocked by the gap, and the shock is the useful part.' },
+    { id: 'p_par2', cat: 'practice', dim: 'partnership', phases: [1], min: 5, tags: ['partner'],
+      title: 'Six seconds, twice',
+      detail: 'A proper hello and a proper goodbye. Six seconds each — long enough that it is not a peck or a grunt. It sounds contrived until you have done it for a fortnight and notice the day has a different shape. Adapt it for a doorstep handover if that is where you are.' },
+    { id: 'p_par3', cat: 'practice', dim: 'partnership', phases: [1,2], min: 10, tags: ['partner'],
+      title: 'Complaint, not criticism',
+      detail: 'A complaint is about an event: "the bins did not go out and I was annoyed." A criticism is about a person: "you never think about anyone but yourself." The first is workable, the second puts them on trial. Today, catch one criticism before it leaves your mouth and rebuild it as a complaint.' },
+    { id: 'p_par4', cat: 'practice', dim: 'partnership', phases: [2], min: 10, tags: ['partner'],
+      title: 'Find your horseman',
+      detail: 'Criticism, contempt, defensiveness, stonewalling. One of the four is your default under pressure. Work out which by looking at your last three arguments, and write down the specific move — the tone, the phrase, the walking out. You cannot stop a habit you have never named.' },
+    { id: 'p_par5', cat: 'practice', dim: 'partnership', phases: [2], min: 10, tags: ['partner'],
+      title: 'Accept influence, once',
+      detail: 'Find one thing today where you let their view actually change your decision — not a concession you are keeping score of, an actual change of mind. Say so out loud: "you were right, I have changed my mind." Refusing influence is one of the most reliable predictors of a relationship going badly.' },
+    { id: 'p_par6', cat: 'practice', dim: 'partnership', phases: [2], min: 10, tags: ['partner'],
+      title: 'The first three minutes',
+      detail: 'How a difficult conversation opens largely decides how it ends. Today, start one with: what you feel, the specific situation, and what you need. "I am worried about Saturday. Can we sort the plan tonight?" No preamble, no case for the prosecution.' },
+    { id: 'p_par7', cat: 'practice', dim: 'partnership', phases: [2,3], min: 10, tags: ['partner'],
+      title: 'Name the cycle, not the person',
+      detail: 'Most couples have one loop: one presses, the other retreats, and each move causes the other. It is nobody\'s fault and everybody\'s problem. Today, describe the loop out loud without blame in it — "when I push, you go quiet, and then I push harder." Naming the cycle is what lets you both stand next to it rather than inside it.' },
+    { id: 'p_par8', cat: 'practice', dim: 'partnership', phases: [2,3], min: 5, tags: ['partner'],
+      title: 'Make a repair attempt, badly',
+      detail: 'A repair attempt is anything that tries to lower the temperature mid-row: a bad joke, a hand on the arm, "hang on, I am doing the thing again." It does not have to be elegant. What matters is whether it gets made at all, and whether the other person lets it land. Make one today, and let one land.' },
+    { id: 'p_par9', cat: 'practice', dim: 'partnership', phases: [3], min: 10, tags: ['partner'],
+      title: 'The question under the argument',
+      detail: 'Arguments about the dishwasher are rarely about the dishwasher. Underneath is usually one question: am I important to you? Today, answer that question rather than the surface one, and watch what happens to the surface one.' },
+    { id: 'p_par10', cat: 'practice', dim: 'partnership', phases: [3], min: 10, tags: ['partner'],
+      title: 'Count your ratio',
+      detail: 'Stable couples run at roughly five positive exchanges to every negative one — not in the fights, in the ordinary hours. Tally yours for a day. If you are underwater, the fix is not fewer arguments, it is more small good moments.' },
+    { id: 'p_par11', cat: 'practice', dim: 'partnership', phases: [3,4], min: 15, tags: ['partner'],
+      title: 'The problem you will never solve',
+      detail: 'In Gottman\'s research most of what couples argue about is perpetual — rooted in personality and never fully resolved. The job is not to solve it but to be able to talk about it without damage. Pick yours and have ten minutes of dialogue with no attempt to fix it.' },
+    { id: 'p_par12', cat: 'practice', dim: 'partnership', phases: [4], min: 15, tags: ['partner'],
+      title: 'One ritual, protected',
+      detail: 'Something small and regular that survives a bad week: coffee before the house wakes, a walk on Sunday, the last twenty minutes of the day with the TV off. Choose it, name it out loud as a thing you both do, and defend it.' },
+
+    /* ---------- PRACTICE: parenting ---------- */
+    { id: 'p_kid1', cat: 'practice', dim: 'partnership', phases: [1,2,3], min: 15, tags: ['parenting'],
+      title: 'Write out the invisible list',
+      detail: 'Not the chores — the remembering. Who knows when the forms are due, which shoes no longer fit, who has fallen out with whom, when the appointment is. Write the whole list. This is the load that does not show up in a rota and quietly wrecks more partnerships than housework does.' },
+    { id: 'p_kid2', cat: 'practice', dim: 'partnership', phases: [2,3], min: 15, tags: ['parenting'],
+      title: 'Take one thing off the list, permanently',
+      detail: 'Pick one item from the invisible list and own it completely — not "helping with it", owning it, including the remembering. Say which one you are taking. The word "permanently" is the part that counts.' },
+    { id: 'p_kid3', cat: 'practice', dim: 'partnership', phases: [2,3], min: 10, tags: ['parenting'],
+      title: 'Let them see the repair',
+      detail: 'What harms children is not witnessing conflict, it is witnessing conflict that never visibly resolves. If they saw the row, let them see the making-up — a short, plain "we were cross, we sorted it out, it was not about you." You are teaching them what repair looks like, and they will use it for the rest of their lives.' },
+    { id: 'p_kid4', cat: 'practice', dim: 'partnership', phases: [2,3,4], min: 20, tags: ['parenting', 'partner'],
+      title: 'Twenty minutes that is not admin',
+      detail: 'Time with your partner that is not a handover, a rota or a discussion about the children. Twenty minutes. After kids arrive most couples talk only as co-managers and then wonder where the relationship went — this is the antidote, and it has to be scheduled because it will never happen otherwise.' },
+    { id: 'p_kid5', cat: 'practice', dim: 'presence', phases: [3,4], min: 20, tags: ['parenting'],
+      title: 'One-on-one with each of them',
+      detail: 'Each child separately, no siblings, no logistics. A walk, a shop, a drive. Children behave differently and say different things when they are not competing for airtime, and you will learn something you did not know.' },
+    { id: 'p_kid6', cat: 'practice', dim: 'regulation', phases: [2,3,4], min: 10, tags: ['parenting'],
+      title: 'The handover that does not leak',
+      detail: 'If you hand the children over, do it flat and warm regardless of what you feel about the other adult. No sighs, no comments, no information passed through a child. Children read handovers like weather, and a clean one is a gift you can give them today.' },
+    { id: 'p_kid7', cat: 'practice', dim: 'ownership', phases: [3,4], min: 5, tags: ['parenting'],
+      title: 'Say the good thing about their other parent',
+      detail: 'Once today, say something genuinely positive about the children\'s other parent, in front of them, meaning it. A child hears criticism of a parent as criticism of half of themselves. This is one of the clearest findings there is, and it costs you nothing but pride.' },
+
+    /* ---------- REACH: partner and family ---------- */
+    { id: 'r_par1', cat: 'reach', dim: 'partnership', phases: [2,3,4], min: 10, tags: ['partner'],
+      title: 'Ask what would make the biggest difference',
+      detail: 'Ask them: "what is one thing I could do differently that would make the biggest difference to you?" Then do not defend, explain or negotiate. Say thank you. Do the thing.' },
+    { id: 'r_par2', cat: 'reach', dim: 'partnership', phases: [3,4], min: 15, tags: ['partner'],
+      title: 'The specific apology, out loud',
+      detail: 'Not for everything — for one thing. Name it, name its effect, no "but", no explanation of what you meant. Then stop talking and let it be uncomfortable. A general apology asks to be forgiven for being yourself; a specific one is the only kind that lands.' },
+    { id: 'r_kid1', cat: 'reach', dim: 'connection', phases: [2,3,4], min: 10, tags: ['parenting'],
+      title: 'Ask your child a real question',
+      detail: 'Not "how was school". Something you do not know the answer to: what was the worst bit of today, who did you sit with, what is something you think I am wrong about. Then let the silence run rather than filling it.' },
+
+    /* ---------- REFLECT: partner and family ---------- */
+    { id: 'j_par1', cat: 'reflect', dim: 'partnership', phases: [2], min: 10, tags: ['partner'],
+      title: 'Which horseman is mine?',
+      detail: 'Criticism, contempt, defensiveness or stonewalling — write which one is yours, what it looks like in your mouth specifically, and what the moment before it feels like. The moment before is where the change actually happens.' },
+    { id: 'j_par2', cat: 'reflect', dim: 'partnership', phases: [2,3], min: 10, tags: ['partner'],
+      title: 'What is my move in the cycle?',
+      detail: 'When it goes wrong between you, what do you reliably do — press, withdraw, go reasonable, go cold, go loud? Write your move. Then write what you think they feel the second you make it.' },
+    { id: 'j_kid1', cat: 'reflect', dim: 'ownership', phases: [2,3], min: 10, tags: ['parenting'],
+      title: 'What are they learning by watching me?',
+      detail: 'Your children are learning what love looks like from what they see, not from what you tell them. Write down what they would currently say a relationship is, based on the evidence in your house.' },
+    { id: 'j_kid2', cat: 'reflect', dim: 'ownership', phases: [3,4], min: 10, tags: ['parenting'],
+      title: 'What I wanted, and am not giving',
+      detail: 'What did you want from your own parents and not get? Write it. Then write honestly whether you are giving that thing to your children, or whether you have quietly recreated the gap.' },
+
     /* ---------- Short forms: keep the ten-minute tier honest ---------- */
     { id: 'j_s1', cat: 'reflect', dim: 'regulation', phases: [1,2,3,4], min: 5,
       title: 'Three lines before bed',

@@ -348,3 +348,45 @@ textarea { min-height: 118px; line-height: 1.55; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ---------- reading ---------- */
+.chip-learn { color: var(--signal); }
+.task-learn { border-left: 2px solid var(--signal); }
+
+.lesson-body {
+  margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font-size: .93rem; color: var(--ink-2);
+}
+.lesson-body p { margin: 0 0 .9em; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--ink); font-weight: 600; }
+.lesson-practice {
+  background: var(--surface-2); border-radius: var(--radius);
+  padding: 11px 13px; font-size: .88rem;
+}
+
+.lessons { display: flex; flex-direction: column; }
+.lesson-row {
+  border: 1px solid var(--rule); border-radius: var(--radius);
+  background: var(--surface); margin-bottom: -1px; position: relative;
+}
+.lesson-row.open { z-index: 2; border-color: var(--rule-2); }
+.lesson-row .lesson-body { margin: 0 17px 16px; }
+.lesson-head {
+  display: grid; grid-template-columns: 22px 1fr auto; gap: 12px;
+  align-items: baseline; width: 100%; text-align: left;
+  background: none; border: 0; color: var(--ink);
+  padding: 14px 17px;
+}
+.lesson-head:hover .lesson-title { color: var(--accent); }
+.lesson-day {
+  font-family: var(--mono); font-size: .8rem; color: var(--signal);
+}
+.lesson-main { display: block; min-width: 0; }
+.lesson-title { display: block; font-weight: 600; font-size: .97rem; }
+.lesson-dek { display: block; color: var(--ink-3); font-size: .85rem; margin-top: 2px; }
+.lesson-meta {
+  font-family: var(--mono); font-size: .66rem; text-transform: uppercase;
+  letter-spacing: .09em; color: var(--ink-3); white-space: nowrap;
+}

@@ -359,6 +359,48 @@ textarea { min-height: 118px; line-height: 1.55; }
   * { transition: none !important; animation: none !important; }
 }
 
+/* ---------- reading ---------- */
+.chip-learn { color: var(--signal); }
+.task-learn { border-left: 2px solid var(--signal); }
+
+.lesson-body {
+  margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font-size: .93rem; color: var(--ink-2);
+}
+.lesson-body p { margin: 0 0 .9em; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--ink); font-weight: 600; }
+.lesson-practice {
+  background: var(--surface-2); border-radius: var(--radius);
+  padding: 11px 13px; font-size: .88rem;
+}
+
+.lessons { display: flex; flex-direction: column; }
+.lesson-row {
+  border: 1px solid var(--rule); border-radius: var(--radius);
+  background: var(--surface); margin-bottom: -1px; position: relative;
+}
+.lesson-row.open { z-index: 2; border-color: var(--rule-2); }
+.lesson-row .lesson-body { margin: 0 17px 16px; }
+.lesson-head {
+  display: grid; grid-template-columns: 22px 1fr auto; gap: 12px;
+  align-items: baseline; width: 100%; text-align: left;
+  background: none; border: 0; color: var(--ink);
+  padding: 14px 17px;
+}
+.lesson-head:hover .lesson-title { color: var(--accent); }
+.lesson-day {
+  font-family: var(--mono); font-size: .8rem; color: var(--signal);
+}
+.lesson-main { display: block; min-width: 0; }
+.lesson-title { display: block; font-weight: 600; font-size: .97rem; }
+.lesson-dek { display: block; color: var(--ink-3); font-size: .85rem; margin-top: 2px; }
+.lesson-meta {
+  font-family: var(--mono); font-size: .66rem; text-transform: uppercase;
+  letter-spacing: .09em; color: var(--ink-3); white-space: nowrap;
+}
+
 </style>
 </head>
 <body>
@@ -389,6 +431,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 
   var GOALS = [
     { v: 'relationship', label: 'Repair or rebuild a relationship', note: 'Partner, ex-partner, or someone close' },
+    { v: 'partnership', label: 'Being a better partner day to day', note: 'The ordinary skills, not the crisis ones' },
     { v: 'worth', label: 'Confidence and self-worth', note: 'Liking who you are without needing proof' },
     { v: 'regulation', label: 'Emotional steadiness', note: 'Feeling things without being run by them' },
     { v: 'consistency', label: 'Discipline and follow-through', note: 'Doing what you said you would' },
@@ -430,6 +473,12 @@ textarea { min-height: 118px; line-height: 1.55; }
           { v: 'weeks', label: 'A few weeks' }, { v: 'months', label: 'A few months' },
           { v: 'year', label: 'About a year' }, { v: 'years', label: 'Years' },
           { v: 'always', label: 'As long as I can remember' }
+        ]},
+        { id: 'kids', type: 'single', text: 'Do you have children?', options: [
+          { v: 'none', label: 'No' },
+          { v: '1', label: 'One' },
+          { v: '2', label: 'Two' },
+          { v: '3', label: 'Three or more' }
         ]},
         { id: 'tried', type: 'single', text: 'Have you tried to work on this before?', options: [
           { v: 'never', label: 'Not really' },
@@ -581,6 +630,61 @@ textarea { min-height: 118px; line-height: 1.55; }
     },
 
     {
+      id: 'partnership',
+      title: 'As a partner',
+      blurb: 'The ordinary daily mechanics of being someone to live with. Answer about how you have been, not how you mean to be.',
+      when: function (a) {
+        var g = Array.isArray(a.goals) ? a.goals : [];
+        return a.primaryGoal === 'relationship' || a.primaryGoal === 'partnership' ||
+          g.indexOf('relationship') !== -1 || g.indexOf('partnership') !== -1 ||
+          (a.kids && a.kids !== 'none');
+      },
+      questions: [
+        scale('par1', 'partnership', 'I notice when they are reaching for my attention, even when it is a small thing.'),
+        scale('par2', 'partnership', 'In a disagreement, I let their view actually change my mind.'),
+        scale('par3', 'partnership', 'I go cold or end the conversation when it gets heated.', true),
+        scale('par4', 'partnership', 'I go after the person rather than naming the specific thing they did.', true),
+        scale('par5', 'partnership', 'After a row, I am the one who makes the first move back.'),
+        scale('par6', 'partnership', 'They would say I carry my share without having to be asked.')
+      ]
+    },
+
+    {
+      id: 'family',
+      title: 'The children',
+      blurb: 'Two things get measured here: what your children see, and what having them has done to the partnership.',
+      when: function (a) { return a.kids && a.kids !== 'none'; },
+      questions: [
+        { id: 'kidsAges', type: 'multi', max: 4, text: 'How old are they?', options: [
+          { v: 'baby', label: 'Under 2' }, { v: 'toddler', label: '2 to 4' },
+          { v: 'primary', label: '5 to 10' }, { v: 'teen', label: '11 to 15' },
+          { v: 'older', label: '16 or older' }
+        ]},
+        { id: 'famSetup', type: 'single', text: 'How is parenting arranged right now?', options: [
+          { v: 'together', label: 'We parent together, same house' },
+          { v: 'split_amicable', label: 'Separate houses, and it works reasonably' },
+          { v: 'split_tense', label: 'Separate houses, and it is tense' },
+          { v: 'mostly_me', label: 'They are with me most of the time' },
+          { v: 'mostly_them', label: 'They are with their other parent most of the time' }
+        ]},
+        { id: 'famLoad', type: 'single', text: 'Who carries the remembering — appointments, kit, forms, who needs what when?', options: [
+          { v: 'me', label: 'Mostly me' },
+          { v: 'them', label: 'Mostly them' },
+          { v: 'even', label: 'Genuinely evenly split' },
+          { v: 'unsure', label: 'I have honestly never worked it out' }
+        ]},
+        { id: 'famConflict', type: 'single', text: 'How much of the conflict do the children see?', options: [
+          { v: 'none', label: 'None — we keep it away from them' },
+          { v: 'some', label: 'Some. The tension, mostly' },
+          { v: 'lots', label: 'More than I would like' },
+          { v: 'repair', label: 'They see it, and they see us fix it' }
+        ]},
+        scale('fam1', 'partnership', 'We have time together that is not about the children or logistics.'),
+        scale('fam2', 'presence', 'I get time with each child that is not admin — not lifts, meals or bedtime routine.')
+      ]
+    },
+
+    {
       id: 'relationship',
       title: 'The relationship',
       blurb: 'This section is about your side of it. Not theirs, and not what they should do.',
@@ -693,7 +797,8 @@ textarea { min-height: 118px; line-height: 1.55; }
     vitality:      { label: 'Body and energy',      short: 'Energy' },
     purpose:       { label: 'Direction',            short: 'Direction' },
     connection:    { label: 'Connection',           short: 'Connection' },
-    presence:      { label: 'Presence',             short: 'Presence' }
+    presence:      { label: 'Presence',             short: 'Presence' },
+    partnership:   { label: 'Partnership',          short: 'Partnership' }
   };
 
   MS.DIM_KEYS = Object.keys(MS.DIMENSIONS);
@@ -710,7 +815,12 @@ textarea { min-height: 118px; line-height: 1.55; }
  *   dim     the profile dimension it trains
  *   phases  which of the four phases it can appear in
  *   min     rough minutes
- *   tags    'relationship' tasks only surface for relationship-focused plans
+ *   tags    gates the task to a track the plan is running:
+ *             relationship  a rupture to repair
+ *             partner       has a partner, or wants one back
+ *             parenting     has children
+ *           Partner tasks are written to work whether or not you currently
+ *           live with the person — the skills are the same either way.
  */
 (function (MS) {
   'use strict';
@@ -745,6 +855,13 @@ textarea { min-height: 118px; line-height: 1.55; }
     { id: 'a_prs', cat: 'anchor', dim: 'presence', phases: [1,2,3,4], min: 5,
       title: 'Phone in another room for the first hour',
       detail: 'The first hour after you wake, the phone lives somewhere else. If you need an alarm, use an actual alarm. Notice what fills the gap.' },
+
+    { id: 'a_par', cat: 'anchor', dim: 'partnership', phases: [1,2,3,4], min: 5, tags: ['partner'],
+      title: 'Turn toward one bid',
+      detail: 'A bid is a small reach for your attention — a comment about nothing, a sigh, a photo held up. Once today, catch one and turn toward it: stop, look up, answer properly. In Gottman\'s research the habit of catching these predicts far more than how couples handle the big conversations. If you are not together right now, practise on whoever is in front of you. The muscle is the same.' },
+    { id: 'a_kid', cat: 'anchor', dim: 'presence', phases: [1,2,3,4], min: 10, tags: ['parenting'],
+      title: 'Ten minutes, child-led',
+      detail: 'Ten minutes with one child where they choose and you follow. No teaching, no correcting, no phone, no steering it somewhere useful. Just narrate what they are doing occasionally so they know you are there. It is the cheapest, most reliable thing in the whole parenting literature.' },
 
     /* ---------- PRACTICE: regulation ---------- */
     { id: 'p_reg1', cat: 'practice', dim: 'regulation', phases: [1], min: 5,
@@ -1012,6 +1129,93 @@ textarea { min-height: 118px; line-height: 1.55; }
     { id: 'j_p4b', cat: 'reflect', dim: 'purpose', phases: [4], min: 15,
       title: 'What keeps going after this ends?',
       detail: 'Of everything in these twelve weeks, what stays permanently? Pick three things and commit to them without an end date.' },
+
+    /* ---------- PRACTICE: partnership ---------- */
+    { id: 'p_par1', cat: 'practice', dim: 'partnership', phases: [1], min: 5, tags: ['partner'],
+      title: 'Just count the bids',
+      detail: 'Do not fix anything today. Only count: how many times did they reach for your attention, and how many times did you turn toward it, away from it, or against it? Write the two numbers down. Most people are shocked by the gap, and the shock is the useful part.' },
+    { id: 'p_par2', cat: 'practice', dim: 'partnership', phases: [1], min: 5, tags: ['partner'],
+      title: 'Six seconds, twice',
+      detail: 'A proper hello and a proper goodbye. Six seconds each — long enough that it is not a peck or a grunt. It sounds contrived until you have done it for a fortnight and notice the day has a different shape. Adapt it for a doorstep handover if that is where you are.' },
+    { id: 'p_par3', cat: 'practice', dim: 'partnership', phases: [1,2], min: 10, tags: ['partner'],
+      title: 'Complaint, not criticism',
+      detail: 'A complaint is about an event: "the bins did not go out and I was annoyed." A criticism is about a person: "you never think about anyone but yourself." The first is workable, the second puts them on trial. Today, catch one criticism before it leaves your mouth and rebuild it as a complaint.' },
+    { id: 'p_par4', cat: 'practice', dim: 'partnership', phases: [2], min: 10, tags: ['partner'],
+      title: 'Find your horseman',
+      detail: 'Criticism, contempt, defensiveness, stonewalling. One of the four is your default under pressure. Work out which by looking at your last three arguments, and write down the specific move — the tone, the phrase, the walking out. You cannot stop a habit you have never named.' },
+    { id: 'p_par5', cat: 'practice', dim: 'partnership', phases: [2], min: 10, tags: ['partner'],
+      title: 'Accept influence, once',
+      detail: 'Find one thing today where you let their view actually change your decision — not a concession you are keeping score of, an actual change of mind. Say so out loud: "you were right, I have changed my mind." Refusing influence is one of the most reliable predictors of a relationship going badly.' },
+    { id: 'p_par6', cat: 'practice', dim: 'partnership', phases: [2], min: 10, tags: ['partner'],
+      title: 'The first three minutes',
+      detail: 'How a difficult conversation opens largely decides how it ends. Today, start one with: what you feel, the specific situation, and what you need. "I am worried about Saturday. Can we sort the plan tonight?" No preamble, no case for the prosecution.' },
+    { id: 'p_par7', cat: 'practice', dim: 'partnership', phases: [2,3], min: 10, tags: ['partner'],
+      title: 'Name the cycle, not the person',
+      detail: 'Most couples have one loop: one presses, the other retreats, and each move causes the other. It is nobody\'s fault and everybody\'s problem. Today, describe the loop out loud without blame in it — "when I push, you go quiet, and then I push harder." Naming the cycle is what lets you both stand next to it rather than inside it.' },
+    { id: 'p_par8', cat: 'practice', dim: 'partnership', phases: [2,3], min: 5, tags: ['partner'],
+      title: 'Make a repair attempt, badly',
+      detail: 'A repair attempt is anything that tries to lower the temperature mid-row: a bad joke, a hand on the arm, "hang on, I am doing the thing again." It does not have to be elegant. What matters is whether it gets made at all, and whether the other person lets it land. Make one today, and let one land.' },
+    { id: 'p_par9', cat: 'practice', dim: 'partnership', phases: [3], min: 10, tags: ['partner'],
+      title: 'The question under the argument',
+      detail: 'Arguments about the dishwasher are rarely about the dishwasher. Underneath is usually one question: am I important to you? Today, answer that question rather than the surface one, and watch what happens to the surface one.' },
+    { id: 'p_par10', cat: 'practice', dim: 'partnership', phases: [3], min: 10, tags: ['partner'],
+      title: 'Count your ratio',
+      detail: 'Stable couples run at roughly five positive exchanges to every negative one — not in the fights, in the ordinary hours. Tally yours for a day. If you are underwater, the fix is not fewer arguments, it is more small good moments.' },
+    { id: 'p_par11', cat: 'practice', dim: 'partnership', phases: [3,4], min: 15, tags: ['partner'],
+      title: 'The problem you will never solve',
+      detail: 'In Gottman\'s research most of what couples argue about is perpetual — rooted in personality and never fully resolved. The job is not to solve it but to be able to talk about it without damage. Pick yours and have ten minutes of dialogue with no attempt to fix it.' },
+    { id: 'p_par12', cat: 'practice', dim: 'partnership', phases: [4], min: 15, tags: ['partner'],
+      title: 'One ritual, protected',
+      detail: 'Something small and regular that survives a bad week: coffee before the house wakes, a walk on Sunday, the last twenty minutes of the day with the TV off. Choose it, name it out loud as a thing you both do, and defend it.' },
+
+    /* ---------- PRACTICE: parenting ---------- */
+    { id: 'p_kid1', cat: 'practice', dim: 'partnership', phases: [1,2,3], min: 15, tags: ['parenting'],
+      title: 'Write out the invisible list',
+      detail: 'Not the chores — the remembering. Who knows when the forms are due, which shoes no longer fit, who has fallen out with whom, when the appointment is. Write the whole list. This is the load that does not show up in a rota and quietly wrecks more partnerships than housework does.' },
+    { id: 'p_kid2', cat: 'practice', dim: 'partnership', phases: [2,3], min: 15, tags: ['parenting'],
+      title: 'Take one thing off the list, permanently',
+      detail: 'Pick one item from the invisible list and own it completely — not "helping with it", owning it, including the remembering. Say which one you are taking. The word "permanently" is the part that counts.' },
+    { id: 'p_kid3', cat: 'practice', dim: 'partnership', phases: [2,3], min: 10, tags: ['parenting'],
+      title: 'Let them see the repair',
+      detail: 'What harms children is not witnessing conflict, it is witnessing conflict that never visibly resolves. If they saw the row, let them see the making-up — a short, plain "we were cross, we sorted it out, it was not about you." You are teaching them what repair looks like, and they will use it for the rest of their lives.' },
+    { id: 'p_kid4', cat: 'practice', dim: 'partnership', phases: [2,3,4], min: 20, tags: ['parenting', 'partner'],
+      title: 'Twenty minutes that is not admin',
+      detail: 'Time with your partner that is not a handover, a rota or a discussion about the children. Twenty minutes. After kids arrive most couples talk only as co-managers and then wonder where the relationship went — this is the antidote, and it has to be scheduled because it will never happen otherwise.' },
+    { id: 'p_kid5', cat: 'practice', dim: 'presence', phases: [3,4], min: 20, tags: ['parenting'],
+      title: 'One-on-one with each of them',
+      detail: 'Each child separately, no siblings, no logistics. A walk, a shop, a drive. Children behave differently and say different things when they are not competing for airtime, and you will learn something you did not know.' },
+    { id: 'p_kid6', cat: 'practice', dim: 'regulation', phases: [2,3,4], min: 10, tags: ['parenting'],
+      title: 'The handover that does not leak',
+      detail: 'If you hand the children over, do it flat and warm regardless of what you feel about the other adult. No sighs, no comments, no information passed through a child. Children read handovers like weather, and a clean one is a gift you can give them today.' },
+    { id: 'p_kid7', cat: 'practice', dim: 'ownership', phases: [3,4], min: 5, tags: ['parenting'],
+      title: 'Say the good thing about their other parent',
+      detail: 'Once today, say something genuinely positive about the children\'s other parent, in front of them, meaning it. A child hears criticism of a parent as criticism of half of themselves. This is one of the clearest findings there is, and it costs you nothing but pride.' },
+
+    /* ---------- REACH: partner and family ---------- */
+    { id: 'r_par1', cat: 'reach', dim: 'partnership', phases: [2,3,4], min: 10, tags: ['partner'],
+      title: 'Ask what would make the biggest difference',
+      detail: 'Ask them: "what is one thing I could do differently that would make the biggest difference to you?" Then do not defend, explain or negotiate. Say thank you. Do the thing.' },
+    { id: 'r_par2', cat: 'reach', dim: 'partnership', phases: [3,4], min: 15, tags: ['partner'],
+      title: 'The specific apology, out loud',
+      detail: 'Not for everything — for one thing. Name it, name its effect, no "but", no explanation of what you meant. Then stop talking and let it be uncomfortable. A general apology asks to be forgiven for being yourself; a specific one is the only kind that lands.' },
+    { id: 'r_kid1', cat: 'reach', dim: 'connection', phases: [2,3,4], min: 10, tags: ['parenting'],
+      title: 'Ask your child a real question',
+      detail: 'Not "how was school". Something you do not know the answer to: what was the worst bit of today, who did you sit with, what is something you think I am wrong about. Then let the silence run rather than filling it.' },
+
+    /* ---------- REFLECT: partner and family ---------- */
+    { id: 'j_par1', cat: 'reflect', dim: 'partnership', phases: [2], min: 10, tags: ['partner'],
+      title: 'Which horseman is mine?',
+      detail: 'Criticism, contempt, defensiveness or stonewalling — write which one is yours, what it looks like in your mouth specifically, and what the moment before it feels like. The moment before is where the change actually happens.' },
+    { id: 'j_par2', cat: 'reflect', dim: 'partnership', phases: [2,3], min: 10, tags: ['partner'],
+      title: 'What is my move in the cycle?',
+      detail: 'When it goes wrong between you, what do you reliably do — press, withdraw, go reasonable, go cold, go loud? Write your move. Then write what you think they feel the second you make it.' },
+    { id: 'j_kid1', cat: 'reflect', dim: 'ownership', phases: [2,3], min: 10, tags: ['parenting'],
+      title: 'What are they learning by watching me?',
+      detail: 'Your children are learning what love looks like from what they see, not from what you tell them. Write down what they would currently say a relationship is, based on the evidence in your house.' },
+    { id: 'j_kid2', cat: 'reflect', dim: 'ownership', phases: [3,4], min: 10, tags: ['parenting'],
+      title: 'What I wanted, and am not giving',
+      detail: 'What did you want from your own parents and not get? Write it. Then write honestly whether you are giving that thing to your children, or whether you have quietly recreated the gap.' },
+
     /* ---------- Short forms: keep the ten-minute tier honest ---------- */
     { id: 'j_s1', cat: 'reflect', dim: 'regulation', phases: [1,2,3,4], min: 5,
       title: 'Three lines before bed',
@@ -1041,6 +1245,253 @@ textarea { min-height: 118px; line-height: 1.55; }
   ];
 })(window.MS = window.MS || {});
 
+/* ---- src/data/lessons.js ---- */
+/* Museschool — the reading.
+ *
+ * Short lessons drawn from mainstream couples and family research, mostly
+ * John Gottman's observational work and Sue Johnson's Emotionally Focused
+ * Therapy, plus the parenting literature on conflict and repair.
+ *
+ * Tracks decide who sees what: 'partner', 'parenting', 'self'.
+ * Order matters — these build on each other, so they are delivered in
+ * sequence rather than shuffled.
+ *
+ * This is educational material, not therapy, and couples work genuinely
+ * needs both people. What is here is the half that is yours.
+ */
+(function (MS) {
+  'use strict';
+
+  MS.LESSONS = [
+    {
+      id: 'l_bids', track: 'partner', min: 4,
+      title: 'The smallest thing that matters most',
+      dek: 'Bids for connection, and the three things you can do with one.',
+      body: [
+        'A bid is any small reach for attention. "Look at this." A sigh. A hand on your shoulder. A comment about something on the news that you have no interest in. They happen dozens of times a day and almost all of them look like nothing.',
+        'There are three things you can do with a bid. Turn toward it — look up, answer, engage. Turn away from it — miss it, stay on your phone, say nothing. Or turn against it — snap, dismiss, make it a nuisance.',
+        'In Gottman\'s observational work, how often partners turn toward each other\'s bids was one of the strongest markers separating couples who lasted from those who did not. Not how they argued. Not how compatible they were. The ordinary, boring turning-toward.',
+        'The reason it matters so much is that it accumulates invisibly. Nobody leaves because of one ignored comment. They leave after several thousand of them, at which point the story they tell is "we drifted apart", which is the phrase people use when they cannot see what actually happened.'
+      ],
+      practice: 'Today, catch one bid you would normally have missed and turn toward it properly. Put the phone down first.'
+    },
+    {
+      id: 'l_horsemen', track: 'partner', min: 5,
+      title: 'The four that do the damage',
+      dek: 'Criticism, contempt, defensiveness, stonewalling — and what goes in their place.',
+      body: [
+        'Gottman named four patterns that show up reliably when a relationship is in trouble. Most people have a default one. Knowing yours is more useful than knowing all four.',
+        '<strong>Criticism</strong> attacks the person rather than the problem. "The bins did not go out" is a complaint. "You never think about anyone but yourself" is a criticism. The first can be solved; the second puts them on trial. The replacement is a complaint plus a request.',
+        '<strong>Contempt</strong> is criticism from above — sarcasm, eye-rolling, mockery, the tone. It communicates disgust, and it is the single most corrosive of the four. There is no gentle version of it. The replacement is not politeness, it is deliberately building back respect you have let slide.',
+        '<strong>Defensiveness</strong> is meeting a complaint with your innocence. "I did do it, you just did not notice." It reads as refusing to hear them. The replacement is accepting some part of it, even a small part, before anything else.',
+        '<strong>Stonewalling</strong> is going blank, leaving, shutting down. It is usually not contempt but flooding — your body has hit an overload and stopped processing. The replacement is not pushing through; it is saying "I need twenty minutes" and actually coming back.'
+      ],
+      practice: 'Work out which of the four is yours. Look at your last three arguments and name the specific move — the tone, the phrase, the walking out.'
+    },
+    {
+      id: 'l_flood', track: 'partner', min: 4,
+      title: 'Why you go blank',
+      dek: 'Flooding is physiological, not a character flaw — but the way out is a specific one.',
+      body: [
+        'When conflict escalates past a certain point, your heart rate climbs and your body switches into threat mode. Above roughly 100 beats a minute, the parts of you that do nuance, memory and generosity are substantially offline. You are not being difficult; you have stopped being able to process.',
+        'This is why arguments past a certain heat go nowhere. Neither of you is really there. Anything agreed in that state tends not to survive the night.',
+        'The way out has two halves, and most people only do the first. The first half is stopping: "I am flooded, I need twenty minutes." The second half is what you do with the twenty minutes — and if you spend it rehearsing your case, you will come back more flooded than you left.',
+        'Self-soothing means genuinely dropping the arousal: walk, breathe out longer than you breathe in, do something with your hands. Twenty minutes is roughly the physiological minimum. And you must come back, at the time you said. A break that becomes an exit is just stonewalling with a better excuse.'
+      ],
+      practice: 'Agree a word or phrase that either of you can use to call a break, and agree the return time in advance so it is not negotiated mid-row.'
+    },
+    {
+      id: 'l_cycle', track: 'partner', min: 5,
+      title: 'The loop you are both stuck in',
+      dek: 'One presses, one retreats, and each move causes the other.',
+      body: [
+        'Most couples in difficulty have one recurring pattern. The commonest is pursue and withdraw: one person presses for contact, resolution, an answer. The other retreats to stop the situation escalating. Each move makes the other more likely.',
+        'The pursuer is not needy and the withdrawer is not cold. From inside, the pursuer feels they are fighting for the relationship and the withdrawer feels they are protecting it. Both are true, which is exactly why it does not resolve.',
+        'This is the central insight of Emotionally Focused Therapy: the problem is not either person, it is the loop the two of you make together. Once you can name it, you can both stand outside it and look at it instead of being inside it blaming each other.',
+        'Naming it sounds like: "when I push, you go quiet, and when you go quiet I push harder, and we both end up further away." No fault in the sentence. That sentence, said calmly, does more than an hour of arguing about who started it.'
+      ],
+      practice: 'Write your loop in one sentence with no blame in it. Just the mechanism. If you are able to, say it to them.'
+    },
+    {
+      id: 'l_under', track: 'partner', min: 4,
+      title: 'What the argument is actually about',
+      dek: 'It is rarely the dishwasher.',
+      body: [
+        'Underneath most recurring fights sits one question, and it is almost never the surface topic. The question is some version of: are you there for me? Do I matter to you? If I need you, will you come?',
+        'This is why arguments about small things get disproportionately hot. The dishwasher is not worth that much feeling. What is worth it is what the dishwasher has come to mean — that you did not think of me, that I am doing this alone, that I am not important enough to remember.',
+        'When you answer the surface question, you win the point and lose the room. When you answer the underlying one, the surface question often stops mattering.',
+        'Answering it sounds unremarkable: "you matter to me and I have been showing you the opposite." It is much harder to say than to read, because it means dropping the case you were building.'
+      ],
+      practice: 'Take your most recent argument. Write the surface topic, then write the question underneath it. Answer that one instead.'
+    },
+    {
+      id: 'l_repair', track: 'partner', min: 4,
+      title: 'Repair beats never breaking',
+      dek: 'Every couple fights. The difference is what happens next.',
+      body: [
+        'Happy couples are not the ones who avoid conflict. They are the ones who get back faster. A repair attempt is anything that tries to lower the temperature while it is still hot: a clumsy joke, a hand on the arm, "hang on, I am doing the thing again", "can we start that bit over".',
+        'Repair attempts are usually inelegant, and that does not matter. What matters is whether one gets made, and whether the other person lets it land. A rejected repair attempt is one of the more reliable danger signs there is.',
+        'This is worth knowing if you are the one who is normally right. Accepting a badly-timed joke as a peace offering, when you had a much better point to make, is not losing. It is the mechanism by which the relationship keeps working.',
+        'The other half is speed. Something repaired within the hour costs a fraction of the same thing repaired three days later, after both of you have spent three days making a case.'
+      ],
+      practice: 'Make one repair attempt today, however clumsy. And if one comes your way, take it, even if you had a better point ready.'
+    },
+    {
+      id: 'l_ratio', track: 'partner', min: 3,
+      title: 'Five to one',
+      dek: 'The ordinary hours matter more than the arguments.',
+      body: [
+        'One of Gottman\'s better-known findings is that stable couples run at roughly five positive interactions for every negative one — not during conflict, across ordinary life. Thanks, laughs, touches, questions, small kindnesses against the criticisms, snaps and eye-rolls.',
+        'The useful implication is counterintuitive. If your ratio is underwater, the fix is not primarily to argue less. Arguments are expensive but rare. The deficit is usually in the ordinary hours, where the positives have quietly stopped happening.',
+        'This is also why "we do not even fight any more" is not the reassurance people think it is. A relationship can be well above water on conflict and starving on everything else.'
+      ],
+      practice: 'Tally a single day: positives and negatives. Do not change anything yet, just get the number.'
+    },
+    {
+      id: 'l_influence', track: 'partner', min: 3,
+      title: 'Letting them change your mind',
+      dek: 'Accepting influence, and why refusing it is so costly.',
+      body: [
+        'Accepting influence means letting your partner\'s opinion actually alter your decision. Not conceding to end an argument, not agreeing while privately keeping score — genuinely updating.',
+        'In Gottman\'s research, an unwillingness to accept influence was strongly associated with relationships failing. It communicates something corrosive over time: your view is information, mine is the decision.',
+        'It shows up in small places. Which route to take. How to handle something with the children. Whether the thing they are worried about is worth worrying about. Each individual instance is trivial, which is why the pattern is invisible until it has done years of damage.',
+        'Doing it out loud is what makes it count: "you were right, I have changed my mind." Silent updating is better than nothing, but it does not tell them anything.'
+      ],
+      practice: 'Find one thing today where you let their view change your decision, and say out loud that it did.'
+    },
+    {
+      id: 'l_perpetual', track: 'partner', min: 4,
+      title: 'The problem you will never solve',
+      dek: 'Most of what couples argue about is permanent. That is not a failure.',
+      body: [
+        'In Gottman\'s work, roughly two-thirds of what couples argue about is perpetual — rooted in durable differences of personality, values or need. Tidiness. Sociability. Money. How much closeness is the right amount. These do not get solved, and treating them as solvable is what turns them poisonous.',
+        'The distinction that matters is between dialogue and gridlock. Couples who do well can talk about their perpetual problems with some humour and affection, and nothing gets resolved. Couples in trouble hit the same subject and it becomes an entrenched position with a wall behind it.',
+        'The goal, then, is not resolution. It is being able to have the conversation again without damage — understanding why the thing matters so much to them, rather than negotiating a settlement neither of you believes in.',
+        'This is genuinely freeing when it lands. A lot of people are exhausted from trying to fix something that was never a fault.'
+      ],
+      practice: 'Name your perpetual problem. Have ten minutes of conversation about it with an explicit agreement not to try to solve it.'
+    },
+    {
+      id: 'l_start', track: 'partner', min: 3,
+      title: 'The first three minutes',
+      dek: 'How a hard conversation opens largely decides how it ends.',
+      body: [
+        'In Gottman\'s lab, the opening minutes of a conflict discussion predicted its outcome with striking reliability. A harsh start-up — sarcasm, an accusation, "you always" — very rarely recovers, whatever happens later.',
+        'A softened start-up has three parts and takes one sentence. What you feel. The specific situation, not the person. What you need, stated positively. "I am worried about Saturday. Can we sort the plan tonight?"',
+        'Note what is missing: the history, the case, the evidence that you are right. Those feel necessary and they are the thing that makes the conversation unwinnable.',
+        'This is the highest-leverage single change available to most people, because it costs nothing and applies to every difficult conversation you will ever have, including the ones at work.'
+      ],
+      practice: 'Open one difficult conversation today with feeling, situation, need. One sentence, no preamble.'
+    },
+
+    {
+      id: 'l_afterkids', track: 'parenting', min: 4,
+      title: 'What children do to a couple',
+      dek: 'Satisfaction drops for most couples. Knowing that is protective.',
+      body: [
+        'Across a large body of research, relationship satisfaction declines for the majority of couples in the years after a child arrives. Sleep goes, time alone goes, and the relationship quietly reorganises itself around logistics.',
+        'This is worth knowing because of the story people tell themselves when it happens. In the absence of the information, "we are not what we were" gets read as evidence that the relationship was wrong, or that the other person changed. Usually it is evidence that you have two children and no time.',
+        'The couples who come through it are not the ones who felt no strain. They are the ones who kept some part of the relationship that was not about the children, and who treated the drop as a stage rather than a verdict.',
+        'None of this is an argument for tolerating anything. It is an argument for correctly identifying what you are dealing with before you decide what it means.'
+      ],
+      practice: 'Name one thing you used to do together that stopped when the children came. Consider whether any version of it is recoverable.'
+    },
+    {
+      id: 'l_load', track: 'parenting', min: 5,
+      title: 'The list nobody can see',
+      dek: 'The difference between doing the task and carrying it.',
+      body: [
+        'There are two kinds of domestic work. There is the doing — the washing, the lifts, the dinner. And there is the remembering: knowing the form is due, that the shoes no longer fit, that one of them has fallen out with a friend, that the appointment needs rebooking.',
+        'The second kind is invisible, never appears on a rota, and is exhausting in a way that is hard to describe to someone who is not doing it. It is also, in most households, distributed far more unevenly than the visible work.',
+        'This is the source of a specific and very common argument, which sounds like "I do loads around here" met with "but I have to ask you". Both are accurate. One person is doing tasks; the other is running the system that generates the tasks. Being asked to delegate is itself work.',
+        'The fix is not doing more. It is taking whole categories — owning something end to end, including the remembering, so it leaves the other person\'s head entirely. One category genuinely owned is worth more than a great deal of helping.'
+      ],
+      practice: 'Write the invisible list — everything that has to be remembered, not done. Then take one item and own it completely.'
+    },
+    {
+      id: 'l_conflict', track: 'parenting', min: 4,
+      title: 'What children take from your arguments',
+      dek: 'It is not the conflict that harms them. It is conflict they never see resolved.',
+      body: [
+        'Parents often try to have no conflict in front of children. The research points somewhere more specific: what predicts difficulty for children is not witnessing disagreement, it is witnessing hostile, unresolved disagreement — and never seeing the repair.',
+        'Children who see parents disagree and then visibly put it right learn something valuable: conflict is survivable, people who love each other have it, and it gets fixed. That is a template they will use in their own relationships for decades.',
+        'Children who see the row and never the repair take away something else. They know something is wrong, they cannot see it resolve, and in the absence of an explanation they usually construct one in which they are somehow implicated.',
+        'The practical version: not all of it has to be hidden. But if they saw the argument, let them see some version of the ending.'
+      ],
+      practice: 'If they see conflict today, let them see the repair too. "We were cross, we have sorted it out, and it was not about you."'
+    },
+    {
+      id: 'l_coparent', track: 'parenting', min: 4,
+      title: 'When you are parenting apart',
+      dek: 'Three things that matter more than everything else combined.',
+      body: [
+        'Where parents separate, the research is fairly consistent about what drives outcomes for children. It is much less about the separation itself than about what happens around it.',
+        'First: children must not be in the middle. Not as messengers, not as sources of information about the other household, not as confidants about adult grievances. Every one of those puts a child in a position they cannot win.',
+        'Second: ongoing hostility between parents is the strongest predictor of difficulty. Not the split — the sustained conflict after it. A low-warmth but civil arrangement is substantially better for a child than a hostile one, whatever either adult feels is deserved.',
+        'Third: children need permission to love the other parent. Criticism of a parent lands on a child as criticism of half of themselves, and they will usually protect the absent parent by hiding their feelings from you.',
+        'None of this requires you to feel warmly. It requires you to behave a particular way at handovers and in conversation, which is a discipline rather than an emotion.'
+      ],
+      practice: 'Say one genuinely positive thing about their other parent, in front of them, and mean it.'
+    },
+    {
+      id: 'l_default', track: 'parenting', min: 3,
+      title: 'The default parent',
+      dek: 'Being the one who can be relied on, not the one who helps.',
+      body: [
+        'In most households one parent is the default: the one the school rings, the one who knows the schedule, the one whose plans bend first when something goes wrong. It is rarely decided; it accretes.',
+        'The word that gives it away is "help". Helping with your own children implies they are someone else\'s responsibility that you are generously assisting with. It is a small word and it describes an entire arrangement.',
+        'Becoming a second default is not about volume of effort. It is about being the person who holds things without supervision — who notices the shoes, books the appointment, knows which one is upset and why.',
+        'The test is simple. If you were both away for a week, whose phone would the school have? If the honest answer is only one of you, that is the thing to change.'
+      ],
+      practice: 'Take one thing you currently "help with" and make it yours outright — including the remembering.'
+    },
+    {
+      id: 'l_childtime', track: 'parenting', min: 3,
+      title: 'Ten minutes that does more than an hour',
+      dek: 'Child-led time, and why the rules are so strict.',
+      body: [
+        'Ten minutes a day with one child, where they lead and you follow, is one of the best-supported interventions in the whole parenting literature. It is used clinically for behaviour difficulties and it works about as well for ordinary families.',
+        'The rules are narrow and they are the reason it works. They choose the activity. You do not teach, correct, question or steer it anywhere useful. You describe what they are doing occasionally so they know you are watching. No phone.',
+        'It is harder than it sounds, because most parental attention comes with an agenda attached — a lesson, a correction, a tidy-up. Attention with no agenda is rarer than we think, and children can tell the difference immediately.',
+        'The effect is not really about the ten minutes. It is that a child who reliably gets your undivided attention stops having to work for it in less convenient ways.'
+      ],
+      practice: 'Ten minutes today, one child, their choice, no steering. Notice how strong the urge to teach is.'
+    },
+
+    {
+      id: 'l_notherapy', track: 'self', min: 3,
+      title: 'What this can and cannot do',
+      dek: 'Worth reading before you go further.',
+      body: [
+        'Everything here is educational material drawn from published research on couples and families. It is not therapy, and it is not a substitute for it.',
+        'The honest limitation of a solo app is structural: couples work needs both people. What you can do alone is your half — your regulation, your defaults under pressure, your part in the loop, what you carry, what you repair. That is a substantial half and it is not nothing. But it cannot make someone else participate.',
+        'There is also a category of problem this is wrong for. Where there is fear, coercion, control, or violence in a relationship, the standard couples advice does not apply and some of it actively makes things worse. That needs a professional and often a specialist service, not a task list.',
+        'The same applies to your own state. If you are in crisis, or if what you are carrying is heavier than a daily plan, talk to your GP or someone you trust. Doing that is not a failure of this plan; it is the correct use of it.'
+      ],
+      practice: 'If anything in that last paragraph applied to you, act on it this week rather than filing it.'
+    },
+    {
+      id: 'l_change', track: 'self', min: 3,
+      title: 'Why announced change does not count',
+      dek: 'The gap between telling someone you have changed and them noticing.',
+      body: [
+        'When people decide to change, the first instinct is usually to announce it. It feels like progress and it is a way of asking for credit in advance.',
+        'The difficulty is that announcing change puts the other person in an awkward position. They are now being asked to believe a claim about the future and to be encouraging about it, while their actual evidence is the past.',
+        'Quiet change works differently. It accumulates without being cashed in, and at some point the other person notices on their own. Change they notice themselves is worth vastly more than change you told them about, because they arrived at it from evidence.',
+        'This is also protective for you. Announced change creates a deadline and an audience, and both make it harder to survive the week where you do it badly.'
+      ],
+      practice: 'Change one specific thing today without telling anyone you are doing it.'
+    }
+  ];
+
+  MS.lessonById = function (id) {
+    for (var i = 0; i < MS.LESSONS.length; i++) {
+      if (MS.LESSONS[i].id === id) return MS.LESSONS[i];
+    }
+    return null;
+  };
+})(window.MS = window.MS || {});
+
 /* ---- src/data/phases.js ---- */
 /* Museschool — the four-phase arc and the milestone language for each dimension. */
 (function (MS) {
@@ -1060,7 +1511,7 @@ textarea { min-height: 118px; line-height: 1.55; }
     { n: 3, name: 'Show up', weeks: [7, 9],
       line: 'Take it out of your head and into rooms with people in them.',
       body: 'Insight that never leaves your journal is not change. This phase moves everything outward: saying the direct thing, hearing criticism without armour, repairing what went quiet, being present with people who are actually in front of you. This is where other people start to notice, which is not the point but is a reasonable side effect.',
-      base: ['communication', 'connection', 'presence'] },
+      base: ['communication', 'connection', 'presence', 'partnership'] },
 
     { n: 4, name: 'Make it yours', weeks: [10, 12],
       line: 'Turn twelve weeks of effort into a way you live.',
@@ -1118,6 +1569,12 @@ textarea { min-height: 118px; line-height: 1.55; }
       'A real plan with a date, and something useful done for someone',
       'One place you show up in person, on repeat'
     ],
+    partnership: [
+      'Notice one bid for your attention a day, and turn toward it',
+      'Name the cycle out loud instead of naming their fault',
+      'Make the first move back after a row, three times',
+      'One ritual with them that survives a bad week'
+    ],
     presence: [
       'One meal a day with nothing else happening',
       'Ten minutes walking with no input, three times',
@@ -1136,7 +1593,8 @@ textarea { min-height: 118px; line-height: 1.55; }
     vitality: 'You are trying to do emotional work on an empty tank. Sleep, light and movement are not adjacent to this — they are underneath it.',
     purpose: 'Your days are mostly responses to other people. There is nothing that is yours, and that absence gets filled by whatever is loudest.',
     connection: 'Too much of your life runs through too few people. That is a lot of weight on one rope.',
-    presence: 'You are physically in your life and mentally somewhere else, which is why so much of it feels like it is happening at a distance.'
+    presence: 'You are physically in your life and mentally somewhere else, which is why so much of it feels like it is happening at a distance.',
+    partnership: 'The daily mechanics are where this is going wrong — the small turns toward each other, the first move back after a row, carrying your share without being asked. Grand gestures are not the missing piece; those are.'
   };
 
   MS.DIM_STRENGTH = {
@@ -1148,7 +1606,8 @@ textarea { min-height: 118px; line-height: 1.55; }
     vitality: 'Your body is in good order, so the hard emotional work has somewhere solid to happen.',
     purpose: 'You know what you are building. That gives you somewhere to stand while the rest moves.',
     connection: 'You have real people around you. Use them — most of this goes faster witnessed.',
-    presence: 'You can actually be where you are. That is the raw material for every relationship skill here.'
+    presence: 'You can actually be where you are. That is the raw material for every relationship skill here.',
+    partnership: 'You do the ordinary daily things well — the noticing, the turning toward, the coming back. That is the part most people cannot sustain, and it counts for more than any single grand gesture.'
   };
 })(window.MS = window.MS || {});
 
@@ -1215,6 +1674,19 @@ textarea { min-height: 118px; line-height: 1.55; }
   /* Turns scale answers into a 0-100 score per dimension.
    * Dimensions with no answers come back at 50 so they neither
    * dominate nor disappear from the ranking. */
+  /* Which dimensions the answers actually cover. A section the user never saw
+   * (no children, no partner) must not produce a keystone. */
+  MS.answeredDims = function (answers) {
+    var seen = {};
+    MS.QUIZ.forEach(function (section) {
+      section.questions.forEach(function (q) {
+        if (q.type === 'scale' && typeof answers[q.id] === 'number') seen[q.dim] = true;
+      });
+    });
+    var keys = MS.DIM_KEYS.filter(function (k) { return seen[k]; });
+    return keys.length ? keys : MS.DIM_KEYS.slice();
+  };
+
   MS.score = function (answers) {
     var sums = {}, counts = {};
     MS.DIM_KEYS.forEach(function (k) { sums[k] = 0; counts[k] = 0; });
@@ -1245,7 +1717,7 @@ textarea { min-height: 118px; line-height: 1.55; }
     var goals = Array.isArray(answers.goals) ? answers.goals : [];
     var primary = answers.primaryGoal;
 
-    var ranked = MS.DIM_KEYS.map(function (k) {
+    var ranked = MS.answeredDims(answers).map(function (k) {
       var urgency = scores[k];                       // lower score = more urgent
       if (goals.indexOf(k) !== -1) urgency -= 22;    // they asked for this
       if (primary === k) urgency -= 15;              // they asked for it most
@@ -1257,16 +1729,17 @@ textarea { min-height: 118px; line-height: 1.55; }
     return ranked.slice(0, 2).map(function (r) { return r.k; });
   }
 
-  function pickStrength(scores, keystones) {
-    return MS.DIM_KEYS
+  function pickStrength(scores, keystones, dims) {
+    return dims
       .filter(function (k) { return keystones.indexOf(k) === -1; })
       .sort(function (a, b) { return scores[b] - scores[a]; })[0];
   }
 
   /* The focus dimensions for a phase: its own base, with the keystones
    * woven in so they are never out of sight for long. */
-  function phaseFocus(phase, keystones) {
-    var f = phase.base.slice();
+  function phaseFocus(phase, keystones, dims) {
+    dims = dims || MS.DIM_KEYS;
+    var f = phase.base.filter(function (k) { return dims.indexOf(k) !== -1; });
     keystones.forEach(function (k) {
       // Keystone 1 is present in every phase; keystone 2 joins from phase 2.
       var idx = keystones.indexOf(k);
@@ -1279,8 +1752,8 @@ textarea { min-height: 118px; line-height: 1.55; }
     for (var i = 0; f.length < 3 && i < keystones.length; i++) {
       if (f.indexOf(keystones[i]) === -1) f.push(keystones[i]);
     }
-    for (var j = 0; f.length < 3 && j < MS.DIM_KEYS.length; j++) {
-      if (f.indexOf(MS.DIM_KEYS[j]) === -1) f.push(MS.DIM_KEYS[j]);
+    for (var j = 0; f.length < 3 && j < dims.length; j++) {
+      if (f.indexOf(dims[j]) === -1) f.push(dims[j]);
     }
     return f;
   }
@@ -1288,20 +1761,29 @@ textarea { min-height: 118px; line-height: 1.55; }
 
   MS.buildPlan = function (answers, startKey) {
     var scores = MS.score(answers);
+    var dims = MS.answeredDims(answers);
     var keystones = pickKeystones(scores, answers);
-    var strength = pickStrength(scores, keystones);
-    var isRel = answers.primaryGoal === 'relationship' ||
-      (Array.isArray(answers.goals) && answers.goals.indexOf('relationship') !== -1);
+    var strength = pickStrength(scores, keystones, dims);
+    var goals = Array.isArray(answers.goals) ? answers.goals : [];
+    var isRel = answers.primaryGoal === 'relationship' || goals.indexOf('relationship') !== -1;
+
+    // Which bodies of content this plan draws on.
+    var tracks = [];
+    if (isRel) tracks.push('relationship');
+    if (isRel || answers.primaryGoal === 'partnership' || goals.indexOf('partnership') !== -1 ||
+        dims.indexOf('partnership') !== -1) tracks.push('partner');
+    if (answers.kids && answers.kids !== 'none') tracks.push('parenting');
 
     var minutes = parseInt(answers.minutes || '20', 10);
 
     // The anchor is the daily habit for the primary keystone. With a bigger
     // time budget a second anchor comes from keystone two.
-    var anchors = [anchorFor(keystones[0])];
-    if (minutes >= 40 && keystones[1]) anchors.push(anchorFor(keystones[1]));
+    var anchors = [anchorFor(keystones[0], tracks)];
+    if (minutes >= 40 && keystones[1]) anchors.push(anchorFor(keystones[1], tracks));
+    anchors = anchors.filter(Boolean);
 
     var phases = MS.PHASES.map(function (p) {
-      var focus = phaseFocus(p, keystones);
+      var focus = phaseFocus(p, keystones, dims);
       return {
         n: p.n, name: p.name, line: p.line, body: p.body,
         weeks: p.weeks, focus: focus,
@@ -1317,9 +1799,11 @@ textarea { min-height: 118px; line-height: 1.55; }
       startKey: startKey || dayKey(),
       seed: hash(JSON.stringify(answers)),
       scores: scores,
+      dims: dims,
       keystones: keystones,
       strength: strength,
       relationship: isRel,
+      tracks: tracks,
       minutes: minutes,
       days: parseInt(answers.days || '6', 10),
       anchors: anchors.map(function (t) { return t.id; }),
@@ -1327,10 +1811,15 @@ textarea { min-height: 118px; line-height: 1.55; }
     };
   };
 
-  function anchorFor(dim) {
-    return MS.TASKS.filter(function (t) {
-      return t.cat === 'anchor' && t.dim === dim;
-    })[0];
+  function anchorFor(dim, tracks) {
+    var pool = MS.TASKS.filter(function (t) {
+      if (t.cat !== 'anchor' || t.dim !== dim) return false;
+      return !t.tags || t.tags.some(function (g) { return tracks.indexOf(g) !== -1; });
+    });
+    // A track-specific anchor beats the general one — the child-led ten
+    // minutes is a better daily habit for a parent than a generic presence drill.
+    var tagged = pool.filter(function (t) { return t.tags; });
+    return tagged[0] || pool[0];
   }
 
   MS.taskById = function (id) {
@@ -1374,7 +1863,7 @@ textarea { min-height: 118px; line-height: 1.55; }
     return MS.TASKS.filter(function (t) {
       if (t.cat !== cat) return false;
       if (t.phases.indexOf(info.phaseN) === -1) return false;
-      if (t.tags && t.tags.indexOf('relationship') !== -1 && !plan.relationship) return false;
+      if (t.tags && !t.tags.some(function (g) { return plan.tracks.indexOf(g) !== -1; })) return false;
       if (cats && cats.indexOf(t.dim) === -1) return false;
       return true;
     });
@@ -1408,6 +1897,9 @@ textarea { min-height: 118px; line-height: 1.55; }
       var t = MS.taskById(id);
       if (t) out.push(t);
     });
+
+    var lesson = MS.lessonForDay(plan, key);
+    if (lesson) out.push(MS.lessonTask(lesson));
 
     if (light) {
       // One short reflective task, then leave the day alone.
@@ -1454,6 +1946,55 @@ textarea { min-height: 118px; line-height: 1.55; }
     });
 
     return { info: info, tasks: out, light: false };
+  };
+
+  /* ---------- lessons ---------- */
+
+  var LESSON_EVERY = 3;   // one piece of reading every third day
+
+  /* The reading list for a plan: the framing lesson first, then the relevant
+   * tracks round-robined so a parent does not wait a month for the parenting
+   * material. Order within a track is preserved — they build on each other. */
+  MS.lessonPlan = function (plan) {
+    if (!MS.LESSONS) return [];
+    var tracks = plan.tracks || [];
+    function byTrack(t) {
+      return MS.LESSONS.filter(function (l) { return l.track === t; });
+    }
+    var intro = MS.LESSONS.filter(function (l) { return l.id === 'l_notherapy'; });
+    var lists = [];
+    if (tracks.indexOf('partner') !== -1) lists.push(byTrack('partner'));
+    if (tracks.indexOf('parenting') !== -1) lists.push(byTrack('parenting'));
+    lists.push(byTrack('self').filter(function (l) { return l.id !== 'l_notherapy'; }));
+
+    var out = intro.slice();
+    for (var i = 0, more = true; more; i++) {
+      more = false;
+      for (var j = 0; j < lists.length; j++) {
+        if (lists[j][i]) { out.push(lists[j][i]); more = true; }
+      }
+    }
+    return out;
+  };
+
+  /* Lessons are content, not drills, so they are chipped by track. */
+  function lessonDim(l) {
+    return l.track === 'self' ? 'ownership' : 'partnership';
+  }
+
+  MS.lessonTask = function (l) {
+    return {
+      id: l.id, cat: 'learn', dim: lessonDim(l), min: l.min,
+      title: l.title, detail: l.dek, lesson: l
+    };
+  };
+
+  MS.lessonForDay = function (plan, key) {
+    var idx = daysBetween(plan.startKey, key);
+    if (idx < 0 || idx >= TOTAL_DAYS) return null;
+    if (idx % LESSON_EVERY !== 0) return null;
+    var list = MS.lessonPlan(plan);
+    return list[idx / LESSON_EVERY] || null;
   };
 
   /* ---------- progress ---------- */
@@ -1514,6 +2055,7 @@ textarea { min-height: 118px; line-height: 1.55; }
       log: {},        // dayKey -> { tasks:{id:true}, done, mood, energy, note }
       journal: [],    // { date, taskId, title, text, ts }
       checkins: [],   // { date, scores }
+      lessonsRead: {},// lessonId -> dayKey first read
       settings: { theme: 'auto' }
     };
   }
@@ -1599,6 +2141,15 @@ textarea { min-height: 118px; line-height: 1.55; }
         return j.date === date && j.taskId === taskId;
       })[0];
       return f ? f.text : '';
+    },
+
+    /* ----- lessons ----- */
+    markRead: function (id) {
+      if (!state.lessonsRead) state.lessonsRead = {};
+      if (!state.lessonsRead[id]) {
+        state.lessonsRead[id] = MS.dayKey();
+        this.save();
+      }
     },
 
     /* ----- re-assessment ----- */
@@ -1797,7 +2348,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 
         '<hr class="divider">' +
         '<p class="eyebrow">Where you scored</p>' +
-        '<div class="bars" style="margin-top:14px">' + U.bars(plan.scores, plan.keystones) + '</div>' +
+        '<div class="bars" style="margin-top:14px">' + U.bars(plan.scores, plan.keystones, null, plan.dims) + '</div>' +
         '<p class="dim tiny" style="margin-top:12px">These are a snapshot of how you answered today, not a verdict. ' +
         'You will re-score at the end of each phase and see the movement.</p>' +
 
@@ -1854,8 +2405,8 @@ textarea { min-height: 118px; line-height: 1.55; }
 
   /* ---------- shared renderers ---------- */
 
-  U.bars = function (scores, keystones, previous) {
-    return MS.DIM_KEYS
+  U.bars = function (scores, keystones, previous, dims) {
+    return (dims || MS.DIM_KEYS)
       .slice()
       .sort(function (a, b) { return scores[a] - scores[b]; })
       .map(function (k) {
@@ -1907,6 +2458,7 @@ textarea { min-height: 118px; line-height: 1.55; }
   var NAV = [
     { id: 'today', icon: '◉', label: 'Today' },
     { id: 'plan', icon: '◈', label: 'Plan' },
+    { id: 'learn', icon: '▤', label: 'Learn' },
     { id: 'progress', icon: '◔', label: 'Progress' },
     { id: 'journal', icon: '✎', label: 'Journal' },
     { id: 'settings', icon: '⚙', label: 'You' }
@@ -1993,7 +2545,40 @@ textarea { min-height: 118px; line-height: 1.55; }
     return out + '</div>';
   }
 
+  /* Lesson copy is authored in this repository and carries light inline
+   * markup, so it is written out as-is. Never route anything a person typed
+   * through this function. */
+  U.lessonBody = function (l) {
+    return '<div class="lesson-body">' +
+      l.body.map(function (par) { return '<p>' + par + '</p>'; }).join('') +
+      '<p class="lesson-practice"><strong>Try today.</strong> ' + esc(l.practice) + '</p>' +
+      '</div>';
+  };
+
+  function lessonCard(t, done, key) {
+    var l = t.lesson;
+    var open = MS.openLesson === l.id;
+    return '' +
+      '<div class="task task-learn' + (done ? ' done' : '') + '">' +
+        '<button class="tick" data-act="tick" data-task="' + esc(t.id) + '" ' +
+          'aria-label="Mark done" aria-pressed="' + done + '">✓</button>' +
+        '<div class="task-body">' +
+          '<div class="task-meta">' +
+            '<span class="chip chip-learn">reading</span>' +
+            '<span class="chip">' + esc(l.track === 'self' ? 'the plan' : l.track) + '</span>' +
+            '<span class="chip">' + l.min + ' min</span>' +
+          '</div>' +
+          '<div class="task-title">' + esc(l.title) + '</div>' +
+          '<div class="task-detail">' + esc(l.dek) + '</div>' +
+          (open ? U.lessonBody(l) : '') +
+          '<button class="btn btn-ghost" data-act="lesson" data-lesson="' + esc(l.id) + '" ' +
+            'style="margin-top:12px">' + (open ? 'Close' : 'Read it') + '</button>' +
+        '</div>' +
+      '</div>';
+  }
+
   function taskCard(t, done, key) {
+    if (t.cat === 'learn') return lessonCard(t, done, key);
     var isWriting = t.cat === 'reflect';
     var chipClass = t.cat === 'anchor' ? ' chip-anchor' : (isWriting ? ' chip-reflect' : '');
     var text = isWriting ? MS.store.journalFor(key, t.id) : '';
@@ -2094,7 +2679,7 @@ textarea { min-height: 118px; line-height: 1.55; }
           ? 'Bars show your latest re-score. The vertical mark is where you started.'
           : 'Where you started. Re-score at the end of each phase to see this move.') +
       '</p>' +
-      '<div class="bars">' + U.bars(latest || plan.scores, plan.keystones, latest ? plan.scores : null) + '</div>' +
+      '<div class="bars">' + U.bars(latest || plan.scores, plan.keystones, latest ? plan.scores : null, plan.dims) + '</div>' +
 
       (moods.length > 2 ? moodChart(st, moods) : '') +
 
@@ -2183,6 +2768,56 @@ textarea { min-height: 118px; line-height: 1.55; }
       '</div>' +
       (ready ? '' : '<p class="dim tiny" style="margin-top:10px">' +
         (qs.length - answeredCount) + ' left.</p>') +
+    '</div>');
+  };
+
+  /* ---------- the reading library ---------- */
+
+  U.learn = function (st) {
+    var plan = st.plan;
+    var list = MS.lessonPlan(plan);
+    var read = st.lessonsRead || {};
+    var info = MS.dayInfo(plan, MS.dayKey());
+    var readCount = list.filter(function (l) { return read[l.id]; }).length;
+
+    if (!list.length) {
+      return page('<div class="wrap"><p class="eyebrow">Reading</p>' +
+        '<h2 style="margin:8px 0 14px">Nothing here yet</h2>' +
+        '<p class="muted">The reading follows the tracks your plan is running. ' +
+        'Yours does not include the partner or parenting material — retake the quiz from ' +
+        'the You tab if that has changed.</p></div>');
+    }
+
+    var body = list.map(function (l, i) {
+      var day = i * 3 + 1;
+      var unlocked = info.beforeStart ? false : info.dayNumber >= day;
+      var open = MS.openLesson === l.id;
+      return '<div class="lesson-row' + (open ? ' open' : '') + '">' +
+        '<button class="lesson-head" data-act="lesson" data-lesson="' + esc(l.id) + '">' +
+          '<span class="lesson-day">' + (read[l.id] ? '✓' : (unlocked ? '·' : '')) + '</span>' +
+          '<span class="lesson-main">' +
+            '<span class="lesson-title">' + esc(l.title) + '</span>' +
+            '<span class="lesson-dek">' + esc(l.dek) + '</span>' +
+          '</span>' +
+          '<span class="lesson-meta">' + (unlocked ? l.min + ' min' : 'day ' + day) + '</span>' +
+        '</button>' +
+        (open ? U.lessonBody(l) : '') +
+      '</div>';
+    }).join('');
+
+    return page('<div class="wrap">' +
+      '<p class="eyebrow">Reading</p>' +
+      '<h2 style="margin:8px 0 12px">' + readCount + ' of ' + list.length + ' read</h2>' +
+      '<p class="muted small">Short pieces from the research on couples and families — ' +
+      'mostly Gottman\'s observational work and Emotionally Focused Therapy. One arrives ' +
+      'on your Today screen every third day, but you can read ahead.</p>' +
+      '<div class="note" style="margin:18px 0 22px">' +
+        '<strong>This is educational material, not therapy.</strong> Couples work needs both ' +
+        'people; what an app can do is your half. Where there is fear, coercion or violence ' +
+        'in a relationship, standard couples advice does not apply and some of it makes things ' +
+        'worse — that needs a professional service, not a task list.' +
+      '</div>' +
+      '<div class="lessons">' + body + '</div>' +
     '</div>');
   };
 
@@ -2386,6 +3021,13 @@ textarea { min-height: 118px; line-height: 1.55; }
 
       case 'go':
         MS.view = btn.dataset.view; break;
+
+      case 'lesson': {
+        var lid = btn.dataset.lesson;
+        MS.openLesson = MS.openLesson === lid ? null : lid;
+        if (MS.openLesson) MS.store.markRead(lid);
+        scroll = false; break;
+      }
 
       case 'tick': {
         var on = MS.store.toggleTask(MS.dayKey(), btn.dataset.task);

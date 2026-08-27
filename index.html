@@ -4,7 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="A long honest questionnaire, then a twelve-week personal growth plan with daily tasks. Everything stays on your device.">
-<meta name="theme-color" content="#E8EAE6">
+<meta name="theme-color" content="#12544A">
+
+<!-- Installable: Add to Home Screen on iOS gives a real icon and no browser chrome. -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Museschool">
 <title>Museschool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,11 +26,21 @@
 
 <script src="src/data/quiz.js"></script>
 <script src="src/data/tasks.js"></script>
+<script src="src/data/lessons.js"></script>
 <script src="src/data/phases.js"></script>
 <script src="src/engine/engine.js"></script>
 <script src="src/store.js"></script>
 <script src="src/ui/quiz-ui.js"></script>
 <script src="src/ui/app-ui.js"></script>
-<script>MS.boot();</script>
+<script>
+MS.boot();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {
+      // No service worker (file://, or unsupported) just means no offline mode.
+    });
+  });
+}
+</script>
 </body>
 </html>

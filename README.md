@@ -10,11 +10,12 @@ they are answered honestly, which is easier when nobody else can read them.
 
 ## How it works
 
-**1 · The questionnaire** — 65 questions across 12 sections. Nine dimensions
-get scored: emotional steadiness, self-worth, communication, ownership,
-follow-through, body and energy, direction, connection and presence. Plus
-what you want, what derails you, how you respond to stress, and how many
-minutes a day you will realistically give this.
+**1 · The questionnaire** — up to 78 questions across 14 sections; sections
+you have no use for are skipped. Ten dimensions get scored: emotional
+steadiness, self-worth, communication, ownership, follow-through, body and
+energy, direction, connection, presence and partnership. Plus what you want,
+what derails you, how you respond to stress, your children if you have any,
+and how many minutes a day you will realistically give this.
 
 **2 · The reading** — two *keystones* (the lowest-scoring things you also
 said you cared about, with a weak physical or emotional floor promoted above
@@ -37,9 +38,43 @@ of practice drills, written reflection and outward action. The mix comes from
 a rotating cycle rather than a fixed template, so a ten-minute commitment
 still gets its turn at the written work.
 
-**5 · Tracking** — tick-off, streaks, an end-of-day mood and energy line, a
+**5 · The reading** — 18 short lessons drawn from mainstream couples and
+family research, mostly Gottman's observational work and Emotionally Focused
+Therapy: bids for connection, the four horsemen, flooding, the pursue–withdraw
+cycle, repair attempts, perpetual problems, what children take from your
+arguments, the invisible mental load, co-parenting apart. One arrives on the
+Today screen every third day, in a sequence that builds; the whole library is
+browsable under Learn.
+
+**6 · Tracking** — tick-off, streaks, an end-of-day mood and energy line, a
 journal that collects everything you write, and a re-score at the end of each
 phase so you can see which dimensions actually moved.
+
+### Tracks
+
+Content is gated to what applies to you, so nobody gets tasks about a partner
+they do not have:
+
+| Track | Turned on by | Adds |
+|---|---|---|
+| `relationship` | a rupture you want to repair | ownership and space-giving work |
+| `partner` | having a partner, or wanting one back | the couples skills and lessons |
+| `parenting` | having children | mental load, repair in front of them, co-parenting |
+
+Dimensions drive the daily *drills*; tracks drive the *reading*. That split is
+deliberate — it means a parent whose keystones land on, say, follow-through
+still gets the parenting material.
+
+## Installing it on a phone
+
+The app is a PWA, so it installs from the browser with no App Store involved.
+Serve it over HTTPS (GitHub Pages works), open it in Safari on iOS, then
+**Share → Add to Home Screen**. You get a real icon, it launches without
+browser chrome, and it works offline.
+
+iOS exempts home-screen web apps from the seven-day script-storage eviction
+that applies to ordinary Safari tabs, so your data persists — but it is still
+only on that device, so take a backup from the You tab if it matters.
 
 ## On the relationship track
 
@@ -80,9 +115,14 @@ End-to-end, driven in a real browser:
 ```sh
 npm install
 node build.mjs
-node test/smoke.mjs    # whole quiz through to a ticked day, then a reload
-node test/deep.mjs     # mid-plan state, the phase-end re-score, dark, desktop
+python3 -m http.server 8123 &
+APP_URL=http://localhost:8123/index.html node test/smoke.mjs   # whole quiz, a ticked day, the reading, a reload
+node test/deep.mjs                                            # mid-plan, the re-score, dark, desktop
+APP_URL=http://localhost:8123/index.html node test/pwa.mjs     # installability and offline
 ```
+
+`smoke` and `pwa` need the app served over http — a service worker will not
+register on `file://`.
 
 Screenshots land in `$SHOT_DIR` (default `/tmp/museschool-shots`).
 
@@ -91,12 +131,15 @@ Screenshots land in `$SHOT_DIR` (default `/tmp/museschool-shots`).
 ```
 src/data/quiz.js      65 questions, and how each maps to a dimension
 src/data/tasks.js     the task library, tagged by dimension, phase and minutes
+src/data/lessons.js   the reading, tagged by track and delivered in sequence
 src/data/phases.js    the four-phase arc, milestones, dimension copy
 src/engine/engine.js  scoring, plan generation, daily task selection
 src/store.js          localStorage persistence, export and restore
 src/ui/quiz-ui.js     welcome, quiz, plan reveal
-src/ui/app-ui.js      today, plan, progress, journal, settings, routing
+src/ui/app-ui.js      today, plan, learn, progress, journal, settings, routing
 build.mjs             bundles the above into dist/
+sw.js                 service worker — offline only, never touches your data
+manifest.webmanifest  makes it installable
 ```
 
 Scoring and task selection are deterministic: the same answers and the same

@@ -13,7 +13,7 @@ const errors = [];
 pg.on('pageerror', e => errors.push('PAGEERROR: ' + e.message));
 pg.on('console', m => { if (m.type() === 'error') errors.push('CONSOLE: ' + m.text()); });
 
-await pg.goto('file:///home/user/Museschool/dist/standalone.html');
+await pg.goto(`${process.env.APP_URL || 'file:///home/user/Museschool/dist/standalone.html'}`);
 await pg.waitForSelector('#app h1');
 console.log('welcome:', await pg.locator('h1').first().innerText());
 await pg.screenshot({ path: `${SHOT}/01-welcome.png`, fullPage: true });
@@ -38,7 +38,9 @@ for (;;) {
       const note = await q.locator('.q-note').count() ? await q.locator('.q-note').innerText() : '';
       const n = /up to (\d)/.exec(note);
       if (n) { for (let i = 0; i < Number(n[1]); i++) await opts.nth(i).click(); }
-      else await opts.nth(0).click();
+      else if ((await q.locator('.q-text').innerText()).startsWith('Do you have children')) {
+        await q.getByText('Two', { exact: true }).click();   // exercise the family sections
+      } else await opts.nth(0).click();
     } else if (await ta.count()) {
       await ta.first().fill(await ta.first().evaluate(e => e.tagName) === 'INPUT' ? 'Alex' : 'Test answer for ' + title);
     }
@@ -82,6 +84,16 @@ console.log(noteNow === 'Closing line for today.'
   ? 'note survives re-render: OK'
   : `!! NOTE LOST after re-render, got ${JSON.stringify(noteNow)}`);
 await pg.screenshot({ path: `${SHOT}/04-today.png`, fullPage: true });
+
+// The reading: library lists, a lesson opens, and it is marked read.
+await pg.locator('.nav [data-view="learn"]').click();
+await pg.waitForSelector('.lesson-row');
+const lessonCount = await pg.locator('.lesson-row').count();
+await pg.locator('.lesson-head').first().click();
+await pg.waitForSelector('.lesson-body');
+const readMarked = await pg.evaluate(() => Object.keys(MS.store.get().lessonsRead || {}).length);
+console.log('learn:', lessonCount, 'lessons listed, opened one, marked read:', readMarked);
+if (!lessonCount || !readMarked) console.log('!! LEARN TAB BROKEN');
 
 for (const v of ['plan', 'progress', 'journal', 'settings']) {
   await pg.locator(`.nav [data-view="${v}"]`).click();

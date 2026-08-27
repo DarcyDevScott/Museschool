@@ -21,6 +21,7 @@
 
   var GOALS = [
     { v: 'relationship', label: 'Repair or rebuild a relationship', note: 'Partner, ex-partner, or someone close' },
+    { v: 'partnership', label: 'Being a better partner day to day', note: 'The ordinary skills, not the crisis ones' },
     { v: 'worth', label: 'Confidence and self-worth', note: 'Liking who you are without needing proof' },
     { v: 'regulation', label: 'Emotional steadiness', note: 'Feeling things without being run by them' },
     { v: 'consistency', label: 'Discipline and follow-through', note: 'Doing what you said you would' },
@@ -62,6 +63,12 @@
           { v: 'weeks', label: 'A few weeks' }, { v: 'months', label: 'A few months' },
           { v: 'year', label: 'About a year' }, { v: 'years', label: 'Years' },
           { v: 'always', label: 'As long as I can remember' }
+        ]},
+        { id: 'kids', type: 'single', text: 'Do you have children?', options: [
+          { v: 'none', label: 'No' },
+          { v: '1', label: 'One' },
+          { v: '2', label: 'Two' },
+          { v: '3', label: 'Three or more' }
         ]},
         { id: 'tried', type: 'single', text: 'Have you tried to work on this before?', options: [
           { v: 'never', label: 'Not really' },
@@ -213,6 +220,61 @@
     },
 
     {
+      id: 'partnership',
+      title: 'As a partner',
+      blurb: 'The ordinary daily mechanics of being someone to live with. Answer about how you have been, not how you mean to be.',
+      when: function (a) {
+        var g = Array.isArray(a.goals) ? a.goals : [];
+        return a.primaryGoal === 'relationship' || a.primaryGoal === 'partnership' ||
+          g.indexOf('relationship') !== -1 || g.indexOf('partnership') !== -1 ||
+          (a.kids && a.kids !== 'none');
+      },
+      questions: [
+        scale('par1', 'partnership', 'I notice when they are reaching for my attention, even when it is a small thing.'),
+        scale('par2', 'partnership', 'In a disagreement, I let their view actually change my mind.'),
+        scale('par3', 'partnership', 'I go cold or end the conversation when it gets heated.', true),
+        scale('par4', 'partnership', 'I go after the person rather than naming the specific thing they did.', true),
+        scale('par5', 'partnership', 'After a row, I am the one who makes the first move back.'),
+        scale('par6', 'partnership', 'They would say I carry my share without having to be asked.')
+      ]
+    },
+
+    {
+      id: 'family',
+      title: 'The children',
+      blurb: 'Two things get measured here: what your children see, and what having them has done to the partnership.',
+      when: function (a) { return a.kids && a.kids !== 'none'; },
+      questions: [
+        { id: 'kidsAges', type: 'multi', max: 4, text: 'How old are they?', options: [
+          { v: 'baby', label: 'Under 2' }, { v: 'toddler', label: '2 to 4' },
+          { v: 'primary', label: '5 to 10' }, { v: 'teen', label: '11 to 15' },
+          { v: 'older', label: '16 or older' }
+        ]},
+        { id: 'famSetup', type: 'single', text: 'How is parenting arranged right now?', options: [
+          { v: 'together', label: 'We parent together, same house' },
+          { v: 'split_amicable', label: 'Separate houses, and it works reasonably' },
+          { v: 'split_tense', label: 'Separate houses, and it is tense' },
+          { v: 'mostly_me', label: 'They are with me most of the time' },
+          { v: 'mostly_them', label: 'They are with their other parent most of the time' }
+        ]},
+        { id: 'famLoad', type: 'single', text: 'Who carries the remembering — appointments, kit, forms, who needs what when?', options: [
+          { v: 'me', label: 'Mostly me' },
+          { v: 'them', label: 'Mostly them' },
+          { v: 'even', label: 'Genuinely evenly split' },
+          { v: 'unsure', label: 'I have honestly never worked it out' }
+        ]},
+        { id: 'famConflict', type: 'single', text: 'How much of the conflict do the children see?', options: [
+          { v: 'none', label: 'None — we keep it away from them' },
+          { v: 'some', label: 'Some. The tension, mostly' },
+          { v: 'lots', label: 'More than I would like' },
+          { v: 'repair', label: 'They see it, and they see us fix it' }
+        ]},
+        scale('fam1', 'partnership', 'We have time together that is not about the children or logistics.'),
+        scale('fam2', 'presence', 'I get time with each child that is not admin — not lifts, meals or bedtime routine.')
+      ]
+    },
+
+    {
       id: 'relationship',
       title: 'The relationship',
       blurb: 'This section is about your side of it. Not theirs, and not what they should do.',
@@ -325,7 +387,8 @@
     vitality:      { label: 'Body and energy',      short: 'Energy' },
     purpose:       { label: 'Direction',            short: 'Direction' },
     connection:    { label: 'Connection',           short: 'Connection' },
-    presence:      { label: 'Presence',             short: 'Presence' }
+    presence:      { label: 'Presence',             short: 'Presence' },
+    partnership:   { label: 'Partnership',          short: 'Partnership' }
   };
 
   MS.DIM_KEYS = Object.keys(MS.DIMENSIONS);

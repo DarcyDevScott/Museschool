@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 const SRC = [
   'src/data/quiz.js',
   'src/data/tasks.js',
+  'src/data/lessons.js',
   'src/data/phases.js',
   'src/engine/engine.js',
   'src/store.js',

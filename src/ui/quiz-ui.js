@@ -173,7 +173,7 @@
 
         '<hr class="divider">' +
         '<p class="eyebrow">Where you scored</p>' +
-        '<div class="bars" style="margin-top:14px">' + U.bars(plan.scores, plan.keystones) + '</div>' +
+        '<div class="bars" style="margin-top:14px">' + U.bars(plan.scores, plan.keystones, null, plan.dims) + '</div>' +
         '<p class="dim tiny" style="margin-top:12px">These are a snapshot of how you answered today, not a verdict. ' +
         'You will re-score at the end of each phase and see the movement.</p>' +
 
@@ -230,8 +230,8 @@
 
   /* ---------- shared renderers ---------- */
 
-  U.bars = function (scores, keystones, previous) {
-    return MS.DIM_KEYS
+  U.bars = function (scores, keystones, previous, dims) {
+    return (dims || MS.DIM_KEYS)
       .slice()
       .sort(function (a, b) { return scores[a] - scores[b]; })
       .map(function (k) {

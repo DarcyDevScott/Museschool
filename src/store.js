@@ -16,6 +16,7 @@
       log: {},        // dayKey -> { tasks:{id:true}, done, mood, energy, note }
       journal: [],    // { date, taskId, title, text, ts }
       checkins: [],   // { date, scores }
+      lessonsRead: {},// lessonId -> dayKey first read
       settings: { theme: 'auto' }
     };
   }
@@ -101,6 +102,15 @@
         return j.date === date && j.taskId === taskId;
       })[0];
       return f ? f.text : '';
+    },
+
+    /* ----- lessons ----- */
+    markRead: function (id) {
+      if (!state.lessonsRead) state.lessonsRead = {};
+      if (!state.lessonsRead[id]) {
+        state.lessonsRead[id] = MS.dayKey();
+        this.save();
+      }
     },
 
     /* ----- re-assessment ----- */

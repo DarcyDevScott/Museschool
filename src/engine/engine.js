@@ -60,6 +60,19 @@
   /* Turns scale answers into a 0-100 score per dimension.
    * Dimensions with no answers come back at 50 so they neither
    * dominate nor disappear from the ranking. */
+  /* Which dimensions the answers actually cover. A section the user never saw
+   * (no children, no partner) must not produce a keystone. */
+  MS.answeredDims = function (answers) {
+    var seen = {};
+    MS.QUIZ.forEach(function (section) {
+      section.questions.forEach(function (q) {
+        if (q.type === 'scale' && typeof answers[q.id] === 'number') seen[q.dim] = true;
+      });
+    });
+    var keys = MS.DIM_KEYS.filter(function (k) { return seen[k]; });
+    return keys.length ? keys : MS.DIM_KEYS.slice();
+  };
+
   MS.score = function (answers) {
     var sums = {}, counts = {};
     MS.DIM_KEYS.forEach(function (k) { sums[k] = 0; counts[k] = 0; });
@@ -90,7 +103,7 @@
     var goals = Array.isArray(answers.goals) ? answers.goals : [];
     var primary = answers.primaryGoal;
 
-    var ranked = MS.DIM_KEYS.map(function (k) {
+    var ranked = MS.answeredDims(answers).map(function (k) {
       var urgency = scores[k];                       // lower score = more urgent
       if (goals.indexOf(k) !== -1) urgency -= 22;    // they asked for this
       if (primary === k) urgency -= 15;              // they asked for it most
@@ -102,16 +115,17 @@
     return ranked.slice(0, 2).map(function (r) { return r.k; });
   }
 
-  function pickStrength(scores, keystones) {
-    return MS.DIM_KEYS
+  function pickStrength(scores, keystones, dims) {
+    return dims
       .filter(function (k) { return keystones.indexOf(k) === -1; })
       .sort(function (a, b) { return scores[b] - scores[a]; })[0];
   }
 
   /* The focus dimensions for a phase: its own base, with the keystones
    * woven in so they are never out of sight for long. */
-  function phaseFocus(phase, keystones) {
-    var f = phase.base.slice();
+  function phaseFocus(phase, keystones, dims) {
+    dims = dims || MS.DIM_KEYS;
+    var f = phase.base.filter(function (k) { return dims.indexOf(k) !== -1; });
     keystones.forEach(function (k) {
       // Keystone 1 is present in every phase; keystone 2 joins from phase 2.
       var idx = keystones.indexOf(k);
@@ -124,8 +138,8 @@
     for (var i = 0; f.length < 3 && i < keystones.length; i++) {
       if (f.indexOf(keystones[i]) === -1) f.push(keystones[i]);
     }
-    for (var j = 0; f.length < 3 && j < MS.DIM_KEYS.length; j++) {
-      if (f.indexOf(MS.DIM_KEYS[j]) === -1) f.push(MS.DIM_KEYS[j]);
+    for (var j = 0; f.length < 3 && j < dims.length; j++) {
+      if (f.indexOf(dims[j]) === -1) f.push(dims[j]);
     }
     return f;
   }
@@ -133,20 +147,29 @@
 
   MS.buildPlan = function (answers, startKey) {
     var scores = MS.score(answers);
+    var dims = MS.answeredDims(answers);
     var keystones = pickKeystones(scores, answers);
-    var strength = pickStrength(scores, keystones);
-    var isRel = answers.primaryGoal === 'relationship' ||
-      (Array.isArray(answers.goals) && answers.goals.indexOf('relationship') !== -1);
+    var strength = pickStrength(scores, keystones, dims);
+    var goals = Array.isArray(answers.goals) ? answers.goals : [];
+    var isRel = answers.primaryGoal === 'relationship' || goals.indexOf('relationship') !== -1;
+
+    // Which bodies of content this plan draws on.
+    var tracks = [];
+    if (isRel) tracks.push('relationship');
+    if (isRel || answers.primaryGoal === 'partnership' || goals.indexOf('partnership') !== -1 ||
+        dims.indexOf('partnership') !== -1) tracks.push('partner');
+    if (answers.kids && answers.kids !== 'none') tracks.push('parenting');
 
     var minutes = parseInt(answers.minutes || '20', 10);
 
     // The anchor is the daily habit for the primary keystone. With a bigger
     // time budget a second anchor comes from keystone two.
-    var anchors = [anchorFor(keystones[0])];
-    if (minutes >= 40 && keystones[1]) anchors.push(anchorFor(keystones[1]));
+    var anchors = [anchorFor(keystones[0], tracks)];
+    if (minutes >= 40 && keystones[1]) anchors.push(anchorFor(keystones[1], tracks));
+    anchors = anchors.filter(Boolean);
 
     var phases = MS.PHASES.map(function (p) {
-      var focus = phaseFocus(p, keystones);
+      var focus = phaseFocus(p, keystones, dims);
       return {
         n: p.n, name: p.name, line: p.line, body: p.body,
         weeks: p.weeks, focus: focus,
@@ -162,9 +185,11 @@
       startKey: startKey || dayKey(),
       seed: hash(JSON.stringify(answers)),
       scores: scores,
+      dims: dims,
       keystones: keystones,
       strength: strength,
       relationship: isRel,
+      tracks: tracks,
       minutes: minutes,
       days: parseInt(answers.days || '6', 10),
       anchors: anchors.map(function (t) { return t.id; }),
@@ -172,10 +197,15 @@
     };
   };
 
-  function anchorFor(dim) {
-    return MS.TASKS.filter(function (t) {
-      return t.cat === 'anchor' && t.dim === dim;
-    })[0];
+  function anchorFor(dim, tracks) {
+    var pool = MS.TASKS.filter(function (t) {
+      if (t.cat !== 'anchor' || t.dim !== dim) return false;
+      return !t.tags || t.tags.some(function (g) { return tracks.indexOf(g) !== -1; });
+    });
+    // A track-specific anchor beats the general one — the child-led ten
+    // minutes is a better daily habit for a parent than a generic presence drill.
+    var tagged = pool.filter(function (t) { return t.tags; });
+    return tagged[0] || pool[0];
   }
 
   MS.taskById = function (id) {
@@ -219,7 +249,7 @@
     return MS.TASKS.filter(function (t) {
       if (t.cat !== cat) return false;
       if (t.phases.indexOf(info.phaseN) === -1) return false;
-      if (t.tags && t.tags.indexOf('relationship') !== -1 && !plan.relationship) return false;
+      if (t.tags && !t.tags.some(function (g) { return plan.tracks.indexOf(g) !== -1; })) return false;
       if (cats && cats.indexOf(t.dim) === -1) return false;
       return true;
     });
@@ -253,6 +283,9 @@
       var t = MS.taskById(id);
       if (t) out.push(t);
     });
+
+    var lesson = MS.lessonForDay(plan, key);
+    if (lesson) out.push(MS.lessonTask(lesson));
 
     if (light) {
       // One short reflective task, then leave the day alone.
@@ -299,6 +332,55 @@
     });
 
     return { info: info, tasks: out, light: false };
+  };
+
+  /* ---------- lessons ---------- */
+
+  var LESSON_EVERY = 3;   // one piece of reading every third day
+
+  /* The reading list for a plan: the framing lesson first, then the relevant
+   * tracks round-robined so a parent does not wait a month for the parenting
+   * material. Order within a track is preserved — they build on each other. */
+  MS.lessonPlan = function (plan) {
+    if (!MS.LESSONS) return [];
+    var tracks = plan.tracks || [];
+    function byTrack(t) {
+      return MS.LESSONS.filter(function (l) { return l.track === t; });
+    }
+    var intro = MS.LESSONS.filter(function (l) { return l.id === 'l_notherapy'; });
+    var lists = [];
+    if (tracks.indexOf('partner') !== -1) lists.push(byTrack('partner'));
+    if (tracks.indexOf('parenting') !== -1) lists.push(byTrack('parenting'));
+    lists.push(byTrack('self').filter(function (l) { return l.id !== 'l_notherapy'; }));
+
+    var out = intro.slice();
+    for (var i = 0, more = true; more; i++) {
+      more = false;
+      for (var j = 0; j < lists.length; j++) {
+        if (lists[j][i]) { out.push(lists[j][i]); more = true; }
+      }
+    }
+    return out;
+  };
+
+  /* Lessons are content, not drills, so they are chipped by track. */
+  function lessonDim(l) {
+    return l.track === 'self' ? 'ownership' : 'partnership';
+  }
+
+  MS.lessonTask = function (l) {
+    return {
+      id: l.id, cat: 'learn', dim: lessonDim(l), min: l.min,
+      title: l.title, detail: l.dek, lesson: l
+    };
+  };
+
+  MS.lessonForDay = function (plan, key) {
+    var idx = daysBetween(plan.startKey, key);
+    if (idx < 0 || idx >= TOTAL_DAYS) return null;
+    if (idx % LESSON_EVERY !== 0) return null;
+    var list = MS.lessonPlan(plan);
+    return list[idx / LESSON_EVERY] || null;
   };
 
   /* ---------- progress ---------- */
