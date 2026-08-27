@@ -401,6 +401,8 @@ textarea { min-height: 118px; line-height: 1.55; }
   letter-spacing: .09em; color: var(--ink-3); white-space: nowrap;
 }
 
+.autosave { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--rule); }
+
 </style>
 </head>
 <body>
@@ -2057,6 +2059,7 @@ textarea { min-height: 118px; line-height: 1.55; }
       checkins: [],   // { date, scores }
       lessonsRead: {},// lessonId -> dayKey first read
       recheckDraft: {},// a re-score in progress, so closing the app mid-way loses nothing
+      lastBackup: null,// dayKey of the last successful backup
       settings: { theme: 'auto' }
     };
   }
@@ -2171,6 +2174,11 @@ textarea { min-height: 118px; line-height: 1.55; }
     },
 
     /* ----- portability ----- */
+    markBackup: function () {
+      state.lastBackup = MS.dayKey();
+      this.save();
+    },
+
     exportJSON: function () {
       return JSON.stringify(state, null, 2);
     },
@@ -2180,6 +2188,190 @@ textarea { min-height: 118px; line-height: 1.55; }
       if (!parsed || parsed.v !== 1) throw new Error('Not a Museschool backup file.');
       state = Object.assign(blank(), parsed);
       this.save();
+    }
+  };
+})(window.MS = window.MS || {});
+
+/* ---- src/backup.js ---- */
+/* Museschool — getting your data out of the browser and back in.
+ *
+ * There is no iCloud API for the web, so nothing here syncs by itself on a
+ * phone. What it does is make saving a file to iCloud Drive one tap, and
+ * nag you when it has been a while.
+ *
+ * Four routes, best first:
+ *   1. navigator.share with a file — the iOS share sheet, where "Save to
+ *      Files" writes straight into iCloud Drive. Works in an installed PWA.
+ *   2. showSaveFilePicker — desktop Chrome and Edge. The handle is kept, so
+ *      after the first pick the same file can be rewritten automatically.
+ *   3. a download link — most other browsers.
+ *   4. the clipboard — the last resort, and the only one that works inside
+ *      an embedded viewer where downloads are blocked.
+ */
+(function (MS) {
+  'use strict';
+
+  var FILENAME = 'museschool-backup.json';
+  var TYPES = [{ description: 'Museschool backup', accept: { 'application/json': ['.json'] } }];
+
+  function json() { return MS.store.exportJSON(); }
+  function file() { return new File([json()], FILENAME, { type: 'application/json' }); }
+
+  /* ---------- capabilities ---------- */
+
+  function canShareFiles() {
+    try {
+      return !!(navigator.share && navigator.canShare &&
+        navigator.canShare({ files: [new File(['{}'], FILENAME, { type: 'application/json' })] }));
+    } catch (e) { return false; }
+  }
+
+  function canPick() { return typeof window.showSaveFilePicker === 'function'; }
+
+  /* ---------- the remembered file handle (desktop only) ----------
+   * File handles cannot go in localStorage, so they live in IndexedDB. */
+
+  var DB = 'museschool-fs', STORE = 'handles';
+
+  function withStore(mode, fn) {
+    return new Promise(function (resolve, reject) {
+      if (!window.indexedDB) return reject(new Error('no indexedDB'));
+      var req = indexedDB.open(DB, 1);
+      req.onupgradeneeded = function () { req.result.createObjectStore(STORE); };
+      req.onerror = function () { reject(req.error); };
+      req.onsuccess = function () {
+        var db = req.result;
+        var tx = db.transaction(STORE, mode);
+        var out = fn(tx.objectStore(STORE));
+        tx.oncomplete = function () { db.close(); resolve(out && out.result); };
+        tx.onerror = function () { db.close(); reject(tx.error); };
+      };
+    });
+  }
+
+  function putHandle(h) { return withStore('readwrite', function (s) { return s.put(h, 'backup'); }); }
+  function getHandle() { return withStore('readonly', function (s) { return s.get('backup'); }); }
+  function dropHandle() { return withStore('readwrite', function (s) { return s.delete('backup'); }); }
+
+  async function writable(handle, ask) {
+    if (!handle || !handle.queryPermission) return false;
+    var opts = { mode: 'readwrite' };
+    if (await handle.queryPermission(opts) === 'granted') return true;
+    if (!ask) return false;
+    return await handle.requestPermission(opts) === 'granted';
+  }
+
+  async function writeTo(handle) {
+    var w = await handle.createWritable();
+    await w.write(json());
+    await w.close();
+  }
+
+  /* ---------- public ---------- */
+
+  MS.backup = {
+    filename: FILENAME,
+
+    /* What this browser can actually do, so the UI can say so honestly. */
+    ability: function () {
+      if (canShareFiles()) return 'share';
+      if (canPick()) return 'pick';
+      // A sandboxed viewer blocks downloads outright; the clipboard still works.
+      return window.self !== window.top ? 'clipboard' : 'download';
+    },
+
+    /* Whether this browser can keep a file up to date without being asked
+     * again. Safari cannot, which includes every browser on an iPhone. */
+    canAutoSave: canPick,
+
+    async isAutoSaving() {
+      if (!canPick()) return false;
+      try { return !!(await getHandle()); } catch (e) { return false; }
+    },
+
+    /* Save now. Returns 'shared' | 'saved' | 'downloaded' | 'copied' | 'cancelled'. */
+    async save() {
+      var how = this.ability();
+
+      if (how === 'share') {
+        try {
+          await navigator.share({ files: [file()], title: 'Museschool backup' });
+          MS.store.markBackup();
+          return 'shared';
+        } catch (e) {
+          if (e && e.name === 'AbortError') return 'cancelled';
+          how = canPick() ? 'pick' : 'download';   // share refused; fall through
+        }
+      }
+
+      if (how === 'pick') {
+        try {
+          var handle = await getHandle().catch(function () { return null; });
+          if (!handle || !(await writable(handle, true))) {
+            handle = await window.showSaveFilePicker({ suggestedName: FILENAME, types: TYPES });
+            await putHandle(handle).catch(function () {});
+          }
+          await writeTo(handle);
+          MS.store.markBackup();
+          return 'saved';
+        } catch (e) {
+          if (e && e.name === 'AbortError') return 'cancelled';
+          how = 'download';
+        }
+      }
+
+      if (how === 'download') {
+        try {
+          var url = URL.createObjectURL(new Blob([json()], { type: 'application/json' }));
+          var a = document.createElement('a');
+          a.href = url; a.download = FILENAME;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+          MS.store.markBackup();
+          return 'downloaded';
+        } catch (e) { /* fall through to the clipboard */ }
+      }
+
+      await navigator.clipboard.writeText(json());
+      MS.store.markBackup();
+      return 'copied';
+    },
+
+    /* Rewrite the remembered file with no prompt. Silent by design — it runs
+     * after ordinary edits and must never interrupt anything. */
+    async autoSave() {
+      if (!canPick()) return false;
+      try {
+        var handle = await getHandle();
+        if (!handle || !(await writable(handle, false))) return false;
+        await writeTo(handle);
+        MS.store.markBackup();
+        return true;
+      } catch (e) { return false; }
+    },
+
+    async stopAutoSave() { try { await dropHandle(); } catch (e) {} },
+
+    /* Read a file the user picked and load it. Throws if it is not ours. */
+    async restoreFrom(f) {
+      var text = await f.text();
+      MS.store.importJSON(text);
+    },
+
+    /* Days since the last backup, or null if there has never been one. */
+    staleness: function () {
+      var st = MS.store.get();
+      if (!st.lastBackup) return null;
+      return MS.daysBetween(st.lastBackup, MS.dayKey());
+    },
+
+    /* Whether to nag. Only once there is something worth losing. */
+    shouldNag: function () {
+      var st = MS.store.get();
+      var worth = (st.journal || []).length >= 3 || Object.keys(st.log || {}).length >= 7;
+      if (!worth) return false;
+      var days = this.staleness();
+      return days === null ? true : days >= 14;
     }
   };
 })(window.MS = window.MS || {});
@@ -2233,8 +2425,20 @@ textarea { min-height: 118px; line-height: 1.55; }
           '<button class="btn" data-act="quiz-start">' + (started ? 'Continue the quiz' : 'Start the quiz') + '</button>' +
           (started ? '<button class="btn btn-quiet" data-act="quiz-restart">Start over</button>' : '') +
         '</div>' +
-        '<p class="dim tiny" style="margin-top:14px">About 10 minutes. 65 questions across 12 short sections. ' +
-        'You can stop and come back — answers save as you go.</p>' +
+        '<p class="dim tiny" style="margin-top:14px">About 10 minutes. Up to 78 questions across 14 short ' +
+        'sections, and the ones that do not apply to you are skipped. You can stop and come back — ' +
+        'answers save as you go.</p>' +
+        // A new phone, or a cleared browser, lands here. Restoring must not
+        // require doing the whole quiz first to reach the Settings tab.
+        '<hr class="divider">' +
+        '<p class="eyebrow">Been here before?</p>' +
+        '<p class="muted small" style="margin:8px 0 12px">New phone, or cleared your browser? ' +
+        'Restore the backup file and everything comes back.</p>' +
+        '<div class="btn-row" style="flex-wrap:wrap">' +
+          '<button class="btn btn-ghost" data-act="backup-restore">Restore from a file</button>' +
+          '<button class="btn btn-quiet" data-act="import">Paste a backup</button>' +
+        '</div>' +
+        '<input type="file" id="restore-file" accept="application/json,.json" class="hide">' +
         '<hr class="divider">' +
         '<p class="eyebrow">How it works</p>' +
         '<div class="stack" style="margin-top:12px">' +
@@ -2538,6 +2742,14 @@ textarea { min-height: 118px; line-height: 1.55; }
       '</div>';
 
     return page('<div class="wrap">' + head +
+      (MS.backup.shouldNag()
+        ? '<div class="note" style="margin:18px 0 0">' +
+            '<strong>Worth taking a backup.</strong> ' + esc(U.backupAge(st)) + ' ' +
+            'Everything lives in this browser only, so a cleared cache or a new phone loses it.' +
+            '<div style="margin-top:12px"><button class="btn" data-act="backup-save">' +
+            esc(U.backupVerb()) + '</button></div>' +
+          '</div>'
+        : '') +
       (allDone ? '<div class="note" style="margin:18px 0 0"><strong>Day done.</strong> ' +
         'That is the whole job today. The compounding is invisible for a few weeks and then it is not.</div>' : '') +
       '<div style="margin-top:20px">' + tasks + '</div>' +
@@ -2899,12 +3111,38 @@ textarea { min-height: 118px; line-height: 1.55; }
       '</div>' +
 
       '<div class="card">' +
-        '<p class="eyebrow">Your data</p>' +
-        '<p class="muted small" style="margin:10px 0 14px">Everything is stored in this browser only. ' +
-        'Clearing site data or switching device loses it, so export a backup if it matters to you.</p>' +
+        '<p class="eyebrow">Backup</p>' +
+        '<p class="muted small" style="margin:10px 0 4px">' + esc(U.backupBlurb()) + '</p>' +
+        '<p class="dim tiny" style="margin:0 0 14px">' + esc(U.backupAge(st)) + '</p>' +
+        '<div class="btn-row" style="flex-wrap:wrap">' +
+          '<button class="btn" data-act="backup-save">' + esc(U.backupVerb()) + '</button>' +
+          '<button class="btn btn-ghost" data-act="backup-restore">Restore from a file</button>' +
+        '</div>' +
+        '<input type="file" id="restore-file" accept="application/json,.json" class="hide">' +
+        (MS.backup.canAutoSave()
+          ? '<div class="autosave">' +
+              '<button class="btn btn-ghost" data-act="backup-auto">' +
+                (MS.autoSaveOn ? 'Stop keeping that file updated' : 'Keep a file updated automatically') +
+              '</button>' +
+              '<p class="dim tiny" style="margin:8px 0 0">' +
+                (MS.autoSaveOn
+                  ? 'Every change is written to the file you chose. Put it in your iCloud Drive folder and it syncs from there.'
+                  : 'Pick a file once and it gets rewritten on every change. Not available in Safari, so not on an iPhone.') +
+              '</p>' +
+            '</div>'
+          : '') +
+        '<p class="dim tiny" style="margin:14px 0 0">There is no iCloud API for the web, so nothing here ' +
+        'syncs on its own on a phone — and a version that did would mean your journal living on ' +
+        'someone else\'s server. Saving a file to iCloud Drive keeps it yours.</p>' +
+      '</div>' +
+
+      '<div class="card">' +
+        '<p class="eyebrow">Copy as text</p>' +
+        '<p class="muted small" style="margin:10px 0 14px">The same data on your clipboard, ' +
+        'if you would rather paste it somewhere yourself.</p>' +
         '<div class="btn-row" style="flex-wrap:wrap">' +
           '<button class="btn btn-ghost" data-act="export">Copy backup</button>' +
-          '<button class="btn btn-ghost" data-act="import">Restore backup</button>' +
+          '<button class="btn btn-quiet" data-act="import">Paste a backup</button>' +
         '</div>' +
       '</div>' +
 
@@ -2922,6 +3160,29 @@ textarea { min-height: 118px; line-height: 1.55; }
       'not therapy and not a substitute for it. If you are in crisis, or if what you are working through is ' +
       'heavier than a daily task list, please talk to a professional or someone you trust.</p>' +
     '</div>');
+  };
+
+  U.backupVerb = function () {
+    return { share: 'Save to Files', pick: 'Save to a file',
+             download: 'Download a backup', clipboard: 'Copy backup' }[MS.backup.ability()];
+  };
+
+  U.backupBlurb = function () {
+    return {
+      share: 'Opens the share sheet — choose Save to Files, then iCloud Drive, and it is on all your devices.',
+      pick: 'Choose where to put it. Your iCloud Drive folder works, and so does anywhere else.',
+      download: 'Downloads a JSON file you can move wherever you keep things.',
+      clipboard: 'This viewer blocks downloads, so the backup goes to your clipboard instead. ' +
+                 'Open the app from its own address to save a file.'
+    }[MS.backup.ability()];
+  };
+
+  U.backupAge = function (st) {
+    if (!st.lastBackup) return 'Never backed up.';
+    var d = MS.daysBetween(st.lastBackup, MS.dayKey());
+    if (d <= 0) return 'Last backed up today.';
+    if (d === 1) return 'Last backed up yesterday.';
+    return 'Last backed up ' + d + ' days ago.';
   };
 
   /* ---------- chrome ---------- */
@@ -3098,6 +3359,44 @@ textarea { min-height: 118px; line-height: 1.55; }
         return;
       }
 
+      case 'backup-save':
+        MS.backup.save().then(function (how) {
+          U.toast({ shared: 'Saved.', saved: 'Saved.', downloaded: 'Downloaded.',
+                    copied: 'Copied to clipboard.', cancelled: 'Cancelled.' }[how] || 'Saved.');
+          MS.render();
+        }).catch(function () { U.toast('Could not save. Try Copy backup.'); });
+        return;
+
+      case 'backup-restore': {
+        var picker = document.getElementById('restore-file');
+        if (!picker) return;
+        picker.onchange = function () {
+          var f = picker.files && picker.files[0];
+          if (!f) return;
+          MS.backup.restoreFrom(f).then(function () {
+            U.toast('Backup restored.'); MS.view = 'today'; MS.render();
+          }).catch(function () { U.toast('That file is not a Museschool backup.'); });
+        };
+        picker.click();
+        return;
+      }
+
+      case 'backup-auto':
+        if (MS.autoSaveOn) {
+          MS.backup.stopAutoSave().then(function () { MS.autoSaveOn = false; MS.render(); });
+        } else {
+          // Picking the file is what turns it on.
+          MS.backup.save().then(function (how) {
+            if (how === 'cancelled') return;
+            MS.backup.isAutoSaving().then(function (on) {
+              MS.autoSaveOn = on;
+              U.toast(on ? 'That file now stays updated.' : 'Saved.');
+              MS.render();
+            });
+          }).catch(function () { U.toast('Could not set that up.'); });
+        }
+        return;
+
       case 'import': {
         var input = window.prompt('Paste a Museschool backup:');
         if (!input) return;
@@ -3125,6 +3424,7 @@ textarea { min-height: 118px; line-height: 1.55; }
     }
 
     MS.render();
+    if (MS.autoSaveOn) MS.backup.autoSave();
     if (scroll) window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
   }
 
@@ -3187,6 +3487,11 @@ textarea { min-height: 118px; line-height: 1.55; }
       if (document.visibilityState === 'hidden') flushInput();
     });
     window.addEventListener('pagehide', flushInput);
+
+    // Does this browser already have a file it is keeping up to date?
+    MS.backup.isAutoSaving().then(function (on) {
+      if (on) { MS.autoSaveOn = true; MS.render(); }
+    });
 
     MS.render();
   };

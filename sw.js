@@ -7,7 +7,7 @@
  * Note it never caches anything a person has typed: their data lives in
  * localStorage, which this does not touch.
  */
-const VERSION = 'museschool-v2';
+const VERSION = 'museschool-v3';
 const SHELL = [
   './',
   './index.html',
@@ -18,6 +18,7 @@ const SHELL = [
   './src/data/phases.js',
   './src/engine/engine.js',
   './src/store.js',
+  './src/backup.js',
   './src/ui/quiz-ui.js',
   './src/ui/app-ui.js',
   './icons/icon-192.png',

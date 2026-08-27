@@ -12,9 +12,21 @@ const SRC = [
   'src/data/phases.js',
   'src/engine/engine.js',
   'src/store.js',
+  'src/backup.js',
   'src/ui/quiz-ui.js',
   'src/ui/app-ui.js'
 ];
+
+// The service worker caches the app shell by hand, so a new source file that
+// nobody adds to it would be missing offline — and stale for anyone who has
+// already installed the app unless VERSION also moves.
+const sw = readFileSync('sw.js', 'utf8');
+const missing = [...SRC, 'src/styles.css'].filter((f) => !sw.includes(`'./${f}'`));
+if (missing.length) {
+  console.error('sw.js is missing from its cache list:\n  ' + missing.join('\n  ') +
+    '\nAdd them to SHELL and bump VERSION.');
+  process.exit(1);
+}
 
 const css = readFileSync('src/styles.css', 'utf8');
 const js = SRC.map((f) => `/* ---- ${f} ---- */\n${readFileSync(f, 'utf8')}`).join('\n');

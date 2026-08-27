@@ -46,8 +46,20 @@
           '<button class="btn" data-act="quiz-start">' + (started ? 'Continue the quiz' : 'Start the quiz') + '</button>' +
           (started ? '<button class="btn btn-quiet" data-act="quiz-restart">Start over</button>' : '') +
         '</div>' +
-        '<p class="dim tiny" style="margin-top:14px">About 10 minutes. 65 questions across 12 short sections. ' +
-        'You can stop and come back — answers save as you go.</p>' +
+        '<p class="dim tiny" style="margin-top:14px">About 10 minutes. Up to 78 questions across 14 short ' +
+        'sections, and the ones that do not apply to you are skipped. You can stop and come back — ' +
+        'answers save as you go.</p>' +
+        // A new phone, or a cleared browser, lands here. Restoring must not
+        // require doing the whole quiz first to reach the Settings tab.
+        '<hr class="divider">' +
+        '<p class="eyebrow">Been here before?</p>' +
+        '<p class="muted small" style="margin:8px 0 12px">New phone, or cleared your browser? ' +
+        'Restore the backup file and everything comes back.</p>' +
+        '<div class="btn-row" style="flex-wrap:wrap">' +
+          '<button class="btn btn-ghost" data-act="backup-restore">Restore from a file</button>' +
+          '<button class="btn btn-quiet" data-act="import">Paste a backup</button>' +
+        '</div>' +
+        '<input type="file" id="restore-file" accept="application/json,.json" class="hide">' +
         '<hr class="divider">' +
         '<p class="eyebrow">How it works</p>' +
         '<div class="stack" style="margin-top:12px">' +

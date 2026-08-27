@@ -18,6 +18,7 @@
       checkins: [],   // { date, scores }
       lessonsRead: {},// lessonId -> dayKey first read
       recheckDraft: {},// a re-score in progress, so closing the app mid-way loses nothing
+      lastBackup: null,// dayKey of the last successful backup
       settings: { theme: 'auto' }
     };
   }
@@ -132,6 +133,11 @@
     },
 
     /* ----- portability ----- */
+    markBackup: function () {
+      state.lastBackup = MS.dayKey();
+      this.save();
+    },
+
     exportJSON: function () {
       return JSON.stringify(state, null, 2);
     },

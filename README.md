@@ -119,6 +119,8 @@ python3 -m http.server 8123 &
 APP_URL=http://localhost:8123/index.html node test/smoke.mjs   # whole quiz, a ticked day, the reading, a reload
 node test/deep.mjs                                            # mid-plan, the re-score, dark, desktop
 APP_URL=http://localhost:8123/index.html node test/pwa.mjs     # installability and offline
+node test/persistence.mjs                                     # kills the page mid-action
+APP_URL=http://localhost:8123/index.html node test/backup.mjs  # all four save routes, and restore
 ```
 
 `smoke` and `pwa` need the app served over http — a service worker will not
@@ -135,6 +137,7 @@ src/data/lessons.js   the reading, tagged by track and delivered in sequence
 src/data/phases.js    the four-phase arc, milestones, dimension copy
 src/engine/engine.js  scoring, plan generation, daily task selection
 src/store.js          localStorage persistence, export and restore
+src/backup.js         saving to a file — share sheet, picker, download, clipboard
 src/ui/quiz-ui.js     welcome, quiz, plan reveal
 src/ui/app-ui.js      today, plan, learn, progress, journal, settings, routing
 build.mjs             bundles the above into dist/
@@ -169,6 +172,31 @@ Nothing syncs. Safari and Chrome do not share it, and neither do your phone
 and your laptop. If storage is unavailable altogether — a private window, site
 data blocked — the app still runs, it just cannot remember anything.
 
-**You → Copy backup** puts the whole state on your clipboard as JSON and
-**Restore backup** takes it back, which is also how you move between
-devices.
+### Backups, and why there is no iCloud sync
+
+There is no iCloud API for the web, so a web app cannot sync to iCloud by
+itself. The version that could would need a server holding your journal, which
+is the thing this app is built to avoid. What it does instead is make saving a
+file somewhere you control as close to one tap as the platform allows.
+
+**You → Backup** picks the best route the browser offers:
+
+| Route | Where | What happens |
+|---|---|---|
+| `navigator.share` | Safari on iOS, incl. installed | The share sheet — **Save to Files → iCloud Drive**, then it syncs like any other file |
+| `showSaveFilePicker` | Chrome / Edge on desktop | Choose a file. The handle is kept, so it can be rewritten automatically after that |
+| download | most other browsers | A plain `museschool-backup.json` |
+| clipboard | embedded viewers | Downloads are blocked there, so the JSON goes to the clipboard |
+
+**Keep a file updated automatically** appears only where the File System
+Access API exists — Chrome and Edge on desktop. Point it at a file inside your
+iCloud Drive folder and every change is written straight through. Safari has no
+equivalent, so this does not appear on an iPhone.
+
+Restore is a file picker, which on iOS can browse iCloud Drive. It is offered
+on the welcome screen as well as in settings, because a new phone has no
+navigation bar to reach settings through.
+
+The app nags you to back up once there is something worth losing — three
+journal entries or a week of logged days — and again every fortnight after
+that.
