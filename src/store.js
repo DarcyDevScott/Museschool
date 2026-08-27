@@ -18,6 +18,7 @@
       checkins: [],   // { date, scores }
       lessonsRead: {},// lessonId -> dayKey first read
       recheckDraft: {},// a re-score in progress, so closing the app mid-way loses nothing
+      adjustments: [],// changes laid over the plan, from conversations
       lastBackup: null,// dayKey of the last successful backup
       settings: { theme: 'auto' }
     };
@@ -129,6 +130,12 @@
 
     addCheckin: function (scores) {
       state.checkins.push({ date: MS.dayKey(), scores: scores });
+      this.save();
+    },
+
+    /* ----- adjustments ----- */
+    removeAdjustment: function (id) {
+      state.adjustments = (state.adjustments || []).filter(function (a) { return a.id !== id; });
       this.save();
     },
 

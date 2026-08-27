@@ -28,7 +28,7 @@
   U.today = function (st) {
     var plan = st.plan;
     var key = MS.dayKey();
-    var res = MS.tasksFor(plan, key);
+    var res = MS.tasksFor(plan, key, st.adjustments);
     var info = res.info;
     var e = st.log[key] || { tasks: {}, done: 0 };
 
@@ -79,6 +79,7 @@
       '</div>';
 
     return page('<div class="wrap">' + head +
+      U.conversationNotes(st, key) +
       (MS.backup.shouldNag()
         ? '<div class="note" style="margin:18px 0 0">' +
             '<strong>Worth taking a backup.</strong> ' + esc(U.backupAge(st)) + ' ' +
@@ -94,6 +95,31 @@
         ' days a week. Rest is part of the plan, not a gap in it.</p>' : '') +
       checkin +
     '</div>');
+  };
+
+  /* Anything Claude changed shows up here, attributed and undoable. The app
+   * never hides an adjustment it did not generate itself. */
+  U.conversationNotes = function (st, key) {
+    var applied = MS.adjustmentsFor(st.adjustments, key);
+    if (!applied.length) return '';
+    var notes = applied.filter(function (a) { return a.kind === 'note'; });
+    var edits = applied.filter(function (a) { return a.kind !== 'note'; });
+    var describe = {
+      ease: 'lighter today', add: 'one added', skip: 'one dropped', focus: 'refocused'
+    };
+    return '<div class="note" style="margin:18px 0 0">' +
+      '<p class="eyebrow" style="margin-bottom:8px">From your conversation</p>' +
+      notes.map(function (n) {
+        return '<p style="margin:0 0 8px">' + esc(n.text) + '</p>';
+      }).join('') +
+      (edits.length
+        ? '<p class="small" style="margin:0 0 4px">' +
+          edits.map(function (e) {
+            return esc((describe[e.kind] || e.kind) + ' — ' + e.reason);
+          }).join('; ') + '</p>'
+        : '') +
+      '<p class="dim tiny" style="margin:8px 0 0">Change it back in You → Changes.</p>' +
+    '</div>';
   };
 
   function meter(field, label, value) {
@@ -204,7 +230,7 @@
 
   U.progress = function (st) {
     var plan = st.plan;
-    var stats = MS.completionStats(st.log, plan);
+    var stats = MS.completionStats(st.log, plan, st.adjustments);
     var streak = MS.streak(st.log, plan);
     var info = MS.dayInfo(plan, MS.dayKey());
     var latest = st.checkins.length ? st.checkins[st.checkins.length - 1].scores : null;
@@ -484,6 +510,8 @@
         '</div>' +
       '</div>' +
 
+      U.adjustmentsCard(st) +
+
       '<div class="card">' +
         '<p class="eyebrow">Start again</p>' +
         '<p class="muted small" style="margin:10px 0 14px">Retake the quiz and build a fresh plan. ' +
@@ -498,6 +526,33 @@
       'not therapy and not a substitute for it. If you are in crisis, or if what you are working through is ' +
       'heavier than a daily task list, please talk to a professional or someone you trust.</p>' +
     '</div>');
+  };
+
+  U.adjustmentsCard = function (st) {
+    var all = (st.adjustments || []).slice().sort(function (a, b) {
+      return a.from < b.from ? 1 : -1;
+    });
+    if (!all.length) return '';
+    var t = MS.dayKey();
+    return '<div class="card">' +
+      '<p class="eyebrow">Changes from conversations</p>' +
+      '<p class="muted small" style="margin:10px 0 14px">Adjustments laid over your plan. ' +
+      'The twelve weeks underneath are untouched, and removing one puts that day back as it was.</p>' +
+      all.map(function (a) {
+        var live = (a.to || a.from) >= t;
+        var span = a.from === (a.to || a.from) ? a.from : a.from + ' to ' + a.to;
+        return '<div class="jentry">' +
+          '<div class="spread">' +
+            '<strong class="small">' + esc(a.kind) + (live ? '' : ' (past)') + '</strong>' +
+            '<span class="dim tiny">' + esc(span) + '</span>' +
+          '</div>' +
+          '<p class="muted small" style="margin:4px 0 0">' + esc(a.reason || '') + '</p>' +
+          (a.text ? '<p class="small" style="margin:4px 0 0">' + esc(a.text) + '</p>' : '') +
+          '<button class="btn btn-quiet" style="padding:6px 0" data-act="drop-adjustment" ' +
+            'data-id="' + esc(a.id) + '">Undo this</button>' +
+        '</div>';
+      }).join('') +
+    '</div>';
   };
 
   U.backupVerb = function () {
@@ -693,6 +748,11 @@
         U.toast('Re-scored.');
         break;
       }
+
+      case 'drop-adjustment':
+        MS.store.removeAdjustment(btn.dataset.id);
+        U.toast('Change undone.');
+        break;
 
       case 'theme':
         st.settings.theme = btn.dataset.v; MS.store.save(); scroll = false; break;

@@ -105,6 +105,19 @@ Dimensions drive the daily *drills*; tracks drive the *reading*. That split is
 deliberate — it means a parent whose keystones land on, say, follow-through
 still gets the parenting material.
 
+## Talking to it
+
+There is an MCP server in [`mcp/`](mcp/README.md) that hands your plan to
+Claude — in Claude Desktop, Claude Code, or anywhere else that speaks MCP — so
+a conversation about a bad week can change what tomorrow says. It reads and
+writes one backup file; it never rewrites the plan itself, only lays dated,
+attributed adjustments over it that you can see and undo under **You →
+Changes**.
+
+This is deliberately not an embedded chatbot: no API key, no per-message cost,
+and nothing about your journal goes anywhere except the file on your own
+machine.
+
 ## Installing it on a phone
 
 The app is a PWA, so it installs from the browser with no App Store involved.
@@ -161,6 +174,8 @@ node test/deep.mjs                                            # mid-plan, the re
 APP_URL=http://localhost:8123/index.html node test/pwa.mjs     # installability and offline
 node test/persistence.mjs                                     # kills the page mid-action
 APP_URL=http://localhost:8123/index.html node test/backup.mjs  # all four save routes, and restore
+node test/tailoring.mjs                                       # the tailoring and scoring claims
+node test/mcp.mjs                                             # drives the MCP server over stdio
 ```
 
 `smoke` and `pwa` need the app served over http — a service worker will not
@@ -178,6 +193,7 @@ src/data/phases.js    the four-phase arc, milestones, dimension copy
 src/engine/engine.js  scoring, plan generation, daily task selection
 src/store.js          localStorage persistence, export and restore
 src/backup.js         saving to a file — share sheet, picker, download, clipboard
+mcp/server.mjs        the MCP server: eight tools over one backup file
 src/ui/quiz-ui.js     welcome, quiz, plan reveal
 src/ui/app-ui.js      today, plan, learn, progress, journal, settings, routing
 build.mjs             bundles the above into dist/

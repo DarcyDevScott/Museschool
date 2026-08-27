@@ -2061,6 +2061,30 @@ textarea { min-height: 118px; line-height: 1.55; }
     return dow === 0 || dow === 6;
   };
 
+  /* ---------- adjustments ----------
+   *
+   * Changes laid over the generated plan — added or dropped tasks, an eased
+   * day, a temporary change of focus, a note. They are what lets a
+   * conversation actually move the plan, and they are stored separately from
+   * it so the underlying twelve weeks stay intact and every change is
+   * visible and reversible.
+   */
+
+  MS.adjustmentsFor = function (adjustments, key) {
+    if (!Array.isArray(adjustments)) return [];
+    return adjustments.filter(function (a) {
+      var from = a.from || a.date;
+      var to = a.to || a.date || from;
+      if (!from) return false;
+      return key >= from && key <= to;
+    });
+  };
+
+  MS.notesFor = function (adjustments, key) {
+    return MS.adjustmentsFor(adjustments, key)
+      .filter(function (a) { return a.kind === 'note'; });
+  };
+
   /* ---------- daily task selection ---------- */
 
   function eligible(plan, info, cat, cats) {
@@ -2087,13 +2111,23 @@ textarea { min-height: 118px; line-height: 1.55; }
     return out;
   }
 
-  MS.tasksFor = function (plan, key) {
+  MS.tasksFor = function (plan, key, adjustments) {
     var info = MS.dayInfo(plan, key);
-    if (info.beforeStart) return { info: info, tasks: [], light: false };
+    if (info.beforeStart) return { info: info, tasks: [], light: false, adjusted: [] };
 
-    var light = MS.isLightDay(plan, key);
+    var adj = MS.adjustmentsFor(adjustments, key);
+    var eased = adj.some(function (a) { return a.kind === 'ease'; });
+    var light = MS.isLightDay(plan, key) || eased;
     var idx = Math.max(0, Math.min(info.index, TOTAL_DAYS - 1));
-    var focus = info.phase.focus;
+
+    // A focus adjustment points the day's drills at one dimension. It has to
+    // narrow the pool, not just reorder it — selection is a stable hash, so
+    // ordering alone would change nothing.
+    var focus = info.phase.focus.slice();
+    var forced = null;
+    adj.forEach(function (a) {
+      if (a.kind === 'focus' && MS.DIMENSIONS[a.dim]) forced = a.dim;
+    });
     var out = [];
 
     // Anchors run every day, rest days included. They are the spine.
@@ -2108,7 +2142,7 @@ textarea { min-height: 118px; line-height: 1.55; }
     if (light) {
       // One short reflective task, then leave the day alone.
       var lightPick = rotate(eligible(plan, info, 'reflect'), plan, Math.floor(idx / 7), 1);
-      return { info: info, tasks: out.concat(lightPick), light: true };
+      return applyEdits({ info: info, tasks: out.concat(lightPick), light: true }, adj);
     }
 
     var used = out.reduce(function (n, t) { return n + t.min; }, 0);
@@ -2127,8 +2161,14 @@ textarea { min-height: 118px; line-height: 1.55; }
 
     var chosen = {};
     order.forEach(function (cat) {
-      var pool = eligible(plan, info, cat, cat === 'practice' ? focus : null)
+      var dims = cat === 'practice' ? (forced ? [forced] : focus) : null;
+      var pool = eligible(plan, info, cat, dims)
         .filter(function (t) { return !chosen[t.id]; });
+      // If the forced dimension has nothing left for this phase, fall back
+      // rather than dropping the slot.
+      if (!pool.length && forced && cat === 'practice') {
+        pool = eligible(plan, info, cat, focus).filter(function (t) { return !chosen[t.id]; });
+      }
       // Prefer something that fits the time left. Someone who said ten
       // minutes meant it, and a plan that quietly overruns is one they quit.
       var room = Math.max(budget, 5);
@@ -2149,8 +2189,27 @@ textarea { min-height: 118px; line-height: 1.55; }
       budget -= pick.min;
     });
 
-    return { info: info, tasks: out, light: false };
+    return applyEdits({ info: info, tasks: out, light: false }, adj);
   };
+
+  /* Added and dropped tasks are applied last, so they always win. */
+  function applyEdits(res, adj) {
+    var dropped = {}, added = [];
+    adj.forEach(function (a) {
+      if (a.kind === 'skip' && a.taskId) dropped[a.taskId] = true;
+      if (a.kind === 'add' && a.taskId) {
+        var t = MS.taskById(a.taskId);
+        if (t) added.push(t);
+      }
+    });
+    var tasks = res.tasks.filter(function (t) { return !dropped[t.id]; });
+    added.forEach(function (t) {
+      if (!tasks.some(function (x) { return x.id === t.id; })) tasks.push(t);
+    });
+    res.tasks = tasks;
+    res.adjusted = adj;
+    return res;
+  }
 
   /* ---------- lessons ---------- */
 
@@ -2221,12 +2280,12 @@ textarea { min-height: 118px; line-height: 1.55; }
     return n;
   };
 
-  MS.completionStats = function (log, plan) {
+  MS.completionStats = function (log, plan, adjustments) {
     var total = 0, done = 0, days = 0;
     var end = Math.min(daysBetween(plan.startKey, dayKey()), TOTAL_DAYS - 1);
     for (var i = 0; i <= end; i++) {
       var key = addDays(plan.startKey, i);
-      var res = MS.tasksFor(plan, key);
+      var res = MS.tasksFor(plan, key, adjustments);
       if (!res.tasks.length) continue;
       total += res.tasks.length;
       var e = log[key];
@@ -2261,6 +2320,7 @@ textarea { min-height: 118px; line-height: 1.55; }
       checkins: [],   // { date, scores }
       lessonsRead: {},// lessonId -> dayKey first read
       recheckDraft: {},// a re-score in progress, so closing the app mid-way loses nothing
+      adjustments: [],// changes laid over the plan, from conversations
       lastBackup: null,// dayKey of the last successful backup
       settings: { theme: 'auto' }
     };
@@ -2372,6 +2432,12 @@ textarea { min-height: 118px; line-height: 1.55; }
 
     addCheckin: function (scores) {
       state.checkins.push({ date: MS.dayKey(), scores: scores });
+      this.save();
+    },
+
+    /* ----- adjustments ----- */
+    removeAdjustment: function (id) {
+      state.adjustments = (state.adjustments || []).filter(function (a) { return a.id !== id; });
       this.save();
     },
 
@@ -3003,7 +3069,7 @@ textarea { min-height: 118px; line-height: 1.55; }
   U.today = function (st) {
     var plan = st.plan;
     var key = MS.dayKey();
-    var res = MS.tasksFor(plan, key);
+    var res = MS.tasksFor(plan, key, st.adjustments);
     var info = res.info;
     var e = st.log[key] || { tasks: {}, done: 0 };
 
@@ -3054,6 +3120,7 @@ textarea { min-height: 118px; line-height: 1.55; }
       '</div>';
 
     return page('<div class="wrap">' + head +
+      U.conversationNotes(st, key) +
       (MS.backup.shouldNag()
         ? '<div class="note" style="margin:18px 0 0">' +
             '<strong>Worth taking a backup.</strong> ' + esc(U.backupAge(st)) + ' ' +
@@ -3069,6 +3136,31 @@ textarea { min-height: 118px; line-height: 1.55; }
         ' days a week. Rest is part of the plan, not a gap in it.</p>' : '') +
       checkin +
     '</div>');
+  };
+
+  /* Anything Claude changed shows up here, attributed and undoable. The app
+   * never hides an adjustment it did not generate itself. */
+  U.conversationNotes = function (st, key) {
+    var applied = MS.adjustmentsFor(st.adjustments, key);
+    if (!applied.length) return '';
+    var notes = applied.filter(function (a) { return a.kind === 'note'; });
+    var edits = applied.filter(function (a) { return a.kind !== 'note'; });
+    var describe = {
+      ease: 'lighter today', add: 'one added', skip: 'one dropped', focus: 'refocused'
+    };
+    return '<div class="note" style="margin:18px 0 0">' +
+      '<p class="eyebrow" style="margin-bottom:8px">From your conversation</p>' +
+      notes.map(function (n) {
+        return '<p style="margin:0 0 8px">' + esc(n.text) + '</p>';
+      }).join('') +
+      (edits.length
+        ? '<p class="small" style="margin:0 0 4px">' +
+          edits.map(function (e) {
+            return esc((describe[e.kind] || e.kind) + ' — ' + e.reason);
+          }).join('; ') + '</p>'
+        : '') +
+      '<p class="dim tiny" style="margin:8px 0 0">Change it back in You → Changes.</p>' +
+    '</div>';
   };
 
   function meter(field, label, value) {
@@ -3179,7 +3271,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 
   U.progress = function (st) {
     var plan = st.plan;
-    var stats = MS.completionStats(st.log, plan);
+    var stats = MS.completionStats(st.log, plan, st.adjustments);
     var streak = MS.streak(st.log, plan);
     var info = MS.dayInfo(plan, MS.dayKey());
     var latest = st.checkins.length ? st.checkins[st.checkins.length - 1].scores : null;
@@ -3459,6 +3551,8 @@ textarea { min-height: 118px; line-height: 1.55; }
         '</div>' +
       '</div>' +
 
+      U.adjustmentsCard(st) +
+
       '<div class="card">' +
         '<p class="eyebrow">Start again</p>' +
         '<p class="muted small" style="margin:10px 0 14px">Retake the quiz and build a fresh plan. ' +
@@ -3473,6 +3567,33 @@ textarea { min-height: 118px; line-height: 1.55; }
       'not therapy and not a substitute for it. If you are in crisis, or if what you are working through is ' +
       'heavier than a daily task list, please talk to a professional or someone you trust.</p>' +
     '</div>');
+  };
+
+  U.adjustmentsCard = function (st) {
+    var all = (st.adjustments || []).slice().sort(function (a, b) {
+      return a.from < b.from ? 1 : -1;
+    });
+    if (!all.length) return '';
+    var t = MS.dayKey();
+    return '<div class="card">' +
+      '<p class="eyebrow">Changes from conversations</p>' +
+      '<p class="muted small" style="margin:10px 0 14px">Adjustments laid over your plan. ' +
+      'The twelve weeks underneath are untouched, and removing one puts that day back as it was.</p>' +
+      all.map(function (a) {
+        var live = (a.to || a.from) >= t;
+        var span = a.from === (a.to || a.from) ? a.from : a.from + ' to ' + a.to;
+        return '<div class="jentry">' +
+          '<div class="spread">' +
+            '<strong class="small">' + esc(a.kind) + (live ? '' : ' (past)') + '</strong>' +
+            '<span class="dim tiny">' + esc(span) + '</span>' +
+          '</div>' +
+          '<p class="muted small" style="margin:4px 0 0">' + esc(a.reason || '') + '</p>' +
+          (a.text ? '<p class="small" style="margin:4px 0 0">' + esc(a.text) + '</p>' : '') +
+          '<button class="btn btn-quiet" style="padding:6px 0" data-act="drop-adjustment" ' +
+            'data-id="' + esc(a.id) + '">Undo this</button>' +
+        '</div>';
+      }).join('') +
+    '</div>';
   };
 
   U.backupVerb = function () {
@@ -3668,6 +3789,11 @@ textarea { min-height: 118px; line-height: 1.55; }
         U.toast('Re-scored.');
         break;
       }
+
+      case 'drop-adjustment':
+        MS.store.removeAdjustment(btn.dataset.id);
+        U.toast('Change undone.');
+        break;
 
       case 'theme':
         st.settings.theme = btn.dataset.v; MS.store.save(); scroll = false; break;

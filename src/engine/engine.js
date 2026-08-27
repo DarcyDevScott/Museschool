@@ -385,6 +385,30 @@
     return dow === 0 || dow === 6;
   };
 
+  /* ---------- adjustments ----------
+   *
+   * Changes laid over the generated plan — added or dropped tasks, an eased
+   * day, a temporary change of focus, a note. They are what lets a
+   * conversation actually move the plan, and they are stored separately from
+   * it so the underlying twelve weeks stay intact and every change is
+   * visible and reversible.
+   */
+
+  MS.adjustmentsFor = function (adjustments, key) {
+    if (!Array.isArray(adjustments)) return [];
+    return adjustments.filter(function (a) {
+      var from = a.from || a.date;
+      var to = a.to || a.date || from;
+      if (!from) return false;
+      return key >= from && key <= to;
+    });
+  };
+
+  MS.notesFor = function (adjustments, key) {
+    return MS.adjustmentsFor(adjustments, key)
+      .filter(function (a) { return a.kind === 'note'; });
+  };
+
   /* ---------- daily task selection ---------- */
 
   function eligible(plan, info, cat, cats) {
@@ -411,13 +435,23 @@
     return out;
   }
 
-  MS.tasksFor = function (plan, key) {
+  MS.tasksFor = function (plan, key, adjustments) {
     var info = MS.dayInfo(plan, key);
-    if (info.beforeStart) return { info: info, tasks: [], light: false };
+    if (info.beforeStart) return { info: info, tasks: [], light: false, adjusted: [] };
 
-    var light = MS.isLightDay(plan, key);
+    var adj = MS.adjustmentsFor(adjustments, key);
+    var eased = adj.some(function (a) { return a.kind === 'ease'; });
+    var light = MS.isLightDay(plan, key) || eased;
     var idx = Math.max(0, Math.min(info.index, TOTAL_DAYS - 1));
-    var focus = info.phase.focus;
+
+    // A focus adjustment points the day's drills at one dimension. It has to
+    // narrow the pool, not just reorder it — selection is a stable hash, so
+    // ordering alone would change nothing.
+    var focus = info.phase.focus.slice();
+    var forced = null;
+    adj.forEach(function (a) {
+      if (a.kind === 'focus' && MS.DIMENSIONS[a.dim]) forced = a.dim;
+    });
     var out = [];
 
     // Anchors run every day, rest days included. They are the spine.
@@ -432,7 +466,7 @@
     if (light) {
       // One short reflective task, then leave the day alone.
       var lightPick = rotate(eligible(plan, info, 'reflect'), plan, Math.floor(idx / 7), 1);
-      return { info: info, tasks: out.concat(lightPick), light: true };
+      return applyEdits({ info: info, tasks: out.concat(lightPick), light: true }, adj);
     }
 
     var used = out.reduce(function (n, t) { return n + t.min; }, 0);
@@ -451,8 +485,14 @@
 
     var chosen = {};
     order.forEach(function (cat) {
-      var pool = eligible(plan, info, cat, cat === 'practice' ? focus : null)
+      var dims = cat === 'practice' ? (forced ? [forced] : focus) : null;
+      var pool = eligible(plan, info, cat, dims)
         .filter(function (t) { return !chosen[t.id]; });
+      // If the forced dimension has nothing left for this phase, fall back
+      // rather than dropping the slot.
+      if (!pool.length && forced && cat === 'practice') {
+        pool = eligible(plan, info, cat, focus).filter(function (t) { return !chosen[t.id]; });
+      }
       // Prefer something that fits the time left. Someone who said ten
       // minutes meant it, and a plan that quietly overruns is one they quit.
       var room = Math.max(budget, 5);
@@ -473,8 +513,27 @@
       budget -= pick.min;
     });
 
-    return { info: info, tasks: out, light: false };
+    return applyEdits({ info: info, tasks: out, light: false }, adj);
   };
+
+  /* Added and dropped tasks are applied last, so they always win. */
+  function applyEdits(res, adj) {
+    var dropped = {}, added = [];
+    adj.forEach(function (a) {
+      if (a.kind === 'skip' && a.taskId) dropped[a.taskId] = true;
+      if (a.kind === 'add' && a.taskId) {
+        var t = MS.taskById(a.taskId);
+        if (t) added.push(t);
+      }
+    });
+    var tasks = res.tasks.filter(function (t) { return !dropped[t.id]; });
+    added.forEach(function (t) {
+      if (!tasks.some(function (x) { return x.id === t.id; })) tasks.push(t);
+    });
+    res.tasks = tasks;
+    res.adjusted = adj;
+    return res;
+  }
 
   /* ---------- lessons ---------- */
 
@@ -545,12 +604,12 @@
     return n;
   };
 
-  MS.completionStats = function (log, plan) {
+  MS.completionStats = function (log, plan, adjustments) {
     var total = 0, done = 0, days = 0;
     var end = Math.min(daysBetween(plan.startKey, dayKey()), TOTAL_DAYS - 1);
     for (var i = 0; i <= end; i++) {
       var key = addDays(plan.startKey, i);
-      var res = MS.tasksFor(plan, key);
+      var res = MS.tasksFor(plan, key, adjustments);
       if (!res.tasks.length) continue;
       total += res.tasks.length;
       var e = log[key];
