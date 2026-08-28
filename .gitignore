@@ -1,2 +1,7 @@
 node_modules/
 package-lock.json
+
+# Build artefacts. docs/ is the source of truth and is committed; the upload
+# zip is generated from it by `npm run package` and must never be committed —
+# a stale binary that looks deployable is worse than no binary at all.
+*.zip

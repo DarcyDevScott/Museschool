@@ -126,8 +126,11 @@ at the root will try to publish `node_modules` too, and on Cloudflare that
 includes the 145 MiB `workerd` binary its own build installs, which blows past
 the 25 MiB per-file limit.
 
-- **Cloudflare** — `wrangler.jsonc` already points at `./docs`, so connect the
-  repo and deploy. Works with a private repo.
+- **Cloudflare, from git** — `wrangler.jsonc` already points at `./docs`, so
+  connect the repo and deploy. Works with a private repo.
+- **Cloudflare, without git** — `npm run package` zips `docs/` with `index.html`
+  at the archive root, ready for Pages → Upload assets. Useful from a phone, and
+  it means a deployment can carry no repository history at all.
 - **GitHub Pages** — Settings → Pages → your branch, folder **`/docs`**.
   Needs a public repo unless you're on a paid plan.
 

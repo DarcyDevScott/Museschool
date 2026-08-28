@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
+    "package": "node build.mjs && cd docs && zip -rq ../mendday-site.zip . -x '.*' && cd .. && echo 'wrote mendday-site.zip'",
     "serve": "node build.mjs && python3 -m http.server 8123",
     "test": "node build.mjs && node test/tailoring.mjs && node test/mcp.mjs",
     "test:browser": "node test/deep.mjs && node test/smoke.mjs && node test/persistence.mjs && node test/pwa.mjs && node test/backup.mjs",
