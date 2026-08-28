@@ -1,10 +1,10 @@
-/* Museschool — persistence. Everything lives in this browser and nowhere else.
+/* Mendday — persistence. Everything lives in this browser and nowhere else.
  * No account, no server, no network call. That is deliberate: the quiz asks
  * for things people would not type into someone else's database. */
 (function (MS) {
   'use strict';
 
-  var KEY = 'museschool.v1';
+  var KEY = 'mendday.v1';
 
   function blank() {
     return {
@@ -40,7 +40,7 @@
       } catch (e) {
         // Private mode, blocked site data, corrupt JSON — start fresh rather
         // than dying on load.
-        console.warn('Museschool: could not read saved data', e);
+        console.warn('Mendday: could not read saved data', e);
       }
       return state;
     },
@@ -49,7 +49,7 @@
       try {
         localStorage.setItem(KEY, JSON.stringify(state));
       } catch (e) {
-        console.warn('Museschool: could not save', e);
+        console.warn('Mendday: could not save', e);
       }
     },
 
@@ -152,7 +152,7 @@
 
     importJSON: function (text) {
       var parsed = JSON.parse(text);
-      if (!parsed || parsed.v !== 1) throw new Error('Not a Museschool backup file.');
+      if (!parsed || parsed.v !== 1) throw new Error('Not a Mendday backup file.');
       state = Object.assign(blank(), parsed);
       this.save();
     }

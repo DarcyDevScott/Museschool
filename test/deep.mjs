@@ -3,7 +3,7 @@
  * dark mode and the desktop layout. */
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
-const SHOT = process.env.SHOT_DIR || '/tmp/museschool-shots';
+const SHOT = process.env.SHOT_DIR || '/tmp/mendday-shots';
 mkdirSync(SHOT, { recursive: true });
 
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });

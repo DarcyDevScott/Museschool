@@ -38,18 +38,18 @@ for (const p of walk('.')) {
   const before = readFileSync(p, 'utf8');
   // Order matters: the all-caps env-var form first, then title case, then lower.
   const after = before
-    .replace(/MUSESCHOOL/g, Name.toUpperCase())
-    .replace(/Museschool/g, Name)
-    .replace(/museschool/g, lower);
+    .replace(/MENDDAY/g, Name.toUpperCase())
+    .replace(/Mendday/g, Name)
+    .replace(/mendday/g, lower);
   if (after !== before) {
     writeFileSync(p, after);
     files++;
-    hits += before.split(/museschool/gi).length - 1;
+    hits += before.split(/mendday/gi).length - 1;
   }
 }
 
 // The one file whose name carries the brand.
-if (existsSync('dist/museschool.html')) renameSync('dist/museschool.html', `dist/${lower}.html`);
+if (existsSync('dist/mendday.html')) renameSync('dist/mendday.html', `dist/${lower}.html`);
 
 console.log(`renamed ${hits} occurrences across ${files} files`);
 execSync('node build.mjs', { stdio: 'inherit' });

@@ -1,6 +1,6 @@
-# Museschool MCP server
+# Mendday MCP server
 
-Lets Claude read and change your Museschool plan while you talk to it normally.
+Lets Claude read and change your Mendday plan while you talk to it normally.
 
 MCP runs the opposite way round from an embedded chatbot. Nothing is added
 *inside* the web app, and there is no API key and no per-message cost. Instead
@@ -42,11 +42,11 @@ npm install          # once, in the repo
 ```json
 {
   "mcpServers": {
-    "museschool": {
+    "mendday": {
       "command": "node",
-      "args": ["/absolute/path/to/Museschool/mcp/server.mjs"],
+      "args": ["/absolute/path/to/Mendday/mcp/server.mjs"],
       "env": {
-        "MUSESCHOOL_FILE": "~/Library/Mobile Documents/com~apple~CloudDocs/backup.json"
+        "MENDDAY_FILE": "~/Library/Mobile Documents/com~apple~CloudDocs/backup.json"
       }
     }
   }
@@ -56,11 +56,11 @@ npm install          # once, in the repo
 **Claude Code** — same shape in `.mcp.json`, or:
 
 ```bash
-claude mcp add museschool -e MUSESCHOOL_FILE=/path/to/museschool-backup.json \
-  -- node /absolute/path/to/Museschool/mcp/server.mjs
+claude mcp add mendday -e MENDDAY_FILE=/path/to/mendday-backup.json \
+  -- node /absolute/path/to/Mendday/mcp/server.mjs
 ```
 
-Restart the client. Ask *"what does my Museschool plan say for today?"* to check.
+Restart the client. Ask *"what does my Mendday plan say for today?"* to check.
 
 ## Getting changes back into the app
 

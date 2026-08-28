@@ -3,7 +3,7 @@
  *   node build.mjs && node test/smoke.mjs
  */
 import { chromium } from 'playwright';
-const SHOT = process.env.SHOT_DIR || '/tmp/museschool-shots';
+const SHOT = process.env.SHOT_DIR || '/tmp/mendday-shots';
 import { mkdirSync } from 'node:fs';
 mkdirSync(SHOT, { recursive: true });
 

@@ -1,4 +1,4 @@
-/* Museschool — the day-to-day screens, navigation and bootstrap. */
+/* Mendday — the day-to-day screens, navigation and bootstrap. */
 (function (MS) {
   'use strict';
 
@@ -523,7 +523,7 @@
         '</div>' +
       '</div>' +
 
-      '<p class="dim tiny" style="margin-top:22px">Museschool is a structured self-directed programme, ' +
+      '<p class="dim tiny" style="margin-top:22px">Mendday is a structured self-directed programme, ' +
       'not therapy and not a substitute for it. If you are in crisis, or if what you are working through is ' +
       'heavier than a daily task list, please talk to a professional or someone you trust.</p>' +
     '</div>');
@@ -821,7 +821,7 @@
           if (!f) return;
           MS.backup.restoreFrom(f).then(function () {
             U.toast('Backup restored.'); MS.view = 'today'; MS.render();
-          }).catch(function () { U.toast('That file is not a Museschool backup.'); });
+          }).catch(function () { U.toast('That file is not a Mendday backup.'); });
         };
         picker.click();
         return;
@@ -844,7 +844,7 @@
         return;
 
       case 'import': {
-        var input = window.prompt('Paste a Museschool backup:');
+        var input = window.prompt('Paste a Mendday backup:');
         if (!input) return;
         try { MS.store.importJSON(input); U.toast('Backup restored.'); MS.view = 'today'; }
         catch (err) { U.toast('That did not look like a backup.'); return; }

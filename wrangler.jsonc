@@ -7,7 +7,7 @@
   // root sweeps that up and the deploy fails on the 25 MiB per-file limit.
   //
   // docs/ is produced by `node build.mjs` and contains only the app.
-  "name": "museschool",
+  "name": "mendday",
   "compatibility_date": "2026-08-26",
   "assets": {
     "directory": "./docs"

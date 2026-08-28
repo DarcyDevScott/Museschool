@@ -1,4 +1,4 @@
-/* Museschool — getting your data out of the browser and back in.
+/* Mendday — getting your data out of the browser and back in.
  *
  * There is no iCloud API for the web, so nothing here syncs by itself on a
  * phone. What it does is make saving a file to iCloud Drive one tap, and
@@ -17,8 +17,8 @@
 (function (MS) {
   'use strict';
 
-  var FILENAME = 'museschool-backup.json';
-  var TYPES = [{ description: 'Museschool backup', accept: { 'application/json': ['.json'] } }];
+  var FILENAME = 'mendday-backup.json';
+  var TYPES = [{ description: 'Mendday backup', accept: { 'application/json': ['.json'] } }];
 
   function json() { return MS.store.exportJSON(); }
   function file() { return new File([json()], FILENAME, { type: 'application/json' }); }
@@ -62,7 +62,7 @@
   /* ---------- the remembered file handle (desktop only) ----------
    * File handles cannot go in localStorage, so they live in IndexedDB. */
 
-  var DB = 'museschool-fs', STORE = 'handles';
+  var DB = 'mendday-fs', STORE = 'handles';
 
   function withStore(mode, fn) {
     return new Promise(function (resolve, reject) {
@@ -146,7 +146,7 @@
 
       if (how === 'share') {
         try {
-          await navigator.share({ files: [file()], title: 'Museschool backup' });
+          await navigator.share({ files: [file()], title: 'Mendday backup' });
           MS.store.markBackup();
           return 'shared';
         } catch (e) {

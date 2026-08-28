@@ -1,9 +1,9 @@
-<title>Museschool</title>
+<title>Mendday</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Museschool — one stylesheet.
+/* Mendday — one stylesheet.
    The page is a logbook: ruled rather than carded, with the data set in a
    monospace so day counts, scores and deltas line up in columns.
 
@@ -403,7 +403,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script>
 /* ---- src/data/quiz.js ---- */
-/* Museschool — onboarding quiz definition.
+/* Mendday — onboarding quiz definition.
  *
  * Question types:
  *   text    free text (opt.placeholder, opt.optional)
@@ -822,7 +822,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 })(window.MS = window.MS || {});
 
 /* ---- src/data/tasks.js ---- */
-/* Museschool — task library.
+/* Mendday — task library.
  *
  * Every task: { id, cat, dim, phases, min, title, detail, tags? }
  *   cat     anchor   a keystone habit, repeated daily for a whole phase
@@ -1295,7 +1295,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 })(window.MS = window.MS || {});
 
 /* ---- src/data/lessons.js ---- */
-/* Museschool — the reading.
+/* Mendday — the reading.
  *
  * Short lessons drawn from mainstream couples and family research, mostly
  * John Gottman's observational work and Sue Johnson's Emotionally Focused
@@ -1555,7 +1555,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 })(window.MS = window.MS || {});
 
 /* ---- src/data/phases.js ---- */
-/* Museschool — the four-phase arc and the milestone language for each dimension. */
+/* Mendday — the four-phase arc and the milestone language for each dimension. */
 (function (MS) {
   'use strict';
 
@@ -1674,7 +1674,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 })(window.MS = window.MS || {});
 
 /* ---- src/engine/engine.js ---- */
-/* Museschool — scoring, plan generation and daily task selection.
+/* Mendday — scoring, plan generation and daily task selection.
  * Everything here is deterministic: the same answers and the same date
  * always produce the same plan and the same day.
  */
@@ -2300,13 +2300,13 @@ textarea { min-height: 118px; line-height: 1.55; }
 })(window.MS = window.MS || {});
 
 /* ---- src/store.js ---- */
-/* Museschool — persistence. Everything lives in this browser and nowhere else.
+/* Mendday — persistence. Everything lives in this browser and nowhere else.
  * No account, no server, no network call. That is deliberate: the quiz asks
  * for things people would not type into someone else's database. */
 (function (MS) {
   'use strict';
 
-  var KEY = 'museschool.v1';
+  var KEY = 'mendday.v1';
 
   function blank() {
     return {
@@ -2342,7 +2342,7 @@ textarea { min-height: 118px; line-height: 1.55; }
       } catch (e) {
         // Private mode, blocked site data, corrupt JSON — start fresh rather
         // than dying on load.
-        console.warn('Museschool: could not read saved data', e);
+        console.warn('Mendday: could not read saved data', e);
       }
       return state;
     },
@@ -2351,7 +2351,7 @@ textarea { min-height: 118px; line-height: 1.55; }
       try {
         localStorage.setItem(KEY, JSON.stringify(state));
       } catch (e) {
-        console.warn('Museschool: could not save', e);
+        console.warn('Mendday: could not save', e);
       }
     },
 
@@ -2454,7 +2454,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 
     importJSON: function (text) {
       var parsed = JSON.parse(text);
-      if (!parsed || parsed.v !== 1) throw new Error('Not a Museschool backup file.');
+      if (!parsed || parsed.v !== 1) throw new Error('Not a Mendday backup file.');
       state = Object.assign(blank(), parsed);
       this.save();
     }
@@ -2462,7 +2462,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 })(window.MS = window.MS || {});
 
 /* ---- src/backup.js ---- */
-/* Museschool — getting your data out of the browser and back in.
+/* Mendday — getting your data out of the browser and back in.
  *
  * There is no iCloud API for the web, so nothing here syncs by itself on a
  * phone. What it does is make saving a file to iCloud Drive one tap, and
@@ -2481,8 +2481,8 @@ textarea { min-height: 118px; line-height: 1.55; }
 (function (MS) {
   'use strict';
 
-  var FILENAME = 'museschool-backup.json';
-  var TYPES = [{ description: 'Museschool backup', accept: { 'application/json': ['.json'] } }];
+  var FILENAME = 'mendday-backup.json';
+  var TYPES = [{ description: 'Mendday backup', accept: { 'application/json': ['.json'] } }];
 
   function json() { return MS.store.exportJSON(); }
   function file() { return new File([json()], FILENAME, { type: 'application/json' }); }
@@ -2526,7 +2526,7 @@ textarea { min-height: 118px; line-height: 1.55; }
   /* ---------- the remembered file handle (desktop only) ----------
    * File handles cannot go in localStorage, so they live in IndexedDB. */
 
-  var DB = 'museschool-fs', STORE = 'handles';
+  var DB = 'mendday-fs', STORE = 'handles';
 
   function withStore(mode, fn) {
     return new Promise(function (resolve, reject) {
@@ -2610,7 +2610,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 
       if (how === 'share') {
         try {
-          await navigator.share({ files: [file()], title: 'Museschool backup' });
+          await navigator.share({ files: [file()], title: 'Mendday backup' });
           MS.store.markBackup();
           return 'shared';
         } catch (e) {
@@ -2692,7 +2692,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 })(window.MS = window.MS || {});
 
 /* ---- src/insight.js ---- */
-/* Museschool — milestone counting.
+/* Mendday — milestone counting.
  *
  * The only thing in this app that talks to a network. It exists to answer one
  * question: does anyone actually get anywhere with this?
@@ -2710,7 +2710,7 @@ textarea { min-height: 118px; line-height: 1.55; }
   'use strict';
 
   // Set by the deployment. Absent means this whole file does nothing.
-  var ENDPOINT = (window.MUSESCHOOL_INSIGHT_ENDPOINT || '').trim();
+  var ENDPOINT = (window.MENDDAY_INSIGHT_ENDPOINT || '').trim();
 
   var MILESTONES = [
     'quiz_started', 'quiz_finished', 'installed_open',
@@ -2794,7 +2794,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 })(window.MS = window.MS || {});
 
 /* ---- src/ui/quiz-ui.js ---- */
-/* Museschool — welcome, the quiz itself, and the plan reveal. */
+/* Mendday — welcome, the quiz itself, and the plan reveal. */
 (function (MS) {
   'use strict';
 
@@ -2829,7 +2829,7 @@ textarea { min-height: 118px; line-height: 1.55; }
     var started = Object.keys(st.answers).length > 0;
     return '' +
       '<div class="wrap">' +
-        '<p class="eyebrow">Museschool</p>' +
+        '<p class="eyebrow">Mendday</p>' +
         '<h1 style="margin:10px 0 18px">Twelve weeks of getting yourself in order.</h1>' +
         '<p class="muted">A long, honest questionnaire, then a plan built from what you actually said — ' +
         'four phases, daily tasks sized to the time you really have, and a written record of what changes.</p>' +
@@ -3147,7 +3147,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 })(window.MS = window.MS || {});
 
 /* ---- src/ui/app-ui.js ---- */
-/* Museschool — the day-to-day screens, navigation and bootstrap. */
+/* Mendday — the day-to-day screens, navigation and bootstrap. */
 (function (MS) {
   'use strict';
 
@@ -3672,7 +3672,7 @@ textarea { min-height: 118px; line-height: 1.55; }
         '</div>' +
       '</div>' +
 
-      '<p class="dim tiny" style="margin-top:22px">Museschool is a structured self-directed programme, ' +
+      '<p class="dim tiny" style="margin-top:22px">Mendday is a structured self-directed programme, ' +
       'not therapy and not a substitute for it. If you are in crisis, or if what you are working through is ' +
       'heavier than a daily task list, please talk to a professional or someone you trust.</p>' +
     '</div>');
@@ -3970,7 +3970,7 @@ textarea { min-height: 118px; line-height: 1.55; }
           if (!f) return;
           MS.backup.restoreFrom(f).then(function () {
             U.toast('Backup restored.'); MS.view = 'today'; MS.render();
-          }).catch(function () { U.toast('That file is not a Museschool backup.'); });
+          }).catch(function () { U.toast('That file is not a Mendday backup.'); });
         };
         picker.click();
         return;
@@ -3993,7 +3993,7 @@ textarea { min-height: 118px; line-height: 1.55; }
         return;
 
       case 'import': {
-        var input = window.prompt('Paste a Museschool backup:');
+        var input = window.prompt('Paste a Mendday backup:');
         if (!input) return;
         try { MS.store.importJSON(input); U.toast('Backup restored.'); MS.view = 'today'; }
         catch (err) { U.toast('That did not look like a backup.'); return; }

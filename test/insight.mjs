@@ -95,7 +95,7 @@ if (process.env.APP_URL) {
     });
     const pg = await ctx.newPage();
     await pg.addInitScript(({ dnt, standalone }) => {
-      window.MUSESCHOOL_INSIGHT_ENDPOINT = '/insight-test';
+      window.MENDDAY_INSIGHT_ENDPOINT = '/insight-test';
       if (dnt) Object.defineProperty(navigator, 'globalPrivacyControl', { get: () => true });
       if (standalone) {
         const mm = window.matchMedia.bind(window);

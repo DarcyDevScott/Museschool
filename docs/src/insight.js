@@ -1,4 +1,4 @@
-/* Museschool — milestone counting.
+/* Mendday — milestone counting.
  *
  * The only thing in this app that talks to a network. It exists to answer one
  * question: does anyone actually get anywhere with this?
@@ -16,7 +16,7 @@
   'use strict';
 
   // Set by the deployment. Absent means this whole file does nothing.
-  var ENDPOINT = (window.MUSESCHOOL_INSIGHT_ENDPOINT || '').trim();
+  var ENDPOINT = (window.MENDDAY_INSIGHT_ENDPOINT || '').trim();
 
   var MILESTONES = [
     'quiz_started', 'quiz_finished', 'installed_open',

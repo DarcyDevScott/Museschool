@@ -1,4 +1,4 @@
-/* Museschool — onboarding quiz definition.
+/* Mendday — onboarding quiz definition.
  *
  * Question types:
  *   text    free text (opt.placeholder, opt.optional)

@@ -1,4 +1,4 @@
-/* Museschool — scoring, plan generation and daily task selection.
+/* Mendday — scoring, plan generation and daily task selection.
  * Everything here is deterministic: the same answers and the same date
  * always produce the same plan and the same day.
  */

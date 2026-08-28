@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-/* Museschool MCP server.
+/* Mendday MCP server.
  *
  * Gives Claude — in Claude Desktop, Claude Code, or anywhere else that speaks
- * MCP — read and write access to one Museschool backup file, so a conversation
+ * MCP — read and write access to one Mendday backup file, so a conversation
  * about a bad week can actually change what tomorrow's plan says.
  *
  * It is not an LLM and it holds no key. It exposes your own data as tools to
  * whichever Claude you are already talking to.
  *
- *   MUSESCHOOL_FILE=~/path/to/museschool-backup.json node mcp/server.mjs
+ *   MENDDAY_FILE=~/path/to/mendday-backup.json node mcp/server.mjs
  *
  * Everything it writes goes into `adjustments` and `journal`. The generated
  * twelve weeks are never rewritten, so every change stays visible in the app
@@ -31,17 +31,17 @@ for (const f of ['data/quiz', 'data/tasks', 'data/lessons', 'data/phases', 'engi
 const MS = globalThis.MS;
 
 /* ---------- the file ---------- */
-const FILE = resolve((process.env.MUSESCHOOL_FILE || '~/museschool-backup.json')
+const FILE = resolve((process.env.MENDDAY_FILE || '~/mendday-backup.json')
   .replace(/^~/, homedir()));
 
 function load() {
   if (!existsSync(FILE)) {
     throw new Error(
-      `No Museschool backup at ${FILE}. In the app open You → Backup → save a file there first, ` +
-      `or point MUSESCHOOL_FILE at an existing one.`);
+      `No Mendday backup at ${FILE}. In the app open You → Backup → save a file there first, ` +
+      `or point MENDDAY_FILE at an existing one.`);
   }
   const st = JSON.parse(readFileSync(FILE, 'utf8'));
-  if (!st || st.v !== 1) throw new Error(`${FILE} is not a Museschool backup.`);
+  if (!st || st.v !== 1) throw new Error(`${FILE} is not a Mendday backup.`);
   st.adjustments = st.adjustments || [];
   st.journal = st.journal || [];
   st.log = st.log || {};
@@ -85,7 +85,7 @@ function dayView(st, key) {
 }
 
 /* ---------- server ---------- */
-const server = new McpServer({ name: 'museschool', version: '1.0.0' });
+const server = new McpServer({ name: 'mendday', version: '1.0.0' });
 
 server.registerTool('get_overview', {
   title: 'Read the plan and where they are in it',

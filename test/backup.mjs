@@ -95,7 +95,7 @@ ok('restore offered before any plan exists',
   (await pg.locator('[data-act="backup-restore"]').count()) === 1);
 await pg.locator('[data-act="backup-restore"]').click();
 await pg.locator('#restore-file').setInputFiles({
-  name: 'museschool-backup.json', mimeType: 'application/json', buffer: Buffer.from(backupJson)
+  name: 'mendday-backup.json', mimeType: 'application/json', buffer: Buffer.from(backupJson)
 });
 await pg.waitForTimeout(700);
 const back = await pg.evaluate(() => {
@@ -119,7 +119,7 @@ await pg.locator('#restore-file').setInputFiles({
 });
 await pg.waitForTimeout(600);
 ok('rejected with a message',
-  (await pg.locator('.toast').innerText()).toLowerCase().includes('not a museschool'));
+  (await pg.locator('.toast').innerText()).toLowerCase().includes('not a mendday'));
 ok('existing data untouched', (await pg.evaluate(() => MS.store.get().answers.name)) === 'Sam');
 await ctx.close();
 
@@ -134,7 +134,7 @@ const dl = pg.waitForEvent('download', { timeout: 6000 }).catch(() => null);
 await pg.locator('[data-act="backup-save"]').click();
 const got = await dl;
 if (got) {
-  ok('download filename is right', got.suggestedFilename() === 'museschool-backup.json',
+  ok('download filename is right', got.suggestedFilename() === 'mendday-backup.json',
      got.suggestedFilename());
 } else {
   ok('download route reached (picker path)', ability === 'pick');

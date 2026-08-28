@@ -18,8 +18,8 @@ for (const f of ['data/quiz','data/tasks','data/lessons','data/phases','engine/e
   await import(pathToFileURL(resolve('src/' + f + '.js')).href);
 const MS = globalThis.MS;
 
-const dir = mkdtempSync(join(tmpdir(), 'museschool-mcp-'));
-const FILE = join(dir, 'museschool-backup.json');
+const dir = mkdtempSync(join(tmpdir(), 'mendday-mcp-'));
+const FILE = join(dir, 'mendday-backup.json');
 const answers = { name: 'Sam', goals: ['relationship','partnership','ownership'],
                   primaryGoal: 'relationship', kids: '2', minutes: '20', days: '6',
                   famSetup: 'split_tense', relStatus: 'ended_recent', relSpace: 'no',
@@ -37,7 +37,7 @@ writeFileSync(FILE, JSON.stringify({ v: 1, answers, plan, log, journal: [], chec
 
 const client = new Client({ name: 'test', version: '1.0.0' });
 await client.connect(new StdioClientTransport({
-  command: 'node', args: ['mcp/server.mjs'], env: { ...process.env, MUSESCHOOL_FILE: FILE }
+  command: 'node', args: ['mcp/server.mjs'], env: { ...process.env, MENDDAY_FILE: FILE }
 }));
 
 const call = async (name, args = {}) => {
@@ -144,10 +144,10 @@ ok('unknown adjustment id refused', await bad('remove_adjustment', { id: 'adj_no
 console.log('\n8. A missing file fails with a usable message');
 const c2 = new Client({ name: 'test2', version: '1.0.0' });
 await c2.connect(new StdioClientTransport({ command: 'node', args: ['mcp/server.mjs'],
-  env: { ...process.env, MUSESCHOOL_FILE: join(dir, 'nothing-here.json') } }));
+  env: { ...process.env, MENDDAY_FILE: join(dir, 'nothing-here.json') } }));
 const r2 = await c2.callTool({ name: 'get_overview', arguments: {} });
 ok('it says where it looked and what to do',
-   r2.isError && /No Museschool backup at/.test(r2.content[0].text) &&
+   r2.isError && /No Mendday backup at/.test(r2.content[0].text) &&
    /You → Backup/.test(r2.content[0].text));
 await c2.close();
 

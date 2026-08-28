@@ -1,4 +1,4 @@
-/* Museschool — task library.
+/* Mendday — task library.
  *
  * Every task: { id, cat, dim, phases, min, title, detail, tags? }
  *   cat     anchor   a keystone habit, repeated daily for a whole phase

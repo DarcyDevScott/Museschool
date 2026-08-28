@@ -1,6 +1,6 @@
 /* Build outputs:
  *   dist/standalone.html   a complete document you can open from disk
- *   dist/museschool.html   the same page as an Artifact fragment (the
+ *   dist/mendday.html   the same page as an Artifact fragment (the
  *                          doctype/head/body wrapper is added at publish time)
  *   docs/                  the deployable site — exactly the files a host
  *                          should serve, and nothing else
@@ -54,14 +54,14 @@ const BODY =
 mkdirSync('dist', { recursive: true });
 
 // Artifact fragment: title + styles + markup, no document wrapper.
-writeFileSync('dist/museschool.html',
-  `<title>Museschool</title>\n${FONTS}\n<style>\n${css}\n</style>\n${BODY}\n`);
+writeFileSync('dist/mendday.html',
+  `<title>Mendday</title>\n${FONTS}\n<style>\n${css}\n</style>\n${BODY}\n`);
 
 // Standalone: a full document that works straight from the filesystem.
 writeFileSync('dist/standalone.html',
   `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n` +
   `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n` +
-  `<title>Museschool</title>\n${FONTS}\n<style>\n${css}\n</style>\n</head>\n<body>\n${BODY}\n</body>\n</html>\n`);
+  `<title>Mendday</title>\n${FONTS}\n<style>\n${css}\n</style>\n</head>\n<body>\n${BODY}\n</body>\n</html>\n`);
 
 // ---- docs/: the deployable site ----
 const SITE_FILES = ['index.html', 'sw.js', 'manifest.webmanifest'];
@@ -81,5 +81,5 @@ if (absent.length) {
   process.exit(1);
 }
 
-console.log('built dist/museschool.html, dist/standalone.html and docs/ (' +
+console.log('built dist/mendday.html, dist/standalone.html and docs/ (' +
   shellPaths.length + ' cached files verified)');

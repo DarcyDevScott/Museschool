@@ -1,4 +1,4 @@
-/* Museschool — the four-phase arc and the milestone language for each dimension. */
+/* Mendday — the four-phase arc and the milestone language for each dimension. */
 (function (MS) {
   'use strict';
 

@@ -1,4 +1,4 @@
-# Museschool
+# Mendday
 
 A self-directed personal growth programme. A long questionnaire, then a
 twelve-week plan built from the answers, with daily tasks sized to the time
@@ -157,7 +157,7 @@ something hard without defending, naming your part without an excuse attached,
 respecting a stated boundary, and building a life that is not resting entirely
 on one answer.
 
-Museschool is a structured self-directed programme, not therapy and not a
+Mendday is a structured self-directed programme, not therapy and not a
 substitute for it.
 
 ## Running it
@@ -176,7 +176,7 @@ node build.mjs
 
 - `dist/standalone.html` — a complete page you can open straight from disk or
   put on any host
-- `dist/museschool.html` — the same page as an Artifact fragment
+- `dist/mendday.html` — the same page as an Artifact fragment
 
 ## Tests
 
@@ -199,7 +199,7 @@ node test/insight.mjs                                        # counting, and tha
 `smoke` and `pwa` need the app served over http — a service worker will not
 register on `file://`.
 
-Screenshots land in `$SHOT_DIR` (default `/tmp/museschool-shots`).
+Screenshots land in `$SHOT_DIR` (default `/tmp/mendday-shots`).
 
 ## Layout
 
@@ -261,7 +261,7 @@ Global Privacy Control, and has an off switch under **You**.
 
 ### Where it lives
 
-`localStorage` under `museschool.v1`, on that one device in that one browser.
+`localStorage` under `mendday.v1`, on that one device in that one browser.
 Nothing syncs. Safari and Chrome do not share it, and neither do your phone
 and your laptop. If storage is unavailable altogether — a private window, site
 data blocked — the app still runs, it just cannot remember anything.
@@ -279,7 +279,7 @@ file somewhere you control as close to one tap as the platform allows.
 |---|---|---|
 | `navigator.share` | Safari on iOS, incl. installed | The share sheet — **Save to Files → iCloud Drive**, then it syncs like any other file |
 | `showSaveFilePicker` | Chrome / Edge on desktop | Choose a file. The handle is kept, so it can be rewritten automatically after that |
-| download | most other browsers | A plain `museschool-backup.json` |
+| download | most other browsers | A plain `mendday-backup.json` |
 | `claude.use("downloads")` | the claude.ai artifact viewer | Ordinary downloads are blocked there, so the viewer's own save prompt is used |
 | clipboard | anywhere framed with no save route | The JSON goes to the clipboard instead |
 

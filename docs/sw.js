@@ -1,4 +1,4 @@
-/* Museschool service worker.
+/* Mendday service worker.
  *
  * The app has no backend, so this exists purely to make it work offline once
  * installed. Bump VERSION whenever the shell changes — the old cache is
@@ -7,7 +7,7 @@
  * Note it never caches anything a person has typed: their data lives in
  * localStorage, which this does not touch.
  */
-const VERSION = 'museschool-v4';
+const VERSION = 'mendday-v4';
 const SHELL = [
   './',
   './index.html',

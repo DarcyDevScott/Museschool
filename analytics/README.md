@@ -39,7 +39,7 @@ Then a `wrangler.jsonc` in this directory:
 
 ```jsonc
 {
-  "name": "museschool-counts",
+  "name": "mendday-counts",
   "main": "worker.js",
   "compatibility_date": "2026-08-26",
   "kv_namespaces": [{ "binding": "COUNTS", "id": "<id from the command above>" }],
@@ -57,7 +57,7 @@ npx wrangler deploy
 Then point the app at it — in `index.html`, before the other scripts:
 
 ```html
-<script>window.MUSESCHOOL_INSIGHT_ENDPOINT = 'https://museschool-counts.<you>.workers.dev';</script>
+<script>window.MENDDAY_INSIGHT_ENDPOINT = 'https://mendday-counts.<you>.workers.dev';</script>
 ```
 
 Rebuild (`node build.mjs`) and deploy. Leave that line out and nothing is sent.
@@ -65,7 +65,7 @@ Rebuild (`node build.mjs`) and deploy. Leave that line out and nothing is sent.
 ## Reading the funnel
 
 ```sh
-curl 'https://museschool-counts.<you>.workers.dev/stats?days=30&token=<token>'
+curl 'https://mendday-counts.<you>.workers.dev/stats?days=30&token=<token>'
 ```
 
 `totals` is the funnel; `daily` breaks it down by date.

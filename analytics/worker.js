@@ -1,4 +1,4 @@
-/* Museschool milestone counter.
+/* Mendday milestone counter.
  *
  * Counts how many people reach each stage. It is deliberately incapable of
  * doing anything else:

@@ -1,4 +1,4 @@
-/* Museschool — welcome, the quiz itself, and the plan reveal. */
+/* Mendday — welcome, the quiz itself, and the plan reveal. */
 (function (MS) {
   'use strict';
 
@@ -33,7 +33,7 @@
     var started = Object.keys(st.answers).length > 0;
     return '' +
       '<div class="wrap">' +
-        '<p class="eyebrow">Museschool</p>' +
+        '<p class="eyebrow">Mendday</p>' +
         '<h1 style="margin:10px 0 18px">Twelve weeks of getting yourself in order.</h1>' +
         '<p class="muted">A long, honest questionnaire, then a plan built from what you actually said — ' +
         'four phases, daily tasks sized to the time you really have, and a written record of what changes.</p>' +

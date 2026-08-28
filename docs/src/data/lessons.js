@@ -1,4 +1,4 @@
-/* Museschool — the reading.
+/* Mendday — the reading.
  *
  * Short lessons drawn from mainstream couples and family research, mostly
  * John Gottman's observational work and Sue Johnson's Emotionally Focused
