@@ -1,0 +1,15 @@
+{
+  // Cloudflare deploys this repo as a Worker serving static assets.
+  //
+  // "directory" MUST point at the built site, never the repository root:
+  // Cloudflare runs `npx wrangler deploy` during the build, which installs
+  // wrangler and its 145 MiB `workerd` binary into node_modules. Uploading the
+  // root sweeps that up and the deploy fails on the 25 MiB per-file limit.
+  //
+  // docs/ is produced by `node build.mjs` and contains only the app.
+  "name": "museschool",
+  "compatibility_date": "2026-08-26",
+  "assets": {
+    "directory": "./docs"
+  }
+}

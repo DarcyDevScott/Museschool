@@ -118,6 +118,23 @@ This is deliberately not an embedded chatbot: no API key, no per-message cost,
 and nothing about your journal goes anywhere except the file on your own
 machine.
 
+## Deploying it
+
+`node build.mjs` produces **`docs/`** — exactly the files a host should serve
+and nothing else. Deploy that folder, never the repository root: a host pointed
+at the root will try to publish `node_modules` too, and on Cloudflare that
+includes the 145 MiB `workerd` binary its own build installs, which blows past
+the 25 MiB per-file limit.
+
+- **Cloudflare** — `wrangler.jsonc` already points at `./docs`, so connect the
+  repo and deploy. Works with a private repo.
+- **GitHub Pages** — Settings → Pages → your branch, folder **`/docs`**.
+  Needs a public repo unless you're on a paid plan.
+
+`docs/` is committed, so neither host needs to run a build. If you change
+anything under `src/`, run `node build.mjs` and commit the result — the build
+fails if a file the service worker caches is missing from `docs/`.
+
 ## Installing it on a phone
 
 The app is a PWA, so it installs from the browser with no App Store involved.
@@ -196,7 +213,8 @@ src/backup.js         saving to a file — share sheet, picker, download, clipbo
 mcp/server.mjs        the MCP server: eight tools over one backup file
 src/ui/quiz-ui.js     welcome, quiz, plan reveal
 src/ui/app-ui.js      today, plan, learn, progress, journal, settings, routing
-build.mjs             bundles the above into dist/
+build.mjs             bundles into dist/ and assembles the deployable docs/
+wrangler.jsonc        tells Cloudflare to serve docs/, not the repo root
 sw.js                 service worker — offline only, never touches your data
 manifest.webmanifest  makes it installable
 ```

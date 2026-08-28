@@ -1,9 +1,18 @@
-/* Bundles the source files into two single-file outputs:
+/* Build outputs:
  *   dist/standalone.html   a complete document you can open from disk
  *   dist/museschool.html   the same page as an Artifact fragment (the
  *                          doctype/head/body wrapper is added at publish time)
+ *   docs/                  the deployable site — exactly the files a host
+ *                          should serve, and nothing else
+ *
+ * docs/ exists because a static host pointed at the repository root will try
+ * to publish everything in it. Cloudflare installs wrangler during its build,
+ * which drops a 145 MiB workerd binary into node_modules, and the deploy dies
+ * on a per-file size cap. Serving a folder that only ever contains the app
+ * avoids that class of problem entirely, and /docs is also a folder GitHub
+ * Pages can serve directly, so the same layout works on both.
  */
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, existsSync } from 'node:fs';
 
 const SRC = [
   'src/data/quiz.js',
@@ -53,4 +62,23 @@ writeFileSync('dist/standalone.html',
   `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n` +
   `<title>Museschool</title>\n${FONTS}\n<style>\n${css}\n</style>\n</head>\n<body>\n${BODY}\n</body>\n</html>\n`);
 
-console.log('built dist/museschool.html and dist/standalone.html');
+// ---- docs/: the deployable site ----
+const SITE_FILES = ['index.html', 'sw.js', 'manifest.webmanifest'];
+const SITE_DIRS = ['src', 'icons'];
+
+rmSync('docs', { recursive: true, force: true });
+mkdirSync('docs', { recursive: true });
+for (const f of SITE_FILES) cpSync(f, `docs/${f}`);
+for (const d of SITE_DIRS) cpSync(d, `docs/${d}`, { recursive: true });
+
+// The service worker names every file it caches; if one of those is missing
+// from docs/ the deployed app breaks offline in a way local testing misses.
+const shellPaths = [...sw.matchAll(/'\.\/([^']+)'/g)].map((m) => m[1]).filter(Boolean);
+const absent = shellPaths.filter((f) => !existsSync(`docs/${f}`));
+if (absent.length) {
+  console.error('docs/ is missing files the service worker caches:\n  ' + absent.join('\n  '));
+  process.exit(1);
+}
+
+console.log('built dist/museschool.html, dist/standalone.html and docs/ (' +
+  shellPaths.length + ' cached files verified)');
