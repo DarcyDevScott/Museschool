@@ -6,16 +6,18 @@ Kintsugi: a broken vessel repaired with gold, so the break becomes part of
 what the thing is. That is the app's argument in one image, and it is the
 right mark for this.
 
-**Use it for the landing page hero, press, and social cards.** Do not use it as
-an app icon or favicon — it carries too much detail to survive the size. At the
-120px an iPhone actually renders, the leaves and the figure are gone; at 60px
-it is a green smudge with a gold squiggle.
+Used on the landing page hero, and as the source for every icon.
 
 ## The icons — `../icons/`
 
-Derived from the same idea, reduced until it survives 60px: a vessel, one
-fracture running edge to edge, one branch. Colours sampled from the logo
-itself — `#D6BB85` gold through `#F8E1B5`, on `#132A22`.
+Square crops of the logo on its own stone-dark ground, with a light unsharp
+mask applied below 256px to recover definition lost on the way down.
+
+Detail is the enemy at 60px, which is what an iPhone home screen renders: the
+leaves and the figure soften considerably at that size, though the disc and the
+gold veins still read. That is a known and accepted trade — the mark stays as
+designed. If it ever needs to punch harder on a home screen, the answer is a
+simplified variant of the same idea, not a different one.
 
 `icon-maskable-512.png` keeps the mark inside the safe zone for Android, where
 the launcher may crop to a circle or squircle.
