@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mendday — twelve weeks of getting yourself in order</title>
+<meta name="description" content="A long, honest questionnaire, then a twelve-week plan built from what you actually said. Free, no account, and nothing you write leaves your phone.">
+<meta name="theme-color" content="#12544A">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+
+<!-- Open Graph: what shows when someone shares the link. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mendday.com/">
+<meta property="og:title" content="Mendday">
+<meta property="og:description" content="Twelve weeks of getting yourself in order. Free, no account, nothing leaves your phone.">
+<meta property="og:image" content="https://mendday.com/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+/* ─────────────────────────────────────────────────────────────
+   These are the app's tokens, so the two feel like one product.
+   Restyle freely — but if you change the palette or the faces,
+   change them in the app too (src/styles.css) or the seam shows.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --ground: #E8EAE6;      /* cool drafting paper */
+  --surface: #F6F7F4;
+  --ink: #13181A;
+  --ink-2: #4C5457;
+  --ink-3: #828A8B;
+  --rule: #CFD5CF;
+  --accent: #12544A;      /* deep pine */
+  --accent-ink: #F6F7F4;
+  --signal: #96650F;      /* ochre — used sparingly, for emphasis only */
+  --display: "Spectral", Georgia, serif;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #101413; --surface: #171C1B; --ink: #E6EAE6; --ink-2: #A6AFAD;
+    --ink-3: #77817F; --rule: #262E2C; --accent: #5FA99B; --accent-ink: #0C110F;
+    --signal: #C79A3E;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font-family: var(--body); font-size: 17px; line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 640px; margin: 0 auto; padding: 0 22px; }
+h1, h2 { font-family: var(--display); font-weight: 600; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2.1rem, 7vw, 3.1rem); letter-spacing: -0.015em; }
+h2 { font-size: clamp(1.3rem, 4vw, 1.6rem); margin-bottom: 12px; }
+p { margin: 0 0 1.1em; }
+.lede { font-size: 1.12rem; color: var(--ink-2); }
+.eyebrow {
+  font-family: var(--mono); font-size: .7rem; text-transform: uppercase;
+  letter-spacing: .14em; color: var(--ink-3); margin-bottom: 14px;
+}
+section { padding: 54px 0; border-top: 1px solid var(--rule); }
+section:first-of-type { border-top: 0; padding-top: 76px; }
+.btn {
+  display: inline-block; background: var(--accent); color: var(--accent-ink);
+  font-family: var(--mono); font-size: .82rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: .09em; text-decoration: none;
+  padding: 15px 26px; border-radius: 3px;
+}
+.btn:hover { opacity: .9; }
+.note {
+  background: var(--surface); border: 1px solid var(--rule);
+  border-left: 2px solid var(--signal); border-radius: 3px;
+  padding: 18px 20px; font-size: .94rem; color: var(--ink-2);
+}
+ol.steps { counter-reset: s; list-style: none; padding: 0; }
+ol.steps li { position: relative; padding-left: 44px; margin-bottom: 26px; }
+ol.steps li::before {
+  counter-increment: s; content: counter(s);
+  position: absolute; left: 0; top: 1px;
+  font-family: var(--mono); font-size: .78rem; color: var(--signal);
+  border: 1px solid var(--rule); border-radius: 3px;
+  width: 28px; height: 28px; display: grid; place-items: center;
+}
+ol.steps b { display: block; }
+ul.plain { list-style: none; padding: 0; }
+ul.plain li { padding-left: 20px; position: relative; margin-bottom: 10px; color: var(--ink-2); }
+ul.plain li::before { content: "—"; position: absolute; left: 0; color: var(--ink-3); }
+footer { padding: 40px 0 64px; color: var(--ink-3); font-size: .86rem; }
+a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section>
+  <p class="eyebrow">Mendday</p>
+  <h1>Twelve weeks of getting yourself in order.</h1>
+  <p class="lede" style="margin-top:20px">
+    A long, honest questionnaire — then a plan built from what you actually said.
+    Four phases, daily tasks sized to the time you really have, and a written record
+    of what changes.
+  </p>
+  <p class="lede">
+    <strong>It is free. There is no account, no email, and nothing you write ever
+    leaves your phone.</strong>
+  </p>
+  <p style="margin-top:28px">
+    <a class="btn" href="https://app.mendday.com">Start the questionnaire</a>
+  </p>
+  <p style="font-size:.86rem;color:var(--ink-3)">About 15 minutes. You can stop and come back.</p>
+</section>
+
+<section>
+  <p class="eyebrow">How it works</p>
+  <ol class="steps">
+    <li><b>The questionnaire</b>
+      Up to 86 questions. Sections that do not apply to you are skipped. It scores ten
+      things — steadiness, self-worth, communication, ownership, follow-through, energy,
+      direction, connection, presence and partnership.</li>
+    <li><b>Your reading</b>
+      Two keystones: the things holding the rest back. One strength worth leaning on.
+      And, if it applies, how you are with closeness — the two dials adult attachment
+      research actually measures.</li>
+    <li><b>The plan</b>
+      Twelve weeks in four phases. Stabilise, look straight at it, show up, make it yours.
+      Each with its own focus and milestones.</li>
+    <li><b>Daily tasks</b>
+      A handful each day — one habit that repeats, plus drills, written work and things
+      pointed at actual people. Ten minutes a day is a real option, not a token one.</li>
+    <li><b>Then you find out</b>
+      Streaks, mood, a journal, and a re-score at the end of each phase so you can see
+      what moved rather than guess.</li>
+  </ol>
+</section>
+
+<section>
+  <p class="eyebrow">What makes it different</p>
+  <h2>It tells you when not to trust it.</h2>
+  <p>
+    Every one of these apps hands you a confident number. This one checks whether your
+    answers hold together first — whether you used the whole scale, whether answers
+    within one area agree, whether you agreed with a statement and its opposite. When
+    they do not, it says so instead of printing a score over noise.
+  </p>
+  <ul class="plain">
+    <li><b>Free, with no catch.</b> No trial, no upgrade, no premium tier.</li>
+    <li><b>No account.</b> Nothing to sign up for. No email address.</li>
+    <li><b>Nothing leaves your phone.</b> Your answers and your journal are stored on
+        your device and nowhere else — not on a server, because there isn't one.</li>
+    <li><b>No app store.</b> One link, added to your home screen. Works offline.</li>
+  </ul>
+</section>
+
+<section>
+  <p class="eyebrow">Install it</p>
+  <h2>It lives on your home screen.</h2>
+  <p>Open <strong>mendday.com</strong> in Safari on iPhone, tap Share, then
+     <strong>Add to Home Screen</strong>. On Android, Chrome offers to install it.</p>
+  <p>You get an icon, it opens without a browser bar, and it works with no signal.
+     Do the questionnaire inside the installed app rather than a browser tab — that is
+     where your answers are kept.</p>
+  <p style="margin-top:26px"><a class="btn" href="https://app.mendday.com">Open Mendday</a></p>
+</section>
+
+<section>
+  <p class="eyebrow">What this is not</p>
+  <div class="note">
+    <p style="margin:0 0 10px"><strong>This is a structured self-directed programme, not
+    therapy, and not a substitute for it.</strong> It is built on published research on
+    habits, emotion regulation, couples and families — but a plan you follow alone can
+    only ever do the half that is yours.</p>
+    <p style="margin:0 0 10px">Where there is fear, coercion, control or violence in a
+    relationship, ordinary couples advice does not apply and some of it makes things
+    worse. That needs a professional service, not a task list.</p>
+    <p style="margin:0">If you are in crisis, or what you are carrying is heavier than a
+    daily plan, please talk to someone. In the UK: Samaritans on <strong>116 123</strong>,
+    any time, free. National Domestic Abuse Helpline on <strong>0808 2000 247</strong>.</p>
+  </div>
+</section>
+
+<footer>
+  <p>Mendday is free and always will be. It collects no personal data, has no accounts,
+     and shows no advertising.</p>
+</footer>
+
+</div>
+</body>
+</html>
