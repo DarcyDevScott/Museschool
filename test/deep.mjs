@@ -10,7 +10,7 @@ const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-119
 const errors = [];
 
 async function seed(page, { minutes = '40', days = '6', theme = 'auto', back = 25 } = {}) {
-  await page.goto('file:///home/user/Museschool/dist/standalone.html');
+  await page.goto('file://' + process.cwd() + '/dist/standalone.html');
   await page.evaluate(({ minutes, days, theme, back }) => {
     const a = { name: 'Alex', goals: ['relationship', 'ownership', 'worth'],
                 primaryGoal: 'relationship', minutes, days,

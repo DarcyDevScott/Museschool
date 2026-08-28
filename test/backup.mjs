@@ -36,7 +36,7 @@ async function fresh({ share = false, picker = true } = {}) {
 }
 
 const seed = (pg, days = 20) => pg.evaluate((days) => {
-  const a = { name: 'Darcy', goals: ['relationship', 'partnership'], primaryGoal: 'relationship',
+  const a = { name: 'Sam', goals: ['relationship', 'partnership'], primaryGoal: 'relationship',
               kids: '2', minutes: '20', days: '6' };
   MS.QUIZ.forEach((s) => { if (s.when && !s.when(a)) return;
     s.questions.forEach((q) => { if (q.type === 'scale') a[q.id] = 3; }); });
@@ -103,7 +103,7 @@ const back = await pg.evaluate(() => {
   return { name: st.answers.name, days: Object.keys(st.log).length,
            journal: st.journal[0] && st.journal[0].text, plan: !!st.plan };
 });
-ok('answers restored', back.name === 'Darcy');
+ok('answers restored', back.name === 'Sam');
 ok('plan restored', back.plan);
 ok('all 20 logged days restored', back.days === 20, back.days + ' days');
 ok('journal restored', (back.journal || '').includes('private'));
@@ -120,7 +120,7 @@ await pg.locator('#restore-file').setInputFiles({
 await pg.waitForTimeout(600);
 ok('rejected with a message',
   (await pg.locator('.toast').innerText()).toLowerCase().includes('not a museschool'));
-ok('existing data untouched', (await pg.evaluate(() => MS.store.get().answers.name)) === 'Darcy');
+ok('existing data untouched', (await pg.evaluate(() => MS.store.get().answers.name)) === 'Sam');
 await ctx.close();
 
 console.log('\n5. No share support: falls back to a download');
@@ -206,7 +206,7 @@ console.log('\n8. Framed with the viewer save route granted');
      (await frame.evaluate(() => MS.ui.backupVerb())) === 'Save a backup file');
 
   await frame.evaluate(() => {
-    const a = { name: 'Darcy', goals: ['partnership'], primaryGoal: 'partnership',
+    const a = { name: 'Sam', goals: ['partnership'], primaryGoal: 'partnership',
                 kids: '2', minutes: '20', days: '6' };
     MS.QUIZ.forEach((s) => { if (s.when && !s.when(a)) return;
       s.questions.forEach((q) => { if (q.type === 'scale') a[q.id] = 3; }); });

@@ -13,7 +13,7 @@ const errors = [];
 pg.on('pageerror', e => errors.push('PAGEERROR: ' + e.message));
 pg.on('console', m => { if (m.type() === 'error') errors.push('CONSOLE: ' + m.text()); });
 
-await pg.goto(`${process.env.APP_URL || 'file:///home/user/Museschool/dist/standalone.html'}`);
+await pg.goto(`${process.env.APP_URL || 'file://' + process.cwd() + '/dist/standalone.html'}`);
 await pg.waitForSelector('#app h1');
 console.log('welcome:', await pg.locator('h1').first().innerText());
 await pg.screenshot({ path: `${SHOT}/01-welcome.png`, fullPage: true });

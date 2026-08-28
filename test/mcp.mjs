@@ -20,7 +20,7 @@ const MS = globalThis.MS;
 
 const dir = mkdtempSync(join(tmpdir(), 'museschool-mcp-'));
 const FILE = join(dir, 'museschool-backup.json');
-const answers = { name: 'Darcy', goals: ['relationship','partnership','ownership'],
+const answers = { name: 'Sam', goals: ['relationship','partnership','ownership'],
                   primaryGoal: 'relationship', kids: '2', minutes: '20', days: '6',
                   famSetup: 'split_tense', relStatus: 'ended_recent', relSpace: 'no',
                   relWant: 'reconcile' };
@@ -58,7 +58,7 @@ ok('every tool has an input schema', tools.every(t => t.inputSchema));
 
 console.log('\n2. Reading');
 const ov = await call('get_overview');
-ok('overview names them', ov.name === 'Darcy');
+ok('overview names them', ov.name === 'Sam');
 ok('overview knows the day', ov.dayNumber === 11, 'day ' + ov.dayNumber);
 ok('overview carries keystones and tracks', !!ov.keystones?.length && ov.tracks.includes('parenting'));
 const day = await call('get_day');
@@ -113,7 +113,7 @@ console.log('\n5. It only touches what it should');
 const after = reread();
 ok('the plan itself is untouched',
    JSON.stringify(after.plan) === JSON.stringify(plan));
-ok('their answers are untouched', after.answers.name === 'Darcy' && after.answers.kids === '2');
+ok('their answers are untouched', after.answers.name === 'Sam' && after.answers.kids === '2');
 ok('their log is untouched', Object.keys(after.log).length === 10);
 ok('changes are recorded as adjustments', after.adjustments.length === 5, after.adjustments.length + '');
 ok('every change is attributed and reasoned',

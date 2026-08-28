@@ -24,18 +24,18 @@ const read = (pg, fn) => pg.evaluate(fn);
 console.log('\n1. Quiz answers save as you go, mid-quiz');
 let pg = await open_();
 await pg.evaluate(() => { MS.view = 'quiz'; MS.render(); });
-await pg.locator('input[data-input="name"]').fill('Darcy');
+await pg.locator('input[data-input="name"]').fill('Sam');
 await pg.locator('.q').nth(1).locator('.opt').nth(2).click();     // age
 await pg.locator('.q').nth(2).locator('.opt').nth(1).click();     // season
 await pg.close();                                                  // no graceful exit
 pg = await open_();
 let st = await read(pg, () => MS.store.get());
-ok('name survived', st.answers.name === 'Darcy', JSON.stringify(st.answers.name));
+ok('name survived', st.answers.name === 'Sam', JSON.stringify(st.answers.name));
 ok('choices survived', !!st.answers.ageRange && !!st.answers.season);
 
 console.log('\n2. Typing is flushed when the app is backgrounded');
 await pg.evaluate(() => {
-  const a = { name:'Darcy', goals:['partnership'], primaryGoal:'partnership', kids:'2', minutes:'40', days:'6' };
+  const a = { name:'Sam', goals:['partnership'], primaryGoal:'partnership', kids:'2', minutes:'40', days:'6' };
   MS.QUIZ.forEach(s => { if (s.when && !s.when(a)) return;
     s.questions.forEach(q => { if (q.type === 'scale') a[q.id] = 3; }); });
   const s2 = MS.store.get(); s2.answers = a; s2.plan = MS.buildPlan(a, MS.dayKey());

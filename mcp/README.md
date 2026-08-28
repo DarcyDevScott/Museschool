@@ -46,7 +46,7 @@ npm install          # once, in the repo
       "command": "node",
       "args": ["/absolute/path/to/Museschool/mcp/server.mjs"],
       "env": {
-        "MUSESCHOOL_FILE": "/Users/you/Library/Mobile Documents/com~apple~CloudDocs/museschool-backup.json"
+        "MUSESCHOOL_FILE": "~/Library/Mobile Documents/com~apple~CloudDocs/backup.json"
       }
     }
   }
