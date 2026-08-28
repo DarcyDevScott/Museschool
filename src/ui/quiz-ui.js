@@ -38,9 +38,14 @@
         '<p class="muted">A long, honest questionnaire, then a plan built from what you actually said — ' +
         'four phases, daily tasks sized to the time you really have, and a written record of what changes.</p>' +
         '<div class="note" style="margin:22px 0">' +
-          '<strong>This stays on your device.</strong> No account, no server, nothing sent anywhere. ' +
-          'The questions get personal and they only work if you answer them honestly, which is easier ' +
-          'when nobody else can read the answers.' +
+          '<strong>Your answers stay on your device.</strong> No account, no email, and nothing you ' +
+          'write is ever sent anywhere. The questions get personal and they only work if you answer ' +
+          'them honestly, which is easier when nobody else can read them.' +
+          (MS.insight.configured()
+            ? ' <span class="dim">The only exception: a counter ticks up when someone finishes the ' +
+              'quiz or reaches day 7, 30 or 84, so I know whether this helps anyone. No identifier, ' +
+              'nothing you wrote, and you can switch it off under You.</span>'
+            : '') +
         '</div>' +
         '<div class="btn-row">' +
           '<button class="btn" data-act="quiz-start">' + (started ? 'Continue the quiz' : 'Start the quiz') + '</button>' +

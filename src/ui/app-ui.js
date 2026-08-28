@@ -510,6 +510,7 @@
         '</div>' +
       '</div>' +
 
+      U.insightCard(st) +
       U.adjustmentsCard(st) +
 
       '<div class="card">' +
@@ -526,6 +527,32 @@
       'not therapy and not a substitute for it. If you are in crisis, or if what you are working through is ' +
       'heavier than a daily task list, please talk to a professional or someone you trust.</p>' +
     '</div>');
+  };
+
+  /* Shown only where counting is actually deployed — a self-hosted or offline
+   * copy has nothing to disclose and no switch to offer. */
+  U.insightCard = function (st) {
+    if (!MS.insight.configured()) return '';
+    var on = MS.insight.enabled();
+    var st_ = MS.store.get();
+    var off = st_.settings.insight === false;
+    return '<div class="card">' +
+      '<p class="eyebrow">Counting</p>' +
+      '<p class="muted small" style="margin:10px 0 6px">Seven moments get counted — ' +
+      'starting the quiz, finishing it, opening the app from your home screen, and ' +
+      'reaching day 7, 30 and 84. Each one is a number going up by one, once ever, ' +
+      'on this device.</p>' +
+      '<p class="muted small" style="margin:0 0 14px"><strong>Nothing else is sent.</strong> ' +
+      'No account, no identifier, no scores, and nothing you have written. It is ' +
+      'there so I can tell whether anyone gets anywhere with this.</p>' +
+      '<div class="btn-row">' +
+        '<button class="btn ' + (off ? 'btn-ghost' : '') + '" data-act="insight" data-v="on">On</button>' +
+        '<button class="btn ' + (off ? '' : 'btn-ghost') + '" data-act="insight" data-v="off">Off</button>' +
+      '</div>' +
+      (on ? '' : '<p class="dim tiny" style="margin:10px 0 0">' +
+        (off ? 'Off — nothing is being sent.'
+             : 'Your browser asks not to be tracked, so nothing is being sent.') + '</p>') +
+    '</div>';
   };
 
   U.adjustmentsCard = function (st) {
@@ -650,6 +677,7 @@
 
     switch (act) {
       case 'quiz-start':
+        MS.insight.mark('quiz_started');
         MS.view = 'quiz'; break;
 
       case 'quiz-redo':
@@ -676,6 +704,7 @@
       case 'quiz-finish':
         st.plan = MS.buildPlan(st.answers, MS.dayKey());
         MS.store.save();
+        MS.insight.mark('quiz_finished');
         MS.view = 'reveal'; break;
 
       case 'begin':
@@ -744,6 +773,7 @@
         });
         MS.store.addCheckin(scores);
         MS.store.clearRecheck();
+        MS.insight.mark('rescored');
         MS.view = 'progress';
         U.toast('Re-scored.');
         break;
@@ -753,6 +783,12 @@
         MS.store.removeAdjustment(btn.dataset.id);
         U.toast('Change undone.');
         break;
+
+      case 'insight':
+        st.settings.insight = btn.dataset.v === 'on';
+        MS.store.save();
+        U.toast(st.settings.insight ? 'Counting on.' : 'Counting off.');
+        scroll = false; break;
 
       case 'theme':
         st.settings.theme = btn.dataset.v; MS.store.save(); scroll = false; break;
@@ -906,6 +942,8 @@
     // Inside the claude.ai viewer a save route may be granted, but only
     // asynchronously — so render without it and pick it up when it arrives.
     MS.backup.detect().then(function (changed) { if (changed) MS.render(); });
+
+    MS.insight.check();
 
     MS.render();
   };

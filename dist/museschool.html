@@ -2321,6 +2321,7 @@ textarea { min-height: 118px; line-height: 1.55; }
       lessonsRead: {},// lessonId -> dayKey first read
       recheckDraft: {},// a re-score in progress, so closing the app mid-way loses nothing
       adjustments: [],// changes laid over the plan, from conversations
+      marks: {},      // milestones already counted, so none is counted twice
       lastBackup: null,// dayKey of the last successful backup
       settings: { theme: 'auto' }
     };
@@ -2690,6 +2691,108 @@ textarea { min-height: 118px; line-height: 1.55; }
   };
 })(window.MS = window.MS || {});
 
+/* ---- src/insight.js ---- */
+/* Museschool — milestone counting.
+ *
+ * The only thing in this app that talks to a network. It exists to answer one
+ * question: does anyone actually get anywhere with this?
+ *
+ * Constraints it is built to:
+ *   - it can only ever send one of seven fixed words. Not a session id, not a
+ *     score, not a date, and never anything anyone typed.
+ *   - each milestone fires at most once, ever, on a device
+ *   - off entirely unless an endpoint is configured, so a self-hosted or
+ *     offline copy sends nothing at all
+ *   - honours Do Not Track and Global Privacy Control without being asked
+ *   - fails silently: no error, no retry, no effect on the app
+ */
+(function (MS) {
+  'use strict';
+
+  // Set by the deployment. Absent means this whole file does nothing.
+  var ENDPOINT = (window.MUSESCHOOL_INSIGHT_ENDPOINT || '').trim();
+
+  var MILESTONES = [
+    'quiz_started', 'quiz_finished', 'installed_open',
+    'day_7', 'day_30', 'day_84', 'rescored'
+  ];
+
+  function signalsNo() {
+    try {
+      if (navigator.globalPrivacyControl === true) return true;
+      var dnt = navigator.doNotTrack || window.doNotTrack;
+      return dnt === '1' || dnt === 'yes';
+    } catch (e) { return false; }
+  }
+
+  function launchedFromHomeScreen() {
+    try {
+      return window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;   // iOS Safari's own flag
+    } catch (e) { return false; }
+  }
+
+  MS.insight = {
+    milestones: MILESTONES,
+
+    configured: function () { return !!ENDPOINT; },
+
+    /* Off when: not deployed with an endpoint, the person turned it off, or
+     * their browser says not to track. */
+    enabled: function () {
+      if (!ENDPOINT || signalsNo()) return false;
+      var st = MS.store.get();
+      return st.settings.insight !== false;
+    },
+
+    /* Has this milestone already been counted on this device? */
+    marked: function (name) {
+      return !!(MS.store.get().marks || {})[name];
+    },
+
+    /* Count a milestone, once ever. Returns true if something was sent. */
+    mark: function (name) {
+      if (MILESTONES.indexOf(name) === -1) return false;   // never send anything else
+      var st = MS.store.get();
+      if (!st.marks) st.marks = {};
+      if (st.marks[name]) return false;
+
+      // Recorded locally whether or not it is sent, so turning counting on
+      // later cannot backfill a burst of milestones already passed.
+      st.marks[name] = MS.dayKey();
+      MS.store.save();
+
+      if (!this.enabled()) return false;
+      try {
+        var body = JSON.stringify({ m: name });
+        // keepalive so a milestone fired as the app closes still goes.
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(ENDPOINT + '/e', new Blob([body], { type: 'application/json' }));
+        } else {
+          fetch(ENDPOINT + '/e', {
+            method: 'POST', body: body, keepalive: true,
+            headers: { 'Content-Type': 'application/json' }
+          }).catch(function () {});
+        }
+        return true;
+      } catch (e) {
+        return false;   // never let counting break the app
+      }
+    },
+
+    /* Called on every open: notes an installed launch and how far in they are. */
+    check: function () {
+      if (launchedFromHomeScreen()) this.mark('installed_open');
+      var st = MS.store.get();
+      if (!st.plan) return;
+      var day = MS.dayInfo(st.plan, MS.dayKey()).dayNumber;
+      if (day >= 7) this.mark('day_7');
+      if (day >= 30) this.mark('day_30');
+      if (day >= 84) this.mark('day_84');
+    }
+  };
+})(window.MS = window.MS || {});
+
 /* ---- src/ui/quiz-ui.js ---- */
 /* Museschool — welcome, the quiz itself, and the plan reveal. */
 (function (MS) {
@@ -2731,9 +2834,14 @@ textarea { min-height: 118px; line-height: 1.55; }
         '<p class="muted">A long, honest questionnaire, then a plan built from what you actually said — ' +
         'four phases, daily tasks sized to the time you really have, and a written record of what changes.</p>' +
         '<div class="note" style="margin:22px 0">' +
-          '<strong>This stays on your device.</strong> No account, no server, nothing sent anywhere. ' +
-          'The questions get personal and they only work if you answer them honestly, which is easier ' +
-          'when nobody else can read the answers.' +
+          '<strong>Your answers stay on your device.</strong> No account, no email, and nothing you ' +
+          'write is ever sent anywhere. The questions get personal and they only work if you answer ' +
+          'them honestly, which is easier when nobody else can read them.' +
+          (MS.insight.configured()
+            ? ' <span class="dim">The only exception: a counter ticks up when someone finishes the ' +
+              'quiz or reaches day 7, 30 or 84, so I know whether this helps anyone. No identifier, ' +
+              'nothing you wrote, and you can switch it off under You.</span>'
+            : '') +
         '</div>' +
         '<div class="btn-row">' +
           '<button class="btn" data-act="quiz-start">' + (started ? 'Continue the quiz' : 'Start the quiz') + '</button>' +
@@ -3551,6 +3659,7 @@ textarea { min-height: 118px; line-height: 1.55; }
         '</div>' +
       '</div>' +
 
+      U.insightCard(st) +
       U.adjustmentsCard(st) +
 
       '<div class="card">' +
@@ -3567,6 +3676,32 @@ textarea { min-height: 118px; line-height: 1.55; }
       'not therapy and not a substitute for it. If you are in crisis, or if what you are working through is ' +
       'heavier than a daily task list, please talk to a professional or someone you trust.</p>' +
     '</div>');
+  };
+
+  /* Shown only where counting is actually deployed — a self-hosted or offline
+   * copy has nothing to disclose and no switch to offer. */
+  U.insightCard = function (st) {
+    if (!MS.insight.configured()) return '';
+    var on = MS.insight.enabled();
+    var st_ = MS.store.get();
+    var off = st_.settings.insight === false;
+    return '<div class="card">' +
+      '<p class="eyebrow">Counting</p>' +
+      '<p class="muted small" style="margin:10px 0 6px">Seven moments get counted — ' +
+      'starting the quiz, finishing it, opening the app from your home screen, and ' +
+      'reaching day 7, 30 and 84. Each one is a number going up by one, once ever, ' +
+      'on this device.</p>' +
+      '<p class="muted small" style="margin:0 0 14px"><strong>Nothing else is sent.</strong> ' +
+      'No account, no identifier, no scores, and nothing you have written. It is ' +
+      'there so I can tell whether anyone gets anywhere with this.</p>' +
+      '<div class="btn-row">' +
+        '<button class="btn ' + (off ? 'btn-ghost' : '') + '" data-act="insight" data-v="on">On</button>' +
+        '<button class="btn ' + (off ? '' : 'btn-ghost') + '" data-act="insight" data-v="off">Off</button>' +
+      '</div>' +
+      (on ? '' : '<p class="dim tiny" style="margin:10px 0 0">' +
+        (off ? 'Off — nothing is being sent.'
+             : 'Your browser asks not to be tracked, so nothing is being sent.') + '</p>') +
+    '</div>';
   };
 
   U.adjustmentsCard = function (st) {
@@ -3691,6 +3826,7 @@ textarea { min-height: 118px; line-height: 1.55; }
 
     switch (act) {
       case 'quiz-start':
+        MS.insight.mark('quiz_started');
         MS.view = 'quiz'; break;
 
       case 'quiz-redo':
@@ -3717,6 +3853,7 @@ textarea { min-height: 118px; line-height: 1.55; }
       case 'quiz-finish':
         st.plan = MS.buildPlan(st.answers, MS.dayKey());
         MS.store.save();
+        MS.insight.mark('quiz_finished');
         MS.view = 'reveal'; break;
 
       case 'begin':
@@ -3785,6 +3922,7 @@ textarea { min-height: 118px; line-height: 1.55; }
         });
         MS.store.addCheckin(scores);
         MS.store.clearRecheck();
+        MS.insight.mark('rescored');
         MS.view = 'progress';
         U.toast('Re-scored.');
         break;
@@ -3794,6 +3932,12 @@ textarea { min-height: 118px; line-height: 1.55; }
         MS.store.removeAdjustment(btn.dataset.id);
         U.toast('Change undone.');
         break;
+
+      case 'insight':
+        st.settings.insight = btn.dataset.v === 'on';
+        MS.store.save();
+        U.toast(st.settings.insight ? 'Counting on.' : 'Counting off.');
+        scroll = false; break;
 
       case 'theme':
         st.settings.theme = btn.dataset.v; MS.store.save(); scroll = false; break;
@@ -3947,6 +4091,8 @@ textarea { min-height: 118px; line-height: 1.55; }
     // Inside the claude.ai viewer a save route may be granted, but only
     // asynchronously — so render without it and pick it up when it arrives.
     MS.backup.detect().then(function (changed) { if (changed) MS.render(); });
+
+    MS.insight.check();
 
     MS.render();
   };

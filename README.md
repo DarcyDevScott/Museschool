@@ -193,6 +193,7 @@ node test/persistence.mjs                                     # kills the page m
 APP_URL=http://localhost:8123/index.html node test/backup.mjs  # all four save routes, and restore
 node test/tailoring.mjs                                       # the tailoring and scoring claims
 node test/mcp.mjs                                             # drives the MCP server over stdio
+node test/insight.mjs                                        # counting, and that it cannot leak
 ```
 
 `smoke` and `pwa` need the app served over http — a service worker will not
@@ -210,6 +211,8 @@ src/data/phases.js    the four-phase arc, milestones, dimension copy
 src/engine/engine.js  scoring, plan generation, daily task selection
 src/store.js          localStorage persistence, export and restore
 src/backup.js         saving to a file — share sheet, picker, download, clipboard
+src/insight.js        milestone counting — the only code that touches a network
+analytics/worker.js   the counter itself: seven words in, a funnel out
 mcp/server.mjs        the MCP server: eight tools over one backup file
 src/ui/quiz-ui.js     welcome, quiz, plan reveal
 src/ui/app-ui.js      today, plan, learn, progress, journal, settings, routing
@@ -238,6 +241,23 @@ middle of it loses nothing.
 
 `test/persistence.mjs` covers this by destroying the page mid-action, with no
 graceful shutdown, and checking the data is still there on the next load.
+
+### Counting
+
+There is one exception to "nothing leaves your device", and only where the app
+is deployed with a counter endpoint configured — [`analytics/`](analytics/README.md).
+Seven fixed words get counted: starting the quiz, finishing it, opening from a
+home screen, reaching day 7, 30 and 84, and completing a re-score. Each fires
+once ever, per device.
+
+No identifier, no session, no scores, nothing anyone typed. The worker accepts
+those seven words and rejects everything else before it reaches storage, so a
+bug or a tampered client cannot turn it into a data collector — `test/insight.mjs`
+proves it by trying to smuggle an email, a journal entry and an id through a
+valid ping.
+
+It's off entirely unless an endpoint is configured, honours Do Not Track and
+Global Privacy Control, and has an off switch under **You**.
 
 ### Where it lives
 

@@ -80,17 +80,28 @@ const note = await call('adjust_plan', { kind: 'note', reason: 'They had a rough
 ok('note lands on the day', note.dayNow.notes.some(n => n.includes('Saturday')));
 await call('adjust_plan', { kind: 'add', reason: 'They asked for something physical', taskId: pickId });
 ok('added task appears', (await call('get_day')).tasks.some(t => t.id === pickId));
-const before = (await call('get_day')).tasks;
-const dropId = before.find(t => t.category === 'practice' && t.id !== pickId)?.id;
+const todayTasks = (await call('get_day')).tasks;
+const dropId = todayTasks.find(t => t.category === 'practice' && t.id !== pickId)?.id;
 if (dropId) {
   await call('adjust_plan', { kind: 'skip', reason: 'Too much for today', taskId: dropId });
   ok('skipped task disappears', !(await call('get_day')).tasks.some(t => t.id === dropId));
 }
-const tomorrow = MS.addDays(TODAY, 1);
+// Rest days have no practice slots by design, so pick working days —
+// otherwise this passes or fails depending on which weekday it runs on.
+const workingDays = [];
+for (let i = 1; i <= 8 && workingDays.length < 2; i++) {
+  const d = MS.addDays(TODAY, i);
+  if (!(await call('get_day', { date: d })).restDay) workingDays.push(d);
+}
+ok('found two working days to test on', workingDays.length === 2, workingDays.join(' '));
+const [tomorrow, dayAfter] = workingDays;
+
+const before = (await call('get_day', { date: tomorrow })).tasks.length;
 await call('adjust_plan', { kind: 'ease', reason: 'Court date', from: tomorrow, to: tomorrow });
 const eased = await call('get_day', { date: tomorrow });
-ok('an eased day is shorter', eased.tasks.length <= 2, eased.tasks.length + ' tasks');
-const dayAfter = MS.addDays(TODAY, 2);
+ok('an eased day is shorter than it was', eased.tasks.length < before,
+   before + ' tasks -> ' + eased.tasks.length);
+
 await call('adjust_plan', { kind: 'focus', reason: 'Sleep has collapsed', dimension: 'vitality',
                             from: dayAfter, to: dayAfter });
 const focused = await call('get_day', { date: dayAfter });

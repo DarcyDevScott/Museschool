@@ -19,6 +19,7 @@
       lessonsRead: {},// lessonId -> dayKey first read
       recheckDraft: {},// a re-score in progress, so closing the app mid-way loses nothing
       adjustments: [],// changes laid over the plan, from conversations
+      marks: {},      // milestones already counted, so none is counted twice
       lastBackup: null,// dayKey of the last successful backup
       settings: { theme: 'auto' }
     };

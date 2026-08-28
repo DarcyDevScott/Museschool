@@ -22,6 +22,7 @@ const SRC = [
   'src/engine/engine.js',
   'src/store.js',
   'src/backup.js',
+  'src/insight.js',
   'src/ui/quiz-ui.js',
   'src/ui/app-ui.js'
 ];
